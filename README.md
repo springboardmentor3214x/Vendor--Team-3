@@ -1,14 +1,14 @@
 # Vendor Reliability Intelligence Platform
 
-## 📌 Project Overview
+## Project Overview
 
 The Vendor Reliability Intelligence Platform is a full-stack web application developed to help organizations evaluate vendor performance, manage procurement operations, and improve supplier reliability through centralized dashboards and analytics.
 
 ---
 
-## 🚀 Week 1 Backend Progress
+## Week 1 Backend Progress
 
-### ✅ Completed
+### Completed
 
 - FastAPI project initialization
 - Project folder structure setup
@@ -21,7 +21,7 @@ The Vendor Reliability Intelligence Platform is a full-stack web application dev
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 - Python
@@ -39,7 +39,7 @@ The Vendor Reliability Intelligence Platform is a full-stack web application dev
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 
 VendorReliabilityBackend/
@@ -62,7 +62,7 @@ VendorReliabilityBackend/
 
 ---
 
-## ⚙️ Installation
+## Installation
 
 Clone the repository
 
@@ -98,7 +98,7 @@ uvicorn app.main:app --reload
 
 ---
 
-## 📖 API Documentation
+## API Documentation
 
 Swagger UI
 
@@ -108,7 +108,7 @@ http://127.0.0.1:8000/docs
 
 ---
 
-## 🔐 Available APIs
+## Available APIs
 
 ### POST /register
 Registers a new user.
@@ -121,9 +121,9 @@ Returns the Home API response.
 
 ---
 
-## 📅 Current Status
+##  Current Status
 
-✅ Week 1 Backend Setup Completed
+Week 1 Backend Setup Completed
 
 - FastAPI Initialized
 - JWT Authentication Implemented
