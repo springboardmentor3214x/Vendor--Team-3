@@ -1,0 +1,28 @@
+# Ignore temporary team repository clone
+team_repo/
+
+# Ignore node_modules
+node_modules/
+frontend/node_modules/
+
+# Ignore Angular build output
+frontend/dist/
+frontend/.angular/
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

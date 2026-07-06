@@ -1,0 +1,46 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #sidenav mode="side" opened class="sidenav">
+    <div class="logo-container">
+      <h2>VendorIQ</h2>
+    </div>
+    <mat-nav-list>
+      <a mat-list-item routerLink="/admin-dashboard">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Admin Dashboard</span>
+      </a>
+      <a mat-list-item routerLink="/procurement-dashboard">
+        <mat-icon matListItemIcon>shopping_cart</mat-icon>
+        <span matListItemTitle>Procurement</span>
+      </a>
+      <a mat-list-item routerLink="/vendors">
+        <mat-icon matListItemIcon>people</mat-icon>
+        <span matListItemTitle>Vendors</span>
+      </a>
+      <a mat-list-item routerLink="/purchase-orders">
+        <mat-icon matListItemIcon>receipt</mat-icon>
+        <span matListItemTitle>Purchase Orders</span>
+      </a>
+      <a mat-list-item routerLink="/reports">
+        <mat-icon matListItemIcon>assessment</mat-icon>
+        <span matListItemTitle>Reports</span>
+      </a>
+      <a mat-list-item routerLink="/notifications">
+        <mat-icon matListItemIcon>notifications</mat-icon>
+        <span matListItemTitle>Notifications</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="sidenav.toggle()">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+      <span>Vendor Reliability Platform</span>
+      <span class="spacer"></span>
+      <button mat-button routerLink="/login">Logout</button>
+    </mat-toolbar>
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
