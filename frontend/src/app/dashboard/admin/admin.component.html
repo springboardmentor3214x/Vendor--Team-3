@@ -1,0 +1,69 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">Vendor Reliability Platform</span>
+      </div>
+      <div class="dash-topbar-right">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+    <div class="dash-content">
+      <div class="welcome-banner">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome back, Administrator!</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card" style="background:#dbeafe;"><div class="label">Total Vendors</div><div class="value">248</div></div>
+        <div class="stat-card" style="background:#dcfce7;"><div class="label">Active Users</div><div class="value">520</div></div>
+        <div class="stat-card" style="background:#fef9c3;"><div class="label">Purchase Orders</div><div class="value">152</div></div>
+        <div class="stat-card" style="background:#fce7f3;"><div class="label">Revenue</div><div class="value">₹12.5L</div></div>
+      </div>
+      <div class="panel-grid">
+        <div class="panel"><h3>Recent Activities</h3>
+          <p>🟢 Vendor ABC Registered</p>
+          <p>🟡 Payment Pending</p>
+          <p>🔵 New Order Received</p>
+          <p>🟢 Contract Approved</p>
+        </div>
+        <div class="panel"><h3>Recent Notifications</h3>
+          <p>🔔 Vendor Approval Request</p>
+          <p>🔔 Invoice Due Today</p>
+          <p>🔔 New User Registered</p>
+          <p>🔔 Report Generated</p>
+        </div>
+        <div class="panel"><h3>Top Vendors</h3>
+          <p>🥇 ABC Pvt Ltd</p>
+          <p>🥈 Tech India</p>
+          <p>🥉 XYZ Suppliers</p>
+        </div>
+        <div class="panel"><h3>Vendor Growth</h3>
+          <p style="font-size:0.85rem;color:#64748b;">Jan: 40 | Feb: 55 | Mar: 70</p>
+          <p style="font-size:0.85rem;color:#64748b;">Apr: 85 | May: 110 | Jun: 130</p>
+          <p style="font-size:0.85rem;color:#3b82f6;font-weight:700;">Jul: 248 ↑ 15%</p>
+        </div>
+      </div>
+      <div class="bottom-grid">
+        <div class="data-panel">
+          <div class="data-panel-header"><h3>Users Overview</h3><a routerLink="/vendors">View All</a></div>
+          <table class="vrp-table" style="background:#ffe8e5;">
+            <thead><tr><th>User</th><th>Role</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Alex</td><td>Admin</td><td>Today</td><td>Active</td></tr>
+              <tr><td>John</td><td>Finance</td><td>Monday</td><td>Active</td></tr>
+              <tr><td>Maria</td><td>Procurement</td><td>Yesterday</td><td>Active</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="side-panels">
+          <div class="panel"><h3>Purchase Order Created</h3><p>✅ Completed: PO101 - ABC Pvt Ltd</p></div>
+          <div class="panel"><h3>Vendor Approved</h3><p>✅ XYZ Suppliers has been approved</p></div>
+          <div class="panel"><h3>Report Generated</h3><p>📊 Monthly Finance Report ready</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

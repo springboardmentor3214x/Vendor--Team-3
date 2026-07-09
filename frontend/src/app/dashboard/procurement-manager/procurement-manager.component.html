@@ -1,0 +1,83 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">Vendor Reliability Platform</span>
+      </div>
+      <div class="dash-topbar-right">
+        <input class="dash-topbar-search" type="text" placeholder="Search Purchase Orders...">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user" style="color:#1e3a8a;">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+    <div class="dash-content">
+      <div class="welcome-banner">
+        <h1>Procurement Dashboard</h1>
+        <p>Welcome back, Procurement Manager!</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card" style="background:#dbeafe;"><div class="label">Total Vendors</div><div class="value">248</div></div>
+        <div class="stat-card" style="background:#dcfce7;"><div class="label">Purchase Orders</div><div class="value">152</div></div>
+        <div class="stat-card" style="background:#fef9c3;"><div class="label">Active Procurement</div><div class="value">35</div></div>
+        <div class="stat-card" style="background:#fce7f3;"><div class="label">Contracts Expiring</div><div class="value">12</div></div>
+      </div>
+      <div class="panel-grid">
+        <div class="panel">
+          <h3>Procurement Progress</h3>
+          <p style="margin-bottom:0.25rem;">Vendor Selection <strong>75%</strong></p>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:75%"></div></div>
+          <p style="margin:0.75rem 0 0.25rem 0;">Quotation Review <strong>55%</strong></p>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:55%"></div></div>
+          <p style="margin:0.75rem 0 0.25rem 0;">Approval <strong>30%</strong></p>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:30%"></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pending Approvals</h3>
+          <p>🟢 Vendor Approval</p>
+          <p>🔵 Contract Renewal</p>
+          <p>🔴 Invoice Approval</p>
+          <p>🟡 Purchase Order</p>
+        </div>
+        <div class="panel">
+          <h3>Quick Actions</h3>
+          <button class="btn-action">Create PO</button>
+          <button class="btn-action" routerLink="/add-vendor">Add Vendor</button>
+          <button class="btn-action">New Contract</button>
+          <button class="btn-action">Generate Report</button>
+        </div>
+      </div>
+      <div class="bottom-grid">
+        <div class="data-panel">
+          <div class="data-panel-header"><h3>Purchase Orders</h3><a href="#">View All</a></div>
+          <table class="vrp-table" style="background:#e5e7eb;">
+            <thead><tr><th>PO ID</th><th>Vendor</th><th>Amount</th><th>Department</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>PO101</td><td>ABC Pvt Ltd</td><td>₹52,000</td><td>IT</td><td>Today</td><td>Approved</td></tr>
+              <tr><td>PO102</td><td>XYZ Suppliers</td><td>₹18,000</td><td>HR</td><td>Today</td><td>Pending</td></tr>
+              <tr><td>PO103</td><td>Tech India</td><td>₹31,000</td><td>Production</td><td>Yesterday</td><td>Approved</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="side-panels">
+          <div class="panel">
+            <h3>Upcoming Deliveries</h3>
+            <p>🚚 ABC Pvt Ltd - Today</p>
+            <p>🚚 XYZ Supplier - Tomorrow</p>
+            <p>🚚 Tech India - Friday</p>
+          </div>
+          <div class="panel">
+            <h3>Budget Utilization</h3>
+            <p><strong>Monthly Budget ₹15L</strong></p>
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;">
+              <div style="flex:1;height:18px;background:#1e293b;"></div>
+              <span style="font-weight:700;">68%</span>
+            </div>
+            <p style="margin-top:0.5rem;">Remaining ₹4.8L</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

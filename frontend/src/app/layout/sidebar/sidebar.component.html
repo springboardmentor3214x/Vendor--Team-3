@@ -1,0 +1,71 @@
+<div class="sidebar" [style.background]="sidebarService.getSidebarBackground()">
+  <div class="sidebar-logo">
+    <h2>VendorIQ</h2>
+  </div>
+
+  <div class="sidebar-links">
+    <!-- Admin Links -->
+    <ng-container *ngIf="sidebarService.getCurrentRole() === 'admin'">
+      <a routerLink="/admin-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">🏠 Dashboard</a>
+      <a class="disabled-link">👥 Users</a>
+      <a routerLink="/vendors" routerLinkActive="active">🏢 Vendors</a>
+      <a class="disabled-link">📦 Orders</a>
+      <a class="disabled-link">📊 Reports</a>
+      <a class="disabled-link">📈 Analytics</a>
+      <a class="disabled-link">🔔 Alerts</a>
+    </ng-container>
+
+    <!-- Procurement Links -->
+    <ng-container *ngIf="sidebarService.getCurrentRole() === 'procurement'">
+      <a routerLink="/procurement-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
+      <a routerLink="/vendors" routerLinkActive="active">🏢 Vendor Management</a>
+      <a class="disabled-link">🛒 Procurement</a>
+      <a class="disabled-link">📄 Purchase Orders</a>
+      <a class="disabled-link">📝 Contracts</a>
+    </ng-container>
+
+    <!-- Supply Chain Links -->
+    <ng-container *ngIf="sidebarService.getCurrentRole() === 'supply'">
+      <a routerLink="/supply-chain-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
+      <a class="disabled-link">⭐ Vendor Performance</a>
+      <a class="disabled-link">⭐ Vendor Reliability</a>
+      <a class="disabled-link">🚚 Procurement Tracking</a>
+      <a class="disabled-link">📄 Reports</a>
+    </ng-container>
+
+    <!-- Finance Links -->
+    <ng-container *ngIf="sidebarService.getCurrentRole() === 'finance'">
+      <a routerLink="/finance-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
+      <a class="disabled-link">📄 Invoice Management</a>
+      <a class="disabled-link">💰 Purchase Orders</a>
+      <a class="disabled-link">💳 Payments</a>
+      <a class="disabled-link">📊 Reports</a>
+      <a class="disabled-link">📈 Financial Reports</a>
+    </ng-container>
+
+    <!-- Auditor Links -->
+    <ng-container *ngIf="sidebarService.getCurrentRole() === 'auditor'">
+      <a routerLink="/auditor-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
+      <a class="disabled-link">📋 Compliance</a>
+      <a class="disabled-link">🗂 Audit Logs</a>
+      <a class="disabled-link">📜 Audit History</a>
+      <a class="disabled-link">📄 Reports</a>
+      <a class="disabled-link">🔔 Notifications</a>
+    </ng-container>
+
+    <!-- Vendor Links -->
+    <ng-container *ngIf="sidebarService.getCurrentRole() === 'vendor'">
+      <a routerLink="/vendor-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
+      <a routerLink="/profile" routerLinkActive="active">👤 My Profile</a>
+      <a class="disabled-link">📦 Orders</a>
+      <a class="disabled-link">📄 Contracts</a>
+      <a class="disabled-link">💬 Messages</a>
+      <a class="disabled-link">💰 Payments</a>
+    </ng-container>
+  </div>
+
+  <div class="sidebar-footer">
+    <a class="disabled-link">⚙️ Settings</a>
+    <a routerLink="/login" style="color:#fca5a5;">🚪 Logout</a>
+  </div>
+</div>

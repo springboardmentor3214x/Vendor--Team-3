@@ -1,45 +1,29 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterLink,
-    MatCardModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatFormFieldModule
-  ],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent {
-  registerForm: FormGroup;
-  roles: string[] = ['Administrator', 'Procurement Manager', 'Supply Chain Manager', 'Vendor', 'Finance Officer', 'Auditor'];
+  fullName = '';
+  employeeId = '';
+  companyName = '';
+  email = '';
+  mobile = '';
+  password = '';
+  confirmPassword = '';
+  role = '';
+  roles = ['Administrator', 'Procurement Manager', 'Supply Chain Manager', 'Vendor', 'Finance Officer', 'Auditor'];
 
-  constructor(private fb: FormBuilder, private router: Router) {
-    this.registerForm = this.fb.group({
-      fullName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
-    });
-  }
+  constructor(private router: Router) {}
 
-  onSubmit() {
-    if (this.registerForm.valid) {
-      console.log('Registration attempt', this.registerForm.value);
-      this.router.navigate(['/login']);
-    }
+  onRegister() {
+    this.router.navigate(['/login']);
   }
 }

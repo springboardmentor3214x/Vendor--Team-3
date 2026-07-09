@@ -1,0 +1,77 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">Vendor Reliability Platform</span>
+      </div>
+      <div class="dash-topbar-right">
+        <input class="dash-topbar-search" type="text" placeholder="Search vendors...">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user" style="color:#5c3d2e;">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+    <div class="dash-content">
+      <div class="welcome-banner">
+        <h1>Supply Chain Dashboard</h1>
+        <p>Welcome back, Supply Chain Manager!</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card" style="background:#cbd5e1;"><div class="label">Active Vendors</div><div class="value">248</div></div>
+        <div class="stat-card" style="background:#bbf7d0;"><div class="label">Deliveries Today</div><div class="value">38</div></div>
+        <div class="stat-card" style="background:#fef08a;"><div class="label">Delayed Shipments</div><div class="value">6</div></div>
+        <div class="stat-card" style="background:#fbcfe8;"><div class="label">Reliability Score</div><div class="value">94%</div></div>
+      </div>
+      <div class="panel-grid">
+        <div class="panel">
+          <h3>Vendor Reliability</h3>
+          <p>★★★★★ ABC Pvt Ltd</p>
+          <p>★★★★★ XYZ Suppliers</p>
+          <p>★★★★★ Tech India</p>
+          <p>★★★☆☆ Delta Traders</p>
+        </div>
+        <div class="panel">
+          <h3>Delivery Tracking</h3>
+          <p>🚚 Truck 01 Delivered</p>
+          <p>🚚 Truck 02 On Route</p>
+          <p>🚚 Truck 03 Delayed</p>
+        </div>
+        <div class="panel">
+          <h3>Vendor Performance</h3>
+          <p>ABC Pvt Ltd &nbsp;&nbsp; 95%</p>
+          <p>XYZ Supplier &nbsp;&nbsp; 89%</p>
+          <p>Tech India &nbsp;&nbsp; 98%</p>
+        </div>
+      </div>
+      <div class="bottom-grid">
+        <div class="data-panel">
+          <div class="data-panel-header"><h3>Recent Shipments</h3><a href="#">View All</a></div>
+          <table class="vrp-table" style="background:#e5e7eb;">
+            <thead><tr><th>Ship ID</th><th>Vendor</th><th>Destination</th><th>Priority</th><th>Date</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>SH101</td><td>ABC Pvt Ltd</td><td>Chennai</td><td>High</td><td>Today</td><td>Delivered</td></tr>
+              <tr><td>SH102</td><td>XYZ Suppliers</td><td>Bangalore</td><td>Medium</td><td>Today</td><td>On Route</td></tr>
+              <tr><td>SH103</td><td>Tech India</td><td>Coimbatore</td><td>High</td><td>Yesterday</td><td>Delayed</td></tr>
+              <tr><td>SH104</td><td>Delta Traders</td><td>Hyderabad</td><td>Low</td><td>Today</td><td>In Transit</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="side-panels">
+          <div class="panel">
+            <h3>📦 Upcoming Deliveries</h3>
+            <p>🚚 Truck 05 → Today</p>
+            <p>🚚 Truck 08 → Tomorrow</p>
+            <p>🚚 Truck 11 → Friday</p>
+          </div>
+          <div class="panel">
+            <h3>Shipment Status</h3>
+            <p>🟢 Delivered &nbsp; 72</p>
+            <p>🟡 On Route &nbsp; 18</p>
+            <p>🔴 Delayed &nbsp; 6</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

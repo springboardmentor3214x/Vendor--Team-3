@@ -1,0 +1,75 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">Vendor Reliability Platform</span>
+      </div>
+      <div class="dash-topbar-right">
+        <input class="dash-topbar-search" type="text" placeholder="Search Invoice....">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user" style="color:#92620a;">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+    <div class="dash-content">
+      <div class="welcome-banner">
+        <h1>Vendor Dashboard</h1>
+        <p>Welcome back, Finance Officer!</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card" style="background:#bfdbfe;"><div class="label">Total Bills</div><div class="value">215</div></div>
+        <div class="stat-card" style="background:#bbf7d0;"><div class="label">Paid Bills</div><div class="value">182</div></div>
+        <div class="stat-card" style="background:#fef08a;"><div class="label">Pending</div><div class="value">33</div></div>
+        <div class="stat-card" style="background:#fbcfe8;"><div class="label">Monthly Revenue</div><div class="value" style="font-size:1.6rem;">₹25.6 Lakhs</div></div>
+      </div>
+      <div class="panel-grid">
+        <div class="panel">
+          <h3>Invoice Status</h3>
+          <p>Paid : 182</p>
+          <p>Pending : 33</p>
+          <p>Overdue : 8</p>
+        </div>
+        <div class="panel">
+          <h3>Payment Status</h3>
+          <p>Completed : 170</p>
+          <p>Pending : 45</p>
+          <p>Failed : 3</p>
+        </div>
+        <div class="panel">
+          <h3>Quick Actions</h3>
+          <p style="font-size:1rem;font-weight:700;">+ Generate Invoice</p>
+          <p style="font-size:1rem;font-weight:700;">+ Record Payment</p>
+          <p style="font-size:1rem;font-weight:700;">+ Export Report</p>
+        </div>
+      </div>
+      <div class="bottom-grid">
+        <div class="data-panel">
+          <div class="data-panel-header"><h3>Invoice Details</h3><a href="#">View All</a></div>
+          <table class="vrp-table" style="background:#d1d5db;">
+            <thead><tr><th>Inv ID</th><th>Vendor</th><th>Amount</th><th>Payment</th><th>Due Date</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>INV101</td><td>ABC Pvt Ltd</td><td>₹52,000</td><td>UPI</td><td>Today</td><td>View</td></tr>
+              <tr><td>INV102</td><td>XYZ Supplier</td><td>₹18,000</td><td>Bank</td><td>Tomorrow</td><td>Pay</td></tr>
+              <tr><td>INV103</td><td>Tech India</td><td>₹31,000</td><td>NEFT</td><td>05-Jul</td><td>Print</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="side-panels">
+          <div class="panel">
+            <h3>Upcoming Payments</h3>
+            <p style="text-align:center;font-weight:700;">ABC Pvt Ltd</p>
+            <p style="text-align:center;color:#64748b;">Tomorrow</p>
+            <p style="text-align:center;font-size:1.25rem;font-weight:800;">₹52,000</p>
+          </div>
+          <div class="panel">
+            <h3>Payment Methods</h3>
+            <p style="text-align:center;">NEFT : 120</p>
+            <p style="text-align:center;">UPI : 35</p>
+            <p style="text-align:center;">RTGS : 27</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

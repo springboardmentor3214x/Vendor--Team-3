@@ -1,0 +1,75 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">Vendor Reliability Platform</span>
+      </div>
+      <div class="dash-topbar-right">
+        <input class="dash-topbar-search" type="text" placeholder="Search Reports....">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+    <div class="dash-content">
+      <div class="welcome-banner" style="background:#736b69;color:white;">
+        <h1 style="color:white;">Vendor Dashboard</h1>
+        <p style="color:rgba(255,255,255,0.8);">Welcome back, Auditor!</p>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-card" style="background:#0f3973;color:white;"><div class="label" style="color:white;">Audits</div><div class="value" style="color:white;">86</div></div>
+        <div class="stat-card" style="background:#166534;color:white;"><div class="label" style="color:white;">Compliance</div><div class="value" style="color:white;">97%</div></div>
+        <div class="stat-card" style="background:#713f12;color:white;"><div class="label" style="color:white;">Open Issues</div><div class="value" style="color:white;">8</div></div>
+        <div class="stat-card" style="background:#701a75;color:white;"><div class="label" style="color:white;">Risk Score</div><div class="value" style="color:white;font-size:1.75rem;">Medium</div></div>
+      </div>
+      <div class="panel-grid">
+        <div class="panel" style="background:#fce7f3;">
+          <h3>Compliance Status</h3>
+          <p>✔️ Vendor Verified</p>
+          <p>✔️ Invoice Checked</p>
+          <p>✔️ Payment Verified</p>
+        </div>
+        <div class="panel" style="background:#ede9fe;">
+          <h3>Audit Summary</h3>
+          <p>Total Audits : 86</p>
+          <p>Passed : 78</p>
+          <p>Failed : 8</p>
+        </div>
+        <div class="panel" style="background:#dcfce7;">
+          <h3>Quick Actions</h3>
+          <p>📄 Export Report</p>
+          <p>🖨️ Print Report</p>
+          <p>⬇️ Download Logs</p>
+        </div>
+      </div>
+      <div class="bottom-grid">
+        <div class="data-panel">
+          <div class="data-panel-header"><h3>Recent Audit Logs</h3><a href="#">View All</a></div>
+          <table class="vrp-table" style="background:#d9f99d;">
+            <thead><tr><th>Log ID</th><th>User</th><th>Activity</th><th>Module</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>AL101</td><td>Admin</td><td>Vendor Approved</td><td>Vendor</td><td>Today</td><td>View</td></tr>
+              <tr><td>AL102</td><td>Finance</td><td>Payment Released</td><td>Finance</td><td>Tomorrow</td><td>Open</td></tr>
+              <tr><td>AL103</td><td>Manager</td><td>Contract Updated</td><td>Procurement</td><td>05-Jul</td><td>Review</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="side-panels">
+          <div class="panel">
+            <h3>Risk Analysis</h3>
+            <p>High Risk &nbsp; 2</p>
+            <p>Medium Risk &nbsp; 5</p>
+            <p>Low Risk &nbsp; 12</p>
+          </div>
+          <div class="panel">
+            <h3>Compliance Summary</h3>
+            <p><strong>Compliance Score</strong></p>
+            <div style="height:18px;background:#1e293b;width:97%;margin:0.5rem 0;"></div>
+            <span style="font-weight:700;">97%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

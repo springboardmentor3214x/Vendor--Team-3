@@ -1,0 +1,43 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <!-- Top Navbar -->
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
+          ← Go Back
+        </button>
+        <span class="dash-topbar-title">Vendor Reliability Platform</span>
+      </div>
+      <div class="dash-topbar-right">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+    
+    <div class="dash-content" style="background:#eef1f7;">
+  <div style="max-width:600px;margin:3rem auto;padding:0 2rem;">
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div>
+        <input type="text" [(ngModel)]="fullName" style="width:100%;padding:0.85rem 1.25rem;border:none;background:white;border-radius:8px;font-size:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      </div>
+      <div>
+        <input type="email" [(ngModel)]="email" style="width:100%;padding:0.85rem 1.25rem;border:none;background:white;border-radius:8px;font-size:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      </div>
+      <label style="font-weight:600;color:#1e293b;margin-bottom:-0.75rem;">Mobile Number</label>
+      <div>
+        <input type="tel" [(ngModel)]="mobile" style="width:100%;padding:0.85rem 1.25rem;border:none;background:white;border-radius:8px;font-size:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      </div>
+      <div>
+        <input type="text" [(ngModel)]="role" style="width:100%;padding:0.85rem 1.25rem;border:none;background:white;border-radius:8px;font-size:1rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+      </div>
+    </div>
+    <div style="display:flex;gap:2rem;justify-content:center;margin-top:2.5rem;">
+      <button style="padding:0.85rem 2.5rem;background:#3b82f6;color:white;border:none;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">Edit profile</button>
+      <button style="padding:0.85rem 2.5rem;background:white;color:#3b82f6;border:2px solid #3b82f6;border-radius:6px;font-weight:700;font-size:1rem;cursor:pointer;">Change Password</button>
+    </div>
+  </div>
+</div>
+</div>
+</div>
