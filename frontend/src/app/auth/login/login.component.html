@@ -3,6 +3,9 @@
     <div class="auth-title">Vendor Reliability<br>Intelligence Platform</div>
     <div class="auth-subtitle">Login</div>
     <div class="auth-form">
+      <div *ngIf="errorMessage" class="error-alert">
+        ⚠️ {{ errorMessage }}
+      </div>
       <div class="field-group">
         <label class="field-label">Email Address</label>
         <input class="field-input" type="email" [(ngModel)]="email" placeholder="">

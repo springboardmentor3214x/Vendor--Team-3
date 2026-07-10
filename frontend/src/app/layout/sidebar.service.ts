@@ -11,7 +11,27 @@ export class SidebarService {
   }
 
   getCurrentRole(): string {
-    const email = localStorage.getItem('userEmail') || 'admin@vrp.com';
+    const email = localStorage.getItem('userEmail');
+    if (!email) return 'admin';
+    
+    // Check if there is a cached profile for this email
+    const profileStr = localStorage.getItem(`profile_${email}`);
+    if (profileStr) {
+      try {
+        const profile = JSON.parse(profileStr);
+        const role = profile.role?.toLowerCase() || '';
+        if (role.includes('admin')) return 'admin';
+        if (role.includes('procurement')) return 'procurement';
+        if (role.includes('supply')) return 'supply';
+        if (role.includes('finance')) return 'finance';
+        if (role.includes('auditor')) return 'auditor';
+        if (role.includes('vendor')) return 'vendor';
+      } catch (e) {
+        console.error('Error parsing user profile role:', e);
+      }
+    }
+    
+    // Fallback to substring matching if no profile cached
     if (email.includes('admin')) return 'admin';
     if (email.includes('procurement')) return 'procurement';
     if (email.includes('supply')) return 'supply';

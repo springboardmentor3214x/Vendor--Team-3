@@ -1,0 +1,153 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  
+  <div class="dash-main">
+    <!-- Header Topbar with search bar as shown in mockup -->
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1.5rem;flex:1;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">Vendor Reliability Platform</span>
+        <div class="search-container">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search Vendor..." class="dash-topbar-search">
+        </div>
+      </div>
+      <div class="dash-topbar-right">
+        <span class="notifications-bell">🔔 Notifications</span>
+        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+    
+    <div class="dash-content">
+      <div class="approval-card">
+        <div class="approval-header-block">
+          <h2 class="approval-title">Vendor Approval Workflow</h2>
+          <p class="approval-subtitle">Review vendor information before approval.</p>
+        </div>
+        
+        <div class="approval-body-grid">
+          <!-- Left Column: Details -->
+          <div class="approval-details-col">
+            <table class="details-table">
+              <tr>
+                <td class="lbl">Company Name</td>
+                <td class="cln">:</td>
+                <td class="val">{{ vendor.companyName }}</td>
+              </tr>
+              <tr>
+                <td class="lbl">Vendor ID</td>
+                <td class="cln">:</td>
+                <td class="val">{{ vendor.vendorId }}</td>
+              </tr>
+              <tr>
+                <td class="lbl">Category</td>
+                <td class="cln">:</td>
+                <td class="val">{{ vendor.category }}</td>
+              </tr>
+              <tr>
+                <td class="lbl">Email</td>
+                <td class="cln">:</td>
+                <td class="val">{{ vendor.email }}</td>
+              </tr>
+              <tr>
+                <td class="lbl">Phone</td>
+                <td class="cln">:</td>
+                <td class="val">{{ vendor.phone }}</td>
+              </tr>
+              <tr>
+                <td class="lbl">GST Number</td>
+                <td class="cln">:</td>
+                <td class="val font-mono">{{ vendor.gstNumber }}</td>
+              </tr>
+              <tr>
+                <td class="lbl">PAN Number</td>
+                <td class="cln">:</td>
+                <td class="val font-mono">{{ vendor.panNumber }}</td>
+              </tr>
+              <tr>
+                <td class="lbl">Approval Status</td>
+                <td class="cln">:</td>
+                <td class="val status-pending-text">{{ vendor.approvalStatus }}</td>
+              </tr>
+              <tr>
+                <td class="lbl">Contact Person</td>
+                <td class="cln">:</td>
+                <td class="val">{{ vendor.contactPerson }}</td>
+              </tr>
+              <tr>
+                <td class="lbl">Vendor Status</td>
+                <td class="cln">:</td>
+                <td class="val"><span class="status-badge">Pending 🟡</span></td>
+              </tr>
+            </table>
+          </div>
+          
+          <!-- Right Column: Documents & Flow Chart -->
+          <div class="approval-actions-col">
+            <div class="docs-section">
+              <h3>Uploaded Documents</h3>
+              <div class="docs-grid">
+                <div class="doc-row">
+                  <span class="doc-indicator">📄</span>
+                  <span class="doc-title">GST Certificate</span>
+                  <a href="#" class="view-btn" (click)="$event.preventDefault()">👁️ View</a>
+                </div>
+                <div class="doc-row">
+                  <span class="doc-indicator">📄</span>
+                  <span class="doc-title">PAN Card</span>
+                  <a href="#" class="view-btn" (click)="$event.preventDefault()">👁️ View</a>
+                </div>
+                <div class="doc-row">
+                  <span class="doc-indicator">📄</span>
+                  <span class="doc-title">Registration Certificate</span>
+                  <a href="#" class="view-btn" (click)="$event.preventDefault()">👁️ View</a>
+                </div>
+                <div class="doc-row">
+                  <span class="doc-indicator">📄</span>
+                  <span class="doc-title">ISO Certificate</span>
+                  <a href="#" class="view-btn" (click)="$event.preventDefault()">👁️ View</a>
+                </div>
+              </div>
+            </div>
+            
+            <div class="timeline-section">
+              <h3>Approval Timeline</h3>
+              <div class="timeline-box">
+                <div class="timeline-node">Vendor Registered</div>
+                <div class="timeline-arrow">↓</div>
+                <div class="timeline-node active-node">Pending</div>
+                <div class="timeline-branches">
+                  <div class="branch-left">
+                    <span class="branch-arrow">↙</span>
+                    <span class="branch-text">Approve</span>
+                  </div>
+                  <div class="branch-right">
+                    <span class="branch-arrow">↘</span>
+                    <span class="branch-text">Reject</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Comments Section -->
+        <div class="comments-section">
+          <h3>Review Comments</h3>
+          <textarea 
+            [(ngModel)]="remarks" 
+            placeholder="Enter approval/rejection remarks..." 
+            class="comments-textarea">
+          </textarea>
+        </div>
+        
+        <!-- Bottom Action Buttons -->
+        <div class="workflow-buttons">
+          <button class="btn-wf btn-wf-approve" (click)="approveVendor()">Approve Vendor</button>
+          <button class="btn-wf btn-wf-reject" (click)="rejectVendor()">Reject Vendor</button>
+          <button class="btn-wf btn-wf-back" (click)="goBack()">Back</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,216 @@
+.details-card {
+  max-width: 1000px;
+  margin: 2rem auto;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.025);
+  padding: 2.5rem;
+}
+
+.details-header {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 2.5rem;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.info-section {
+  margin-bottom: 2.25rem;
+  
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1.5px solid #f1f5f9;
+  }
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  
+  td {
+    padding: 0.5rem 0;
+    vertical-align: top;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  .label {
+    width: 45%;
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .colon {
+    width: 5%;
+    color: #64748b;
+    text-align: left;
+    padding-right: 0.5rem;
+  }
+  
+  .value {
+    width: 50%;
+    color: #0f172a;
+    font-weight: 500;
+  }
+}
+
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.9rem !important;
+}
+
+.status-indicator {
+  margin-right: 0.25rem;
+  font-size: 0.9rem;
+  vertical-align: middle;
+}
+
+.document-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.document-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px dashed #e2e8f0;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  .doc-icon {
+    font-size: 1.2rem;
+    color: #64748b;
+  }
+  
+  .doc-name {
+    flex: 1;
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 0.925rem;
+  }
+  
+  .view-link {
+    color: #1e1b4b; // Dark blue
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    
+    &:hover {
+      color: #312e81;
+      text-decoration: underline;
+    }
+  }
+}
+
+.description-box {
+  background: #f1f5f9;
+  border-radius: 4px;
+  padding: 1.25rem;
+  color: #334155;
+  font-weight: 700;
+  font-size: 0.925rem;
+  line-height: 1.6;
+}
+
+.permission-section {
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0;
+  border-radius: 4px;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+  
+  h3 {
+    border-bottom: 1.5px solid #dcfce7;
+    margin-bottom: 0.75rem;
+  }
+  
+  .permission-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: #14532d;
+    
+    .permission-dot {
+      font-size: 0.75rem;
+    }
+    
+    .permission-text {
+      color: #1f2937;
+      strong {
+        color: #111827;
+      }
+    }
+  }
+  
+  .permission-status {
+    font-weight: 700;
+    color: #15803d;
+    font-size: 0.925rem;
+  }
+}
+
+.action-buttons-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 3rem;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+}
+
+.btn {
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.85rem 3.5rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  
+  &.btn-back, &.btn-edit {
+    background: #1e1b4b; // Matching the deep navy/indigo in the mockup
+    color: white;
+    
+    &:hover {
+      background: #312e81;
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}

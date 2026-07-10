@@ -7,18 +7,20 @@
     <!-- Admin Links -->
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'admin'">
       <a routerLink="/admin-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">🏠 Dashboard</a>
+      <a routerLink="/vendors" routerLinkActive="active">🏢 Vendor List</a>
+      <a routerLink="/add-vendor" routerLinkActive="active">➕ Add Vendor</a>
+      <a routerLink="/vendor-approval" routerLinkActive="active">✔️ Vendor Approval</a>
       <a class="disabled-link">👥 Users</a>
-      <a routerLink="/vendors" routerLinkActive="active">🏢 Vendors</a>
       <a class="disabled-link">📦 Orders</a>
       <a class="disabled-link">📊 Reports</a>
-      <a class="disabled-link">📈 Analytics</a>
-      <a class="disabled-link">🔔 Alerts</a>
     </ng-container>
 
     <!-- Procurement Links -->
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'procurement'">
       <a routerLink="/procurement-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
-      <a routerLink="/vendors" routerLinkActive="active">🏢 Vendor Management</a>
+      <a routerLink="/vendors" routerLinkActive="active">🏢 Vendor List</a>
+      <a routerLink="/add-vendor" routerLinkActive="active">➕ Add Vendor</a>
+      <a routerLink="/vendor-approval" routerLinkActive="active">✔️ Vendor Approval</a>
       <a class="disabled-link">🛒 Procurement</a>
       <a class="disabled-link">📄 Purchase Orders</a>
       <a class="disabled-link">📝 Contracts</a>

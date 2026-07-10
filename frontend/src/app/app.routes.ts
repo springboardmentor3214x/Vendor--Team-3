@@ -12,7 +12,10 @@ import { VendorDashboardComponent } from './dashboard/vendor-dashboard/vendor-da
 import { VendorListComponent } from './management/vendor-list/vendor-list.component';
 import { AddVendorComponent } from './management/add-vendor/add-vendor.component';
 import { VendorDetailsComponent } from './management/vendor-details/vendor-details.component';
+import { VendorApprovalComponent } from './management/vendor-approval/vendor-approval.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
+import { authGuard } from './auth/auth.guard';
+import { roleGuard } from './auth/role.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -20,15 +23,23 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
-  { path: 'admin-dashboard', component: AdminComponent },
-  { path: 'procurement-dashboard', component: ProcurementManagerComponent },
-  { path: 'supply-chain-dashboard', component: SupplyChainManagerComponent },
-  { path: 'finance-dashboard', component: FinanceOfficerComponent },
-  { path: 'auditor-dashboard', component: AuditorComponent },
-  { path: 'vendor-dashboard', component: VendorDashboardComponent },
-  { path: 'vendors', component: VendorListComponent },
-  { path: 'add-vendor', component: AddVendorComponent },
-  { path: 'vendor-details', component: VendorDetailsComponent },
-  { path: 'profile', component: UserProfileComponent },
+  
+  // Protected dashboards
+  { path: 'admin-dashboard', component: AdminComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin'] } },
+  { path: 'procurement-dashboard', component: ProcurementManagerComponent, canActivate: [authGuard, roleGuard], data: { roles: ['procurement'] } },
+  { path: 'supply-chain-dashboard', component: SupplyChainManagerComponent, canActivate: [authGuard, roleGuard], data: { roles: ['supply'] } },
+  { path: 'finance-dashboard', component: FinanceOfficerComponent, canActivate: [authGuard, roleGuard], data: { roles: ['finance'] } },
+  { path: 'auditor-dashboard', component: AuditorComponent, canActivate: [authGuard, roleGuard], data: { roles: ['auditor'] } },
+  { path: 'vendor-dashboard', component: VendorDashboardComponent, canActivate: [authGuard, roleGuard], data: { roles: ['vendor'] } },
+  
+  // Protected management sub-pages
+  { path: 'vendors', component: VendorListComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement'] } },
+  { path: 'add-vendor', component: AddVendorComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement'] } },
+  { path: 'vendor-details', component: VendorDetailsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement'] } },
+  { path: 'vendor-approval', component: VendorApprovalComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement'] } },
+  
+  // Profile settings accessible to all authenticated users
+  { path: 'profile', component: UserProfileComponent, canActivate: [authGuard] },
+  
   { path: '**', redirectTo: 'login' }
 ];
