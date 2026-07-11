@@ -1,124 +1,183 @@
-# Vendor Reliability Intelligence Platform
+# Vendor Reliability Intelligence Platform - Backend
 
-## Project Overview
+## Overview
 
-The Vendor Reliability Intelligence Platform is a full-stack web application developed to help organizations evaluate vendor performance, manage procurement operations, and improve supplier reliability through centralized dashboards and analytics.
-
----
-
-## Week 1 Backend Progress
-
-### Completed
-
-- FastAPI project initialization
-- Project folder structure setup
-- User Registration API
-- User Login API
-- JWT Authentication
-- Home API
-- Swagger API Documentation
-- Requirements file generation
+The Vendor Reliability Intelligence Platform is a backend application developed using FastAPI and PostgreSQL to manage vendor information, authentication, document management, and vendor approval workflows. The system provides secure REST APIs for user authentication and vendor lifecycle management.
 
 ---
 
 ## Tech Stack
 
-### Backend
-- Python
 - FastAPI
-- Uvicorn
-- JWT Authentication (python-jose)
-- Passlib (Password Hashing)
+- Python
+- PostgreSQL
+- SQLAlchemy ORM
 - Pydantic
+- JWT Authentication
+- Passlib (Password Hashing)
+- Uvicorn
 
-### Database
-- PostgreSQL (Integration Pending)
+---
 
-### Frontend
-- Angular (Under Development)
+## Features
+
+### Authentication & Role Management
+
+- User Registration
+- User Login
+- JWT Token Authentication
+- Password Hashing using bcrypt
+- User Profile APIs
+- Password Reset APIs
+- Role-based User Management
+
+### Vendor Management
+
+- Create Vendor
+- Get All Vendors
+- Search Vendors
+- Filter Vendors
+- Pagination
+- Sorting
+- Get Vendor by ID
+- Update Vendor
+- Delete Vendor (Admin Only)
+- Vendor Approval
+- Vendor Rejection
+
+### Vendor Documents
+
+- Add Vendor Document Details
+- Retrieve Vendor Documents
+- Delete Vendor Documents
+- Store Document Information in PostgreSQL
+
+### Dashboard
+
+- Dashboard APIs for vendor-related statistics and summaries
 
 ---
 
 ## Project Structure
 
-
+```
 VendorReliabilityBackend/
 │
 ├── app/
 │   ├── core/
-│   │   ├── config.py
-│   │   └── security.py
-│   │
+│   ├── database/
 │   ├── models/
 │   ├── routers/
-│   │   └── auth.py
-│   │
 │   ├── schemas/
-│   ├── utils/
-│   └── main.py
+│   ├── main.py
 │
-└── requirements.txt
-
+├── uploads/
+├── requirements.txt
+└── README.md
+```
 
 ---
 
 ## Installation
 
-Clone the repository
+### Clone Repository
 
-bash
+```bash
 git clone <repository-url>
+cd VendorReliabilityBackend
+```
 
+### Create Virtual Environment
 
-Create Virtual Environment
-
-bash
+```bash
 python -m venv venv
+```
 
-
-Activate Virtual Environment
+### Activate Virtual Environment
 
 Windows
 
-bash
+```bash
 venv\Scripts\activate
+```
 
+### Install Dependencies
 
-Install Dependencies
-
-bash
+```bash
 pip install -r requirements.txt
+```
 
+### Configure PostgreSQL
 
-Run the Server
+Update your database URL in the configuration file.
 
-bash
+Example:
+
+```text
+postgresql://postgres:password@localhost:5432/vendor_reliability_db
+```
+
+### Run the Server
+
+```bash
 uvicorn app.main:app --reload
-
-
----
-
-## Available APIs
-
-### POST /register
-Registers a new user.
-
-### POST /login
-Authenticates the user and returns a JWT Access Token.
-
-### GET /
-Returns the Home API response.
+```
 
 ---
 
-##  Current Status
+## API Documentation
 
-Week 1 Backend Setup Completed
+Swagger UI
 
-- FastAPI Initialized
-- JWT Authentication Implemented
-- Register API Completed
-- Login API Completed
-- Swagger Tested
-- GitHub Branch Created
-- Code Pushed Successfully
+```
+http://127.0.0.1:8000/docs
+```
+
+ReDoc
+
+```
+http://127.0.0.1:8000/redoc
+```
+
+---
+
+## Main API Modules
+
+### Authentication
+
+- POST /register
+- POST /login
+- GET /profile
+- PUT /profile
+- POST /forgot-password
+- POST /reset-password
+
+### Vendors
+
+- POST /vendors
+- GET /vendors
+- GET /vendors/{vendor_id}
+- PUT /vendors/{vendor_id}
+- DELETE /vendors/{vendor_id}
+- PUT /vendors/{vendor_id}/approve
+- PUT /vendors/{vendor_id}/reject
+
+### Vendor Documents
+
+- POST /vendor-documents
+- GET /vendor-documents/{vendor_id}
+- DELETE /vendor-documents/{document_id}
+
+### Dashboard
+
+- Dashboard summary APIs
+
+---
+
+## Security
+
+- JWT Authentication
+- Password Hashing using bcrypt
+- Role-based Authorization
+- PostgreSQL Data Storage
+
