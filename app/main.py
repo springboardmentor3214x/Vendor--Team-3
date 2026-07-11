@@ -6,6 +6,9 @@ from app.routers import auth
 from app.database import Base, engine
 from app.models.role import Role
 from app.models.user import User
+from app.routers import vendor
+from app.routers import dashboard
+from app.routers import vendor_document
 
 Base.metadata.create_all(bind=engine)
 
@@ -17,6 +20,9 @@ app = FastAPI(
 
 # Include Authentication Routes
 app.include_router(auth.router)
+app.include_router(vendor.router)
+app.include_router(dashboard.router)
+app.include_router(vendor_document.router)
 
 
 @app.get("/")
