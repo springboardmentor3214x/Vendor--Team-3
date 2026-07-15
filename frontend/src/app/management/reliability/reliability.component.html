@@ -1,0 +1,60 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <!-- Top Navbar -->
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
+          ← Go Back
+        </button>
+        <span class="dash-topbar-title">Vendor Reliability & Risk Analysis</span>
+      </div>
+      <div class="dash-topbar-right">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+
+    <!-- Reliability Overview -->
+    <div style="padding:2rem;">
+      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">📉 Reliability Scorecards & Recommendations</h3>
+      <div style="display:flex;flex-direction:column;gap:1.5rem;">
+        <div *ngFor="let m of metrics" style="background:white;border-radius:8px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:grid;grid-template-columns:1fr 1.5fr 1fr 1fr 2fr;align-items:center;gap:2rem;border-left:5px solid;"
+             [style.borderLeftColor]="m.reliabilityScore >= 90 ? '#10b981' : m.reliabilityScore >= 80 ? '#f59e0b' : '#ef4444'">
+          <div>
+            <div style="font-weight:800;font-size:1.1rem;color:#1e293b;margin-bottom:0.25rem;">{{m.vendorName}}</div>
+            <div style="font-size:0.8rem;color:#64748b;font-weight:600;">ID: {{m.vendorId}}</div>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.8rem;font-weight:700;color:#64748b;margin-bottom:0.25rem;">Reliability Score</label>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <div style="flex:1;max-width:120px;height:14px;background:#e2e8f0;border-radius:7px;overflow:hidden;">
+                <div [style.width]="m.reliabilityScore + '%'" [style.background]="m.reliabilityScore >= 90 ? '#10b981' : '#ca8a04'" style="height:100%;"></div>
+              </div>
+              <strong style="font-size:1.1rem;color:#1e293b;">{{m.reliabilityScore}}%</strong>
+            </div>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.8rem;font-weight:700;color:#64748b;margin-bottom:0.25rem;">Procurement Risk</label>
+            <span [style.background]="m.riskLevel === 'Low' ? '#dcfce7' : m.riskLevel === 'Medium' ? '#fef9c3' : '#fee2e2'"
+                  [style.color]="m.riskLevel === 'Low' ? '#166534' : m.riskLevel === 'Medium' ? '#854d0e' : '#991b1b'"
+                  style="padding:0.25rem 0.5rem;border-radius:4px;font-size:0.85rem;font-weight:700;">
+              {{m.riskLevel}} Risk
+            </span>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.8rem;font-weight:700;color:#64748b;margin-bottom:0.25rem;">Trend</label>
+            <span style="font-size:1.2rem;font-weight:800;">
+              {{m.trend === 'Up' ? '📈 Improving' : m.trend === 'Down' ? '📉 Declining' : '➡️ Stable'}}
+            </span>
+          </div>
+          <div>
+            <label style="display:block;font-size:0.8rem;font-weight:700;color:#64748b;margin-bottom:0.25rem;">Procurement Recommendation</label>
+            <div style="font-size:0.85rem;color:#334155;font-weight:600;line-height:1.4;">{{m.recommendation}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

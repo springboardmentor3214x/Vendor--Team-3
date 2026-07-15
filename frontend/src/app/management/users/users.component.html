@@ -1,0 +1,82 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <!-- Top Navbar -->
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
+          ← Go Back
+        </button>
+        <span class="dash-topbar-title">User Management</span>
+      </div>
+      <div class="dash-topbar-right">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+
+    <!-- Quick Add Form -->
+    <div style="background:#f1f5f9;padding:1.5rem 2rem;border-bottom:1px solid #cbd5e1;">
+      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">➕ Create New User</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:1rem;align-items:end;">
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Full Name</label>
+          <input type="text" [(ngModel)]="newUserName" placeholder="Full Name" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Email Address</label>
+          <input type="email" [(ngModel)]="newUserEmail" placeholder="email@vrp.com" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Mobile Phone</label>
+          <input type="text" [(ngModel)]="newUserPhone" placeholder="+91 XXXXXXXXXX" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">System Role</label>
+          <select [(ngModel)]="newUserRole" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option *ngFor="let r of roles" [value]="r">{{r}}</option>
+          </select>
+        </div>
+        <button (click)="addUser()" style="background:#2563eb;color:white;border:none;padding:0.6rem 1.2rem;border-radius:4px;font-weight:700;cursor:pointer;height:38px;">
+          Add User
+        </button>
+      </div>
+    </div>
+
+    <!-- Users Grid/Table -->
+    <div style="padding:2rem;">
+      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">Registered System Users</h3>
+      <table style="width:100%;border-collapse:collapse;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-radius:6px;overflow:hidden;">
+        <thead>
+          <tr style="background:#475569;color:white;">
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">User ID</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Full Name</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Email Address</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Phone</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Role</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Status</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of users" style="background:white;border-bottom:1px solid #cbd5e1;">
+            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{u.id}}</td>
+            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{u.name}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{u.email}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{u.phone}}</td>
+            <td style="padding:1rem;text-align:center;"><span style="background:#dbeafe;color:#1e40af;padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem;font-weight:700;">{{u.role}}</span></td>
+            <td style="padding:1rem;text-align:center;">
+              <button (click)="toggleStatus(u)" [style.background]="u.status === 'Active' ? '#dcfce7' : '#fee2e2'" [style.color]="u.status === 'Active' ? '#166534' : '#991b1b'" style="border:none;padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem;font-weight:700;cursor:pointer;">
+                {{u.status}}
+              </button>
+            </td>
+            <td style="padding:1rem;text-align:center;">
+              <button (click)="deleteUser(u.id)" style="background:none;border:none;color:#ef4444;font-size:1.1rem;cursor:pointer;" title="Delete User">🗑️</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

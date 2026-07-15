@@ -5,9 +5,21 @@ import { Injectable } from '@angular/core';
 })
 export class SidebarService {
   isSidebarVisible = true;
+  isNotificationVisible = false;
+
+  notifications = [
+    { id: 1, title: 'Procurement Alert', message: 'New Requisition PR003 created by HR.', time: 'Just now' },
+    { id: 2, title: 'Contract Expiry Alert', message: 'Contract CON-2026-02 for Tech India expires in 30 days.', time: '10 mins ago' },
+    { id: 3, title: 'Delivery Delay Notification', message: 'xyz Suppliers reported a 2-day delay for order PO102.', time: '2 hours ago' },
+    { id: 4, title: 'Compliance Flag', message: 'Anti-Bribery Statement check failed for Delta Traders.', time: '1 day ago' }
+  ];
 
   toggleSidebar() {
     this.isSidebarVisible = !this.isSidebarVisible;
+  }
+
+  toggleNotifications() {
+    this.isNotificationVisible = !this.isNotificationVisible;
   }
 
   getCurrentRole(): string {

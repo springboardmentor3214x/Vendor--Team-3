@@ -1,0 +1,98 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <!-- Top Navbar -->
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
+          ← Go Back
+        </button>
+        <span class="dash-topbar-title">Invoice & Payment Management</span>
+      </div>
+      <div class="dash-topbar-right">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+
+    <!-- Create Invoice Form -->
+    <div *ngIf="sidebarService.getCurrentRole() !== 'vendor' && sidebarService.getCurrentRole() !== 'auditor'" style="background:#f1f5f9;padding:1.5rem 2rem;border-bottom:1px solid #cbd5e1;">
+      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">📄 Record Inbound Invoice</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr) auto;gap:1rem;align-items:end;">
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Reference PO</label>
+          <select [(ngModel)]="selectedPO" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option>PO101</option>
+            <option>PO102</option>
+            <option>PO103</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Billing Amount (₹)</label>
+          <input type="number" [(ngModel)]="invoiceAmount" placeholder="Invoice total" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Payment Channel</label>
+          <select [(ngModel)]="paymentMode" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option>NEFT</option>
+            <option>UPI</option>
+            <option>RTGS</option>
+            <option>Bank Transfer</option>
+          </select>
+        </div>
+        <button (click)="createInvoice()" style="background:#b45309;color:white;border:none;padding:0.6rem 1.2rem;border-radius:4px;font-weight:700;cursor:pointer;height:38px;">
+          Log Invoice
+        </button>
+      </div>
+    </div>
+
+    <!-- Invoices Table -->
+    <div style="padding:2rem;">
+      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">Billing Invoices Ledger</h3>
+      <table style="width:100%;border-collapse:collapse;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-radius:6px;overflow:hidden;">
+        <thead>
+          <tr style="background:#b45309;color:white;">
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Invoice ID</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">PO Reference</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Vendor Name</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Amount</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Due Date</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Payment Mode</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Status</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let inv of invoices" style="background:white;border-bottom:1px solid #cbd5e1;">
+            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{inv.id}}</td>
+            <td style="padding:1rem;text-align:center;font-weight:700;color:#64748b;">{{inv.poId}}</td>
+            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{inv.vendorName}}</td>
+            <td style="padding:1rem;text-align:center;color:#b45309;font-weight:700;">₹{{inv.amount | number}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{inv.dueDate}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:600;">{{inv.paymentMode}}</td>
+            <td style="padding:1rem;text-align:center;">
+              <span [style.background]="inv.status === 'Paid' ? '#dcfce7' : inv.status === 'Pending' ? '#fef9c3' : '#fee2e2'"
+                    [style.color]="inv.status === 'Paid' ? '#166534' : inv.status === 'Pending' ? '#854d0e' : '#991b1b'"
+                    style="padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem;font-weight:700;">
+                {{inv.status}}
+              </span>
+            </td>
+            <td style="padding:1rem;text-align:center;">
+              <button *ngIf="inv.status === 'Pending' && (sidebarService.getCurrentRole() === 'admin' || sidebarService.getCurrentRole() === 'finance')"
+                      (click)="payInvoice(inv)" style="background:#dcfce7;color:#166534;border:none;padding:0.3rem 0.8rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
+                💵 Pay Now
+              </button>
+              <span *ngIf="inv.status === 'Paid'" style="font-size:0.8rem;color:#166534;font-weight:700;">
+                ✅ Settlement Completed
+              </span>
+              <span *ngIf="inv.status !== 'Paid' && sidebarService.getCurrentRole() !== 'admin' && sidebarService.getCurrentRole() !== 'finance'" style="font-size:0.8rem;color:#64748b;font-weight:500;">
+                Pending Finance Review
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

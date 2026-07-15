@@ -14,6 +14,16 @@ import { AddVendorComponent } from './management/add-vendor/add-vendor.component
 import { VendorDetailsComponent } from './management/vendor-details/vendor-details.component';
 import { VendorApprovalComponent } from './management/vendor-approval/vendor-approval.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
+import { UsersComponent } from './management/users/users.component';
+import { ProcurementComponent } from './management/procurement/procurement.component';
+import { PurchaseOrdersComponent } from './management/purchase-orders/purchase-orders.component';
+import { ContractsComponent } from './management/contracts/contracts.component';
+import { PerformanceComponent } from './management/performance/performance.component';
+import { ReliabilityComponent } from './management/reliability/reliability.component';
+import { InvoicesComponent } from './management/invoices/invoices.component';
+import { ComplianceComponent } from './management/compliance/compliance.component';
+import { CommunicationComponent } from './management/communication/communication.component';
+import { ReportsComponent } from './management/reports/reports.component';
 import { authGuard } from './auth/auth.guard';
 import { roleGuard } from './auth/role.guard';
 
@@ -38,6 +48,18 @@ export const routes: Routes = [
   { path: 'vendor-details', component: VendorDetailsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement'] } },
   { path: 'vendor-approval', component: VendorApprovalComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement'] } },
   
+  // New features routes
+  { path: 'users', component: UsersComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin'] } },
+  { path: 'procurement', component: ProcurementComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement'] } },
+  { path: 'orders', component: PurchaseOrdersComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'supply', 'finance', 'vendor'] } },
+  { path: 'contracts', component: ContractsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'auditor', 'vendor'] } },
+  { path: 'performance', component: PerformanceComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'supply', 'vendor'] } },
+  { path: 'reliability', component: ReliabilityComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'supply', 'vendor'] } },
+  { path: 'invoices', component: InvoicesComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'finance', 'vendor'] } },
+  { path: 'compliance', component: ComplianceComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'auditor'] } },
+  { path: 'messages', component: CommunicationComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'supply', 'vendor'] } },
+  { path: 'reports', component: ReportsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'supply', 'finance', 'auditor'] } },
+
   // Profile settings accessible to all authenticated users
   { path: 'profile', component: UserProfileComponent, canActivate: [authGuard] },
   

@@ -10,9 +10,9 @@
       <a routerLink="/vendors" routerLinkActive="active">🏢 Vendor List</a>
       <a routerLink="/add-vendor" routerLinkActive="active">➕ Add Vendor</a>
       <a routerLink="/vendor-approval" routerLinkActive="active">✔️ Vendor Approval</a>
-      <a class="disabled-link">👥 Users</a>
-      <a class="disabled-link">📦 Orders</a>
-      <a class="disabled-link">📊 Reports</a>
+      <a routerLink="/users" routerLinkActive="active">👥 Users</a>
+      <a routerLink="/orders" routerLinkActive="active">📦 Orders</a>
+      <a routerLink="/reports" routerLinkActive="active">📊 Reports</a>
     </ng-container>
 
     <!-- Procurement Links -->
@@ -21,53 +21,53 @@
       <a routerLink="/vendors" routerLinkActive="active">🏢 Vendor List</a>
       <a routerLink="/add-vendor" routerLinkActive="active">➕ Add Vendor</a>
       <a routerLink="/vendor-approval" routerLinkActive="active">✔️ Vendor Approval</a>
-      <a class="disabled-link">🛒 Procurement</a>
-      <a class="disabled-link">📄 Purchase Orders</a>
-      <a class="disabled-link">📝 Contracts</a>
+      <a routerLink="/procurement" routerLinkActive="active">🛒 Procurement</a>
+      <a routerLink="/orders" routerLinkActive="active">📄 Purchase Orders</a>
+      <a routerLink="/contracts" routerLinkActive="active">📝 Contracts</a>
     </ng-container>
 
     <!-- Supply Chain Links -->
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'supply'">
       <a routerLink="/supply-chain-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
-      <a class="disabled-link">⭐ Vendor Performance</a>
-      <a class="disabled-link">⭐ Vendor Reliability</a>
-      <a class="disabled-link">🚚 Procurement Tracking</a>
-      <a class="disabled-link">📄 Reports</a>
+      <a routerLink="/performance" routerLinkActive="active">⭐ Vendor Performance</a>
+      <a routerLink="/reliability" routerLinkActive="active">📈 Vendor Reliability</a>
+      <a routerLink="/orders" routerLinkActive="active">🚚 Procurement Tracking</a>
+      <a routerLink="/reports" routerLinkActive="active">📄 Reports</a>
     </ng-container>
 
     <!-- Finance Links -->
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'finance'">
       <a routerLink="/finance-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
-      <a class="disabled-link">📄 Invoice Management</a>
-      <a class="disabled-link">💰 Purchase Orders</a>
-      <a class="disabled-link">💳 Payments</a>
-      <a class="disabled-link">📊 Reports</a>
-      <a class="disabled-link">📈 Financial Reports</a>
+      <a routerLink="/invoices" routerLinkActive="active">📄 Invoice Management</a>
+      <a routerLink="/orders" routerLinkActive="active">💰 Purchase Orders</a>
+      <a routerLink="/invoices" routerLinkActive="active">💳 Payments</a>
+      <a routerLink="/reports" routerLinkActive="active">📊 Reports</a>
+      <a routerLink="/reports" routerLinkActive="active">📈 Financial Reports</a>
     </ng-container>
 
     <!-- Auditor Links -->
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'auditor'">
       <a routerLink="/auditor-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
-      <a class="disabled-link">📋 Compliance</a>
-      <a class="disabled-link">🗂 Audit Logs</a>
-      <a class="disabled-link">📜 Audit History</a>
-      <a class="disabled-link">📄 Reports</a>
-      <a class="disabled-link">🔔 Notifications</a>
+      <a routerLink="/compliance" routerLinkActive="active">📋 Compliance</a>
+      <a routerLink="/compliance" routerLinkActive="active">🗂 Audit Logs</a>
+      <a routerLink="/compliance" routerLinkActive="active">📜 Audit History</a>
+      <a routerLink="/reports" routerLinkActive="active">📄 Reports</a>
+      <a routerLink="/compliance" routerLinkActive="active">🔔 Notifications</a>
     </ng-container>
 
     <!-- Vendor Links -->
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'vendor'">
       <a routerLink="/vendor-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
       <a routerLink="/profile" routerLinkActive="active">👤 My Profile</a>
-      <a class="disabled-link">📦 Orders</a>
-      <a class="disabled-link">📄 Contracts</a>
-      <a class="disabled-link">💬 Messages</a>
-      <a class="disabled-link">💰 Payments</a>
+      <a routerLink="/orders" routerLinkActive="active">📦 Orders</a>
+      <a routerLink="/contracts" routerLinkActive="active">📄 Contracts</a>
+      <a routerLink="/messages" routerLinkActive="active">💬 Messages</a>
+      <a routerLink="/invoices" routerLinkActive="active">💰 Payments</a>
     </ng-container>
   </div>
 
   <div class="sidebar-footer">
-    <a class="disabled-link">⚙️ Settings</a>
+    <a routerLink="/profile" routerLinkActive="active">⚙️ Settings</a>
     <a routerLink="/login" style="color:#fca5a5;">🚪 Logout</a>
   </div>
 </div>

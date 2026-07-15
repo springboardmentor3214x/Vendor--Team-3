@@ -1,0 +1,118 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <!-- Top Navbar -->
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
+          ← Go Back
+        </button>
+        <span class="dash-topbar-title">Procurement Requests</span>
+      </div>
+      <div class="dash-topbar-right">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+
+    <!-- Create Request Form -->
+    <div style="background:#f1f5f9;padding:1.5rem 2rem;border-bottom:1px solid #cbd5e1;">
+      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">📝 Create Procurement Request</h3>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1rem;">
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Request Title</label>
+          <input type="text" [(ngModel)]="newTitle" placeholder="e.g. Office Chair Replacements" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Budget (₹)</label>
+          <input type="number" [(ngModel)]="newBudget" placeholder="Budget amount" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Department</label>
+          <select [(ngModel)]="newDepartment" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option>IT</option>
+            <option>Logistics</option>
+            <option>HR</option>
+            <option>Administration</option>
+            <option>Finance</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Assign Vendor (Optional)</label>
+          <select [(ngModel)]="assignedVendor" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option value="">Choose Vendor...</option>
+            <option *ngFor="let v of vendors" [value]="v">{{v}}</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Description</label>
+        <textarea [(ngModel)]="newDescription" placeholder="Enter detailed specification of requirements..." style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;height:60px;resize:vertical;"></textarea>
+      </div>
+      <button (click)="addRequest()" style="background:#0f766e;color:white;border:none;padding:0.6rem 1.5rem;border-radius:4px;font-weight:700;cursor:pointer;margin-top:1rem;">
+        Submit Request
+      </button>
+    </div>
+
+    <!-- Requests Table -->
+    <div style="padding:2rem;">
+      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">Active Procurement Requisitions</h3>
+      <table style="width:100%;border-collapse:collapse;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-radius:6px;overflow:hidden;">
+        <thead>
+          <tr style="background:#0f766e;color:white;">
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Request ID</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Title</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Department</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Budget</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Date</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Assigned Vendor</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Status</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of requests" style="background:white;border-bottom:1px solid #cbd5e1;">
+            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{req.id}}</td>
+            <td style="padding:1rem;text-align:left;font-weight:700;color:#1e293b;">
+              <div>{{req.title}}</div>
+              <div style="font-size:0.8rem;color:#64748b;font-weight:500;">{{req.description}}</div>
+            </td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:600;">{{req.department}}</td>
+            <td style="padding:1rem;text-align:center;color:#0f766e;font-weight:700;">₹{{req.budget | number}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{req.date}}</td>
+            <td style="padding:1rem;text-align:center;">
+              <div *ngIf="req.assignedVendor">
+                <span style="font-weight:600;color:#1e293b;">🏢 {{req.assignedVendor}}</span>
+              </div>
+              <div *ngIf="!req.assignedVendor">
+                <select #vSelect (change)="assignVendorToRequest(req, vSelect.value)" style="padding:0.25rem;border-radius:4px;border:1px solid #ccc;font-size:0.8rem;background:white;">
+                  <option value="">Assign...</option>
+                  <option *ngFor="let v of vendors" [value]="v">{{v}}</option>
+                </select>
+              </div>
+            </td>
+            <td style="padding:1rem;text-align:center;">
+              <span [style.background]="req.status === 'Approved' ? '#dcfce7' : req.status === 'Completed' ? '#dbeafe' : '#fef9c3'"
+                    [style.color]="req.status === 'Approved' ? '#166534' : req.status === 'Completed' ? '#1e40af' : '#854d0e'"
+                    style="padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem;font-weight:700;">
+                {{req.status}}
+              </span>
+            </td>
+            <td style="padding:1rem;text-align:center;display:flex;justify-content:center;gap:0.5rem;">
+              <button *ngIf="req.status === 'Pending'" (click)="updateStatus(req, 'Approved')" style="background:#dcfce7;color:#15803d;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
+                Approve
+              </button>
+              <button *ngIf="req.status === 'Approved'" (click)="updateStatus(req, 'Completed')" style="background:#dbeafe;color:#1e40af;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
+                Complete
+              </button>
+              <button *ngIf="req.status !== 'Completed' && req.status !== 'Cancelled'" (click)="updateStatus(req, 'Cancelled')" style="background:#fee2e2;color:#b91c1c;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
+                Cancel
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

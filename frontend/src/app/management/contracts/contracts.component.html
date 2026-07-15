@@ -1,0 +1,99 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <!-- Top Navbar -->
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
+          ← Go Back
+        </button>
+        <span class="dash-topbar-title">Contract & Compliance Repository</span>
+      </div>
+      <div class="dash-topbar-right">
+        <span>🔔 Notifications</span>
+        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+
+    <!-- Create Contract (Admin / PM / SCM only) -->
+    <div *ngIf="sidebarService.getCurrentRole() !== 'vendor' && sidebarService.getCurrentRole() !== 'auditor' && sidebarService.getCurrentRole() !== 'finance'" style="background:#f1f5f9;padding:1.5rem 2rem;border-bottom:1px solid #cbd5e1;">
+      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">📝 Draft New Contract</h3>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr) auto;gap:1rem;align-items:end;">
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Contract Partner (Vendor)</label>
+          <select [(ngModel)]="selectedVendor" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option value="">Choose Vendor...</option>
+            <option *ngFor="let v of vendors" [value]="v">{{v}}</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Contract Duration</label>
+          <select [(ngModel)]="durationYears" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option [ngValue]="1">1 Year Term</option>
+            <option [ngValue]="2">2 Year Term</option>
+            <option [ngValue]="3">3 Year Term</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Initial Compliance Score (%)</label>
+          <input type="number" [(ngModel)]="complianceScore" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <button (click)="createContract()" style="background:#0f766e;color:white;border:none;padding:0.6rem 1.2rem;border-radius:4px;font-weight:700;cursor:pointer;height:38px;">
+          Draft Contract
+        </button>
+      </div>
+    </div>
+
+    <!-- Contracts Table -->
+    <div style="padding:2rem;">
+      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">Established Vendor Contracts</h3>
+      <table style="width:100%;border-collapse:collapse;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-radius:6px;overflow:hidden;">
+        <thead>
+          <tr style="background:#0f766e;color:white;">
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Contract ID</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Vendor Name</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Start Date</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Expiry Date</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Compliance Rating</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Status</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of contracts" style="background:white;border-bottom:1px solid #cbd5e1;">
+            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{c.id}}</td>
+            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{c.vendorName}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{c.startDate}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{c.endDate}}</td>
+            <td style="padding:1rem;text-align:center;">
+              <span [style.color]="c.complianceRating >= 95 ? '#166534' : c.complianceRating >= 90 ? '#854d0e' : '#991b1b'" style="font-weight:800;font-size:0.95rem;">
+                {{c.complianceRating}}%
+              </span>
+            </td>
+            <td style="padding:1rem;text-align:center;">
+              <span [style.background]="c.status === 'Active' ? '#dcfce7' : c.status === 'Expiring Soon' ? '#fef9c3' : c.status === 'Terminated' ? '#fee2e2' : '#cbd5e1'"
+                    [style.color]="c.status === 'Active' ? '#166534' : c.status === 'Expiring Soon' ? '#854d0e' : c.status === 'Terminated' ? '#991b1b' : '#334155'"
+                    style="padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem;font-weight:700;">
+                {{c.status}}
+              </span>
+            </td>
+            <td style="padding:1rem;text-align:center;display:flex;justify-content:center;gap:0.5rem;">
+              <button *ngIf="c.status !== 'Terminated' && sidebarService.getCurrentRole() !== 'vendor' && sidebarService.getCurrentRole() !== 'auditor'" 
+                      (click)="renewContract(c)" style="background:#dbeafe;color:#1e40af;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
+                Renew
+              </button>
+              <button *ngIf="c.status !== 'Terminated' && c.status !== 'Expired' && sidebarService.getCurrentRole() !== 'vendor' && sidebarService.getCurrentRole() !== 'auditor'" 
+                      (click)="terminateContract(c)" style="background:#fee2e2;color:#b91c1c;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
+                Terminate
+              </button>
+              <span *ngIf="sidebarService.getCurrentRole() === 'vendor' || sidebarService.getCurrentRole() === 'auditor'" style="font-size:0.8rem;color:#64748b;font-weight:500;">
+                Read-only Access
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

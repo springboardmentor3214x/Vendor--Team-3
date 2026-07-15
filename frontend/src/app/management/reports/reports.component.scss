@@ -1,0 +1,18 @@
+/* Reports component styles */
+@media print {
+  .dash-wrapper {
+    display: block !important;
+  }
+  app-sidebar,
+  .hamburger-btn,
+  button,
+  .dash-topbar,
+  select,
+  label {
+    display: none !important;
+  }
+  .dash-main {
+    margin-left: 0 !important;
+    padding: 0 !important;
+  }
+}
