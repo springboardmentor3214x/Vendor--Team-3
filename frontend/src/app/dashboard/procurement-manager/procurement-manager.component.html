@@ -1,83 +1,173 @@
+<div class="header-strip">Vendor Realiability Platform</div>
+<div class="subheader-strip">
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+    <div class="search-box-container">
+      <input type="text" placeholder="Search Purchase Orders..." class="search-pill">
+    </div>
+  </div>
+  <div class="topbar-right-info">
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
+    <span class="user-span">👤 Procurement Manager</span>
+  </div>
+</div>
+
 <div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
   <app-sidebar></app-sidebar>
   <div class="dash-main">
-    <div class="dash-topbar">
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-        <span class="dash-topbar-title">Vendor Reliability Platform</span>
-      </div>
-      <div class="dash-topbar-right">
-        <input class="dash-topbar-search" type="text" placeholder="Search Purchase Orders...">
-        <span>🔔 Notifications</span>
-        <span class="dash-topbar-user" style="color:#1e3a8a;">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
-      </div>
-    </div>
     <div class="dash-content">
+      
+      <!-- Welcome Banner -->
       <div class="welcome-banner">
-        <h1>Procurement Dashboard</h1>
+        <h2>Procurement Dashboard</h2>
         <p>Welcome back, Procurement Manager!</p>
       </div>
+
+      <!-- Stat Cards -->
       <div class="stat-grid">
-        <div class="stat-card" style="background:#dbeafe;"><div class="label">Total Vendors</div><div class="value">248</div></div>
-        <div class="stat-card" style="background:#dcfce7;"><div class="label">Purchase Orders</div><div class="value">152</div></div>
-        <div class="stat-card" style="background:#fef9c3;"><div class="label">Active Procurement</div><div class="value">35</div></div>
-        <div class="stat-card" style="background:#fce7f3;"><div class="label">Contracts Expiring</div><div class="value">12</div></div>
+        <div class="stat-card blue-card">
+          <div class="label">Total Vendors</div>
+          <div class="value">248</div>
+        </div>
+        <div class="stat-card green-card">
+          <div class="label">Purchase Orders</div>
+          <div class="value">152</div>
+        </div>
+        <div class="stat-card yellow-card">
+          <div class="label">Active Procurement</div>
+          <div class="value">35</div>
+        </div>
+        <div class="stat-card pink-card">
+          <div class="label">Contracts Expiring</div>
+          <div class="value">12</div>
+        </div>
       </div>
+
+      <!-- Middle Row: 3 Panels -->
       <div class="panel-grid">
         <div class="panel">
           <h3>Procurement Progress</h3>
-          <p style="margin-bottom:0.25rem;">Vendor Selection <strong>75%</strong></p>
-          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:75%"></div></div>
-          <p style="margin:0.75rem 0 0.25rem 0;">Quotation Review <strong>55%</strong></p>
-          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:55%"></div></div>
-          <p style="margin:0.75rem 0 0.25rem 0;">Approval <strong>30%</strong></p>
-          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:30%"></div></div>
+          <div class="progress-item">
+            <div class="progress-lbl-row">
+              <span>Procurement Progress</span>
+              <span>75%</span>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:75%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-lbl-row">
+              <span>Vendor Selection</span>
+              <span>55%</span>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:55%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-lbl-row">
+              <span>Quotation Review</span>
+              <span></span>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:35%"></div></div>
+          </div>
+          <div class="progress-item" style="margin-bottom:0;">
+            <div class="progress-lbl-row">
+              <span>Approval</span>
+              <span></span>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:10%"></div></div>
+          </div>
         </div>
+
         <div class="panel">
           <h3>Pending Approvals</h3>
-          <p>🟢 Vendor Approval</p>
-          <p>🔵 Contract Renewal</p>
-          <p>🔴 Invoice Approval</p>
-          <p>🟡 Purchase Order</p>
+          <div class="status-list">
+            <p><span class="status-dot green"></span> Vendor Approval</p>
+            <p><span class="status-dot blue"></span> Contract Renewal</p>
+            <p><span class="status-dot red"></span> Invoice Approval</p>
+            <p><span class="status-dot yellow"></span> Purchase Order</p>
+          </div>
         </div>
+
         <div class="panel">
           <h3>Quick Actions</h3>
-          <button class="btn-action">Create PO</button>
-          <button class="btn-action" routerLink="/add-vendor">Add Vendor</button>
-          <button class="btn-action">New Contract</button>
-          <button class="btn-action">Generate Report</button>
+          <div class="actions-list">
+            <button class="btn-action">Create PO</button>
+            <button class="btn-action" routerLink="/add-vendor">Add Vendor</button>
+            <button class="btn-action">New Contract</button>
+            <button class="btn-action">Generate Report</button>
+          </div>
         </div>
       </div>
+
+      <!-- Bottom Row: Table + Stacked Panels -->
       <div class="bottom-grid">
         <div class="data-panel">
-          <div class="data-panel-header"><h3>Purchase Orders</h3><a href="#">View All</a></div>
-          <table class="vrp-table" style="background:#e5e7eb;">
-            <thead><tr><th>PO ID</th><th>Vendor</th><th>Amount</th><th>Department</th><th>Date</th><th>Status</th></tr></thead>
+          <div class="data-panel-header">
+            <h3>Purchase Orders</h3>
+            <a href="#" class="view-all-link">View All</a>
+          </div>
+          <table class="vrp-table">
+            <thead>
+              <tr>
+                <th>PO ID</th>
+                <th>Vendor</th>
+                <th>Amount</th>
+                <th>Department</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>PO101</td><td>ABC Pvt Ltd</td><td>₹52,000</td><td>IT</td><td>Today</td><td>Approved</td></tr>
-              <tr><td>PO102</td><td>XYZ Suppliers</td><td>₹18,000</td><td>HR</td><td>Today</td><td>Pending</td></tr>
-              <tr><td>PO103</td><td>Tech India</td><td>₹31,000</td><td>Production</td><td>Yesterday</td><td>Approved</td></tr>
+              <tr>
+                <td style="font-weight:700;">PO101</td>
+                <td style="font-weight:700;">ABC Pvt Ltd</td>
+                <td style="font-weight:700;">₹52,000</td>
+                <td>IT</td>
+                <td>Today</td>
+                <td style="font-weight:700;">Approved</td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;">PO102</td>
+                <td style="font-weight:700;">XYZ Suppliers</td>
+                <td style="font-weight:700;">₹18,000</td>
+                <td>HR</td>
+                <td>Today</td>
+                <td style="font-weight:700;">Pending</td>
+              </tr>
+              <tr>
+                <td style="font-weight:700;">PO103</td>
+                <td style="font-weight:700;">Tech India</td>
+                <td style="font-weight:700;">₹31,000</td>
+                <td>Production</td>
+                <td>Yesterday</td>
+                <td style="font-weight:700;">Approved</td>
+              </tr>
             </tbody>
           </table>
         </div>
+
         <div class="side-panels">
           <div class="panel">
             <h3>Upcoming Deliveries</h3>
-            <p>🚚 ABC Pvt Ltd - Today</p>
-            <p>🚚 XYZ Supplier - Tomorrow</p>
-            <p>🚚 Tech India - Friday</p>
+            <div class="delivery-list">
+              <p>🚚 ABC Pvt Ltd - Today</p>
+              <p>🚚 XYZ Supplier - Tomorro</p>
+              <p>🚚 Tech India - Friday</p>
+            </div>
           </div>
           <div class="panel">
             <h3>Budget Utilization</h3>
-            <p><strong>Monthly Budget ₹15L</strong></p>
-            <div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem;">
-              <div style="flex:1;height:18px;background:#1e293b;"></div>
-              <span style="font-weight:700;">68%</span>
+            <p style="font-weight:700;margin-bottom:0.5rem;color:#1e293b;">Monthly Budget ₹15L</p>
+            <div class="budget-bar-container">
+              <div class="budget-bar-fill" style="width:68%"></div>
             </div>
-            <p style="margin-top:0.5rem;">Remaining ₹4.8L</p>
+            <div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:0.85rem;font-weight:700;color:#475569;">
+              <span>Remaining ₹4.8L</span>
+              <span>68%</span>
+            </div>
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>

@@ -3,7 +3,7 @@
     <div class="auth-title">Vendor Reliability<br>Intelligence Platform</div>
     <div class="auth-subtitle">Login</div>
     <div class="auth-form">
-      <div *ngIf="errorMessage" class="error-alert">
+      <div *ngIf="errorMessage" class="error-alert" style="margin-bottom:1rem;">
         ⚠️ {{ errorMessage }}
       </div>
       <div class="field-group">
@@ -12,12 +12,12 @@
       </div>
       <div class="field-group">
         <label class="field-label">Password</label>
-        <input class="field-input" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" placeholder="Enter your Password">
+        <input class="field-input" type="password" [(ngModel)]="password" placeholder="Enter your Password">
       </div>
       <button class="btn-primary" (click)="onLogin()">Login</button>
       <div class="auth-links">
         <p><a routerLink="/forgot-password" class="link-plain">Forgot Password?</a></p>
-        <p>Don't have an account? <a routerLink="/register" class="link-blue">Register</a></p>
+        <p>Don’t have an account? <a routerLink="/register" class="link-blue">Register</a></p>
       </div>
     </div>
   </div>
