@@ -8,12 +8,18 @@ import { SidebarService } from '../../layout/sidebar.service';
 interface ProcurementRequest {
   id: string;
   title: string;
-  description: string;
   department: string;
+  requestedBy: string;
+  itemName: string;
+  itemCategory: string;
+  quantity: number;
+  unit: string;
   budget: number;
-  date: string;
+  deliveryDate: string;
+  priority: string;
+  justification: string;
+  remarks: string;
   status: string;
-  assignedVendor?: string;
 }
 
 @Component({
@@ -25,35 +31,72 @@ interface ProcurementRequest {
 })
 export class ProcurementComponent {
   requests: ProcurementRequest[] = [];
-  vendors = ['ABC Pvt Ltd', 'XYZ Suppliers', 'Tech India', 'Delta Traders', 'Omega Industries'];
-
+  
   // Form Fields
+  requestNumber = 'PR004';
   newTitle = '';
-  newDescription = '';
   newDepartment = 'IT';
+  requestedBy = 'Procurement Manager';
+  itemName = '';
+  itemCategory = 'Raw Material';
+  quantity = 100;
+  unit = 'Pieces';
   newBudget = 0;
-  assignedVendor = '';
+  deliveryDate = '';
+  priority = 'Medium';
+  justification = '';
+  remarks = '';
 
   constructor(public sidebarService: SidebarService, private router: Router) {
     this.loadRequests();
   }
 
   loadRequests() {
-    const cached = localStorage.getItem('vrp_procurement_requests');
+    const cached = localStorage.getItem('vrp_procurement_requests_full');
     if (cached) {
       this.requests = JSON.parse(cached);
     } else {
       this.requests = [
-        { id: 'PR001', title: 'Office Laptops Purchase', description: 'Procurement of 15 developer-grade laptops', department: 'IT', budget: 1200000, date: '2026-07-10', status: 'Approved', assignedVendor: 'Tech India' },
-        { id: 'PR002', title: 'Warehouse Raw Cardboards', description: 'Logistics packaging supply materials', department: 'Logistics', budget: 450000, date: '2026-07-12', status: 'Pending', assignedVendor: 'ABC Pvt Ltd' },
-        { id: 'PR003', title: 'Office Chair Replacements', description: 'Ergonomic seating for HR department', department: 'HR', budget: 180000, date: '2026-07-14', status: 'Pending' }
+        { 
+          id: 'PR001', 
+          title: 'Office Laptops Purchase', 
+          department: 'IT', 
+          requestedBy: 'Maria Smith',
+          itemName: 'Developer Laptops',
+          itemCategory: 'Equipment',
+          quantity: 15,
+          unit: 'Pieces',
+          budget: 1200000, 
+          deliveryDate: '2026-07-30', 
+          priority: 'High',
+          justification: 'Replacement for old developer systems.',
+          remarks: 'Ensure quick warranty terms.',
+          status: 'Approved' 
+        },
+        { 
+          id: 'PR002', 
+          title: 'Warehouse Cardboards', 
+          department: 'Logistics', 
+          requestedBy: 'John Doe',
+          itemName: 'Cardboard Boxes',
+          itemCategory: 'Packaging',
+          quantity: 1000,
+          unit: 'Box',
+          budget: 450000, 
+          deliveryDate: '2026-07-25', 
+          priority: 'Medium',
+          justification: 'Monthly inventory boxes.',
+          remarks: 'None.',
+          status: 'Pending' 
+        }
       ];
       this.saveRequests();
     }
+    this.requestNumber = 'PR' + String(this.requests.length + 1).padStart(3, '0');
   }
 
   saveRequests() {
-    localStorage.setItem('vrp_procurement_requests', JSON.stringify(this.requests));
+    localStorage.setItem('vrp_procurement_requests_full', JSON.stringify(this.requests));
   }
 
   goBack() {
@@ -66,38 +109,33 @@ export class ProcurementComponent {
       alert('Title and budget are required!');
       return;
     }
-    const newId = 'PR' + String(this.requests.length + 1).padStart(3, '0');
     const newReq: ProcurementRequest = {
-      id: newId,
+      id: this.requestNumber,
       title: this.newTitle,
-      description: this.newDescription,
       department: this.newDepartment,
+      requestedBy: this.requestedBy,
+      itemName: this.itemName,
+      itemCategory: this.itemCategory,
+      quantity: this.quantity,
+      unit: this.unit,
       budget: this.newBudget,
-      date: new Date().toISOString().split('T')[0],
-      status: 'Pending',
-      assignedVendor: this.assignedVendor || undefined
+      deliveryDate: this.deliveryDate || new Date().toISOString().split('T')[0],
+      priority: this.priority,
+      justification: this.justification,
+      remarks: this.remarks,
+      status: 'Pending'
     };
     this.requests.push(newReq);
     this.saveRequests();
 
     // Clear
     this.newTitle = '';
-    this.newDescription = '';
-    this.newDepartment = 'IT';
     this.newBudget = 0;
-    this.assignedVendor = '';
+    this.itemName = '';
+    this.justification = '';
+    this.remarks = '';
+    
+    this.requestNumber = 'PR' + String(this.requests.length + 1).padStart(3, '0');
     alert('Procurement request created successfully!');
-  }
-
-  updateStatus(req: ProcurementRequest, status: string) {
-    req.status = status;
-    this.saveRequests();
-    alert(`Request ${req.id} status updated to ${status}!`);
-  }
-
-  assignVendorToRequest(req: ProcurementRequest, vendor: string) {
-    req.assignedVendor = vendor;
-    this.saveRequests();
-    alert(`Assigned ${vendor} to request ${req.id}!`);
   }
 }

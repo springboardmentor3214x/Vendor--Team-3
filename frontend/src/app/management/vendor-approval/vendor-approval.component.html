@@ -1,24 +1,22 @@
+<div class="header-strip">Vendor Reliability Platform</div>
+<div class="subheader-strip">
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+    <div class="search-box-container">
+      <input type="text" placeholder="Search Vendor..." class="search-pill">
+    </div>
+  </div>
+  <div class="topbar-right-info">
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
+    <span class="user-span">👤 Administrator</span>
+  </div>
+</div>
+
 <div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
   <app-sidebar></app-sidebar>
-  
   <div class="dash-main">
-    <!-- Header Topbar with search bar as shown in mockup -->
-    <div class="dash-topbar">
-      <div style="display:flex;align-items:center;gap:1.5rem;flex:1;">
-        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-        <span class="dash-topbar-title">Vendor Reliability Platform</span>
-        <div class="search-container">
-          <span class="search-icon">🔍</span>
-          <input type="text" placeholder="Search Vendor..." class="dash-topbar-search">
-        </div>
-      </div>
-      <div class="dash-topbar-right">
-        <span class="notifications-bell">🔔 Notifications</span>
-        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
-      </div>
-    </div>
-    
     <div class="dash-content">
+      
       <div class="approval-card">
         <div class="approval-header-block">
           <h2 class="approval-title">Vendor Approval Workflow</h2>
@@ -32,47 +30,47 @@
               <tr>
                 <td class="lbl">Company Name</td>
                 <td class="cln">:</td>
-                <td class="val">{{ vendor.companyName }}</td>
+                <td class="val">ABC Pvt Ltd</td>
               </tr>
               <tr>
                 <td class="lbl">Vendor ID</td>
                 <td class="cln">:</td>
-                <td class="val">{{ vendor.vendorId }}</td>
+                <td class="val">VEN001</td>
               </tr>
               <tr>
                 <td class="lbl">Category</td>
                 <td class="cln">:</td>
-                <td class="val">{{ vendor.category }}</td>
+                <td class="val">Raw Material Supplier</td>
               </tr>
               <tr>
                 <td class="lbl">Email</td>
                 <td class="cln">:</td>
-                <td class="val">{{ vendor.email }}</td>
+                <td class="val">abcvendor&#64;gmail.com</td>
               </tr>
               <tr>
                 <td class="lbl">Phone</td>
                 <td class="cln">:</td>
-                <td class="val">{{ vendor.phone }}</td>
+                <td class="val">+91 9876543210</td>
               </tr>
               <tr>
                 <td class="lbl">GST Number</td>
                 <td class="cln">:</td>
-                <td class="val font-mono">{{ vendor.gstNumber }}</td>
+                <td class="val font-mono">33ABCDE1234F1Z5</td>
               </tr>
               <tr>
                 <td class="lbl">PAN Number</td>
                 <td class="cln">:</td>
-                <td class="val font-mono">{{ vendor.panNumber }}</td>
+                <td class="val font-mono">ABCDE1234F</td>
               </tr>
               <tr>
                 <td class="lbl">Approval Status</td>
                 <td class="cln">:</td>
-                <td class="val status-pending-text">{{ vendor.approvalStatus }}</td>
+                <td class="val status-pending-text">Pending Approval</td>
               </tr>
               <tr>
                 <td class="lbl">Contact Person</td>
                 <td class="cln">:</td>
-                <td class="val">{{ vendor.contactPerson }}</td>
+                <td class="val">Raj Kumar</td>
               </tr>
               <tr>
                 <td class="lbl">Vendor Status</td>
@@ -112,18 +110,19 @@
             
             <div class="timeline-section">
               <h3>Approval Timeline</h3>
-              <div class="timeline-box">
+              <div class="timeline-container">
                 <div class="timeline-node">Vendor Registered</div>
-                <div class="timeline-arrow">↓</div>
+                <div class="timeline-line">│</div>
+                <div class="timeline-line">▼</div>
                 <div class="timeline-node active-node">Pending</div>
-                <div class="timeline-branches">
-                  <div class="branch-left">
-                    <span class="branch-arrow">↙</span>
-                    <span class="branch-text">Approve</span>
+                <div class="timeline-split">
+                  <div class="split-branch">
+                    <div>↙</div>
+                    <div style="margin-top:0.25rem;">Approve</div>
                   </div>
-                  <div class="branch-right">
-                    <span class="branch-arrow">↘</span>
-                    <span class="branch-text">Reject</span>
+                  <div class="split-branch">
+                    <div>↘</div>
+                    <div style="margin-top:0.25rem;">Reject</div>
                   </div>
                 </div>
               </div>
@@ -134,11 +133,7 @@
         <!-- Comments Section -->
         <div class="comments-section">
           <h3>Review Comments</h3>
-          <textarea 
-            [(ngModel)]="remarks" 
-            placeholder="Enter approval/rejection remarks..." 
-            class="comments-textarea">
-          </textarea>
+          <input type="text" [(ngModel)]="remarks" placeholder="Enter approval/rejection remarks..." class="comments-input">
         </div>
         
         <!-- Bottom Action Buttons -->
@@ -148,6 +143,7 @@
           <button class="btn-wf btn-wf-back" (click)="goBack()">Back</button>
         </div>
       </div>
+
     </div>
   </div>
 </div>

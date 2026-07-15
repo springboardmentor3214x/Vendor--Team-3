@@ -1,97 +1,84 @@
+<div class="header-strip">Vendor Reliability Platform</div>
+<div class="subheader-strip">
+  <div style="display:flex;align-items:center;gap:1.5rem;">
+    <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+    <div class="search-box-container">
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Search Vendor..." class="search-pill">
+    </div>
+    <button (click)="loadVendors()" class="refresh-btn">🔄 Refresh</button>
+  </div>
+  <div class="topbar-right-info">
+    <select [(ngModel)]="selectedCategory" class="filter-select">
+      <option value="">Category ▼</option>
+      <option>Raw Material</option>
+      <option>Logistics</option>
+      <option>IT Vendor</option>
+    </select>
+    <select [(ngModel)]="selectedStatus" class="filter-select">
+      <option value="">Status ▼</option>
+      <option>Active</option>
+      <option>Pending</option>
+      <option>Suspended</option>
+    </select>
+    <a routerLink="/add-vendor" class="add-vendor-link">+ Add Vendor</a>
+  </div>
+</div>
+
 <div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
   <app-sidebar></app-sidebar>
   <div class="dash-main">
-    <!-- Top Navbar -->
-    <div class="dash-topbar">
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
-          ← Go Back
-        </button>
-        <span class="dash-topbar-title">Vendor Reliability Platform</span>
-      </div>
-      <div class="dash-topbar-right">
-        <span>🔔 Notifications</span>
-        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
-      </div>
-    </div>
+    <div class="dash-content">
+      
+      <!-- Vendor Table -->
+      <div style="background:white;padding:1.5rem;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,0.02);border:1px solid #cbd5e1;">
+        <table class="vrp-table">
+          <thead>
+            <tr>
+              <th>Vendor ID</th>
+              <th>Company Name</th>
+              <th>Category</th>
+              <th>Contact</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Approval</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of vendors">
+              <td style="font-weight:700;">{{ v.id }}</td>
+              <td style="font-weight:700;">{{ v.name }}</td>
+              <td style="font-weight:700;text-align:left;padding-left:1.5rem;">
+                <span class="category-dot" [class.green]="v.category === 'Raw Material'" [class.yellow]="v.category === 'Logistics'" [class.blue]="v.category === 'IT Vendor'"></span>
+                {{ v.category }}
+              </td>
+              <td>{{ v.contact }}</td>
+              <td>{{ v.email }}</td>
+              <td style="font-weight:700;">{{ v.status }}</td>
+              <td style="font-weight:700;">{{ v.approval }}</td>
+              <td>
+                <a routerLink="/vendor-details" style="text-decoration:none;margin-right:0.5rem;cursor:pointer;">👁️</a>
+                <a href="#" (click)="$event.preventDefault()" style="text-decoration:none;margin-right:0.5rem;">✏️</a>
+                <a href="#" (click)="$event.preventDefault()" style="text-decoration:none;">🗑️</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-  <!-- Light Grey Secondary Bar: Search | Category | Status | + Add Vendor -->
-  <div style="background:#e0e0e0;padding:1.25rem 2rem;display:flex;justify-content:space-between;align-items:center;">
-    <div style="display:flex;align-items:center;background:white;border-radius:20px;padding:0.5rem 1.25rem;width:280px;border:1px solid #ccc;">
-      <span style="color:#9ca3af;margin-right:0.5rem;">🔍</span>
-      <input type="text" [(ngModel)]="searchTerm" placeholder="Search Vendor..."
-        style="border:none;outline:none;font-size:0.9rem;color:#6b7280;width:100%;background:transparent;">
-    </div>
-    <div style="display:flex;gap:2rem;align-items:center;">
-      <select [(ngModel)]="selectedCategory"
-        style="border:none;background:transparent;font-weight:700;font-size:1rem;cursor:pointer;outline:none;">
-        <option value="">Category ▼</option>
-        <option>Raw Material</option>
-        <option>Logistics</option>
-        <option>IT Vendor</option>
-        <option>Electronics</option>
-      </select>
-      <select [(ngModel)]="selectedStatus"
-        style="border:none;background:transparent;font-weight:700;font-size:1rem;cursor:pointer;outline:none;">
-        <option value="">Status ▼</option>
-        <option>Active</option>
-        <option>Pending</option>
-        <option>Inactive</option>
-      </select>
-      <a routerLink="/add-vendor"
-        style="font-weight:700;font-size:1rem;color:#1e293b;text-decoration:none;cursor:pointer;">+ Add Vendor</a>
+        <!-- Pagination -->
+        <div class="pagination-container">
+          <span class="showing-text">Showing 1–10 of {{ totalVendors }} Vendors</span>
+          <div class="pagination-actions">
+            <button (click)="prev()" class="page-arrow">◀ Previous</button>
+            <span *ngFor="let p of pages">
+              <button (click)="goToPage(p)" class="page-num" [class.active-num]="currentPage === p">{{ p }}</button>
+            </span>
+            <span style="font-weight:800;color:#64748b;">...</span>
+            <button (click)="next()" class="page-arrow">Next ▶</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-
-  <!-- Vendor Table -->
-  <div style="padding:2rem;">
-    <table style="width:100%;border-collapse:collapse;">
-      <thead>
-        <tr style="background:#ffd6d0;">
-          <th style="padding:1.25rem 1rem;border:1px solid #1e293b;font-weight:700;text-align:center;font-size:0.95rem;">Vendor ID</th>
-          <th style="padding:1.25rem 1rem;border:1px solid #1e293b;font-weight:700;text-align:center;font-size:0.95rem;">Company Name</th>
-          <th style="padding:1.25rem 1rem;border:1px solid #1e293b;font-weight:700;text-align:center;font-size:0.95rem;">Category</th>
-          <th style="padding:1.25rem 1rem;border:1px solid #1e293b;font-weight:700;text-align:center;font-size:0.95rem;">Contact</th>
-          <th style="padding:1.25rem 1rem;border:1px solid #1e293b;font-weight:700;text-align:center;font-size:0.95rem;">Email</th>
-          <th style="padding:1.25rem 1rem;border:1px solid #1e293b;font-weight:700;text-align:center;font-size:0.95rem;">Status</th>
-          <th style="padding:1.25rem 1rem;border:1px solid #1e293b;font-weight:700;text-align:center;font-size:0.95rem;">Approval</th>
-          <th style="padding:1.25rem 1rem;border:1px solid #1e293b;font-weight:700;text-align:center;font-size:0.95rem;">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let v of vendors" style="background:#ffe8e5;">
-          <td style="padding:1.5rem 1rem;border:1px solid #1e293b;text-align:center;font-weight:700;">{{v.id}}</td>
-          <td style="padding:1.5rem 1rem;border:1px solid #1e293b;text-align:center;font-weight:700;">{{v.name}}</td>
-          <td style="padding:1.5rem 1rem;border:1px solid #1e293b;text-align:center;font-weight:600;">{{v.category}}</td>
-          <td style="padding:1.5rem 1rem;border:1px solid #1e293b;text-align:center;font-weight:600;">{{v.contact}}</td>
-          <td style="padding:1.5rem 1rem;border:1px solid #1e293b;text-align:center;font-weight:600;">{{v.email}}</td>
-          <td style="padding:1.5rem 1rem;border:1px solid #1e293b;text-align:center;font-weight:600;">{{v.status}}</td>
-          <td style="padding:1.5rem 1rem;border:1px solid #1e293b;text-align:center;font-weight:600;">{{v.approval}}</td>
-          <td style="padding:1.5rem 1rem;border:1px solid #1e293b;text-align:center;">
-            <a routerLink="/vendor-details" title="View" style="text-decoration:none;margin-right:0.5rem;font-size:1.1rem;cursor:pointer;">👁️</a>
-            <a href="#" title="Edit" style="text-decoration:none;margin-right:0.5rem;font-size:1.1rem;">✏️</a>
-            <a href="#" title="Delete" style="text-decoration:none;font-size:1.1rem;">🗑️</a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Pagination Footer -->
-    <div style="margin-top:1.5rem;display:flex;justify-content:space-between;align-items:center;">
-      <span style="font-weight:700;font-size:0.9rem;">Showing 1–10 of {{totalVendors}} Vendors</span>
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <button (click)="prev()" style="background:none;border:none;cursor:pointer;font-weight:700;font-size:1rem;">◀ Previous</button>
-        <span *ngFor="let p of pages">
-          <button (click)="goToPage(p)"
-            [style.fontWeight]="currentPage === p ? '800' : '500'"
-            [style.textDecoration]="currentPage === p ? 'underline' : 'none'"
-            style="background:none;border:none;cursor:pointer;font-size:0.95rem;padding:0 0.25rem;">{{p}}</button>
-        </span>
-        <span style="font-weight:600;">...</span>
-        <button (click)="next()" style="background:none;border:none;cursor:pointer;font-weight:700;font-size:1rem;">Next ▶</button>
-      </div>
-    </div>
-  </div>
-</div>
 </div>

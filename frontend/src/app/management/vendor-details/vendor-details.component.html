@@ -1,58 +1,58 @@
+<div class="header-strip">Vendor Reliability Platform</div>
+<div class="subheader-strip">
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+  </div>
+  <div class="topbar-right-info">
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
+    <span class="user-span">👤 Administrator</span>
+  </div>
+</div>
+
 <div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
   <app-sidebar></app-sidebar>
-  
   <div class="dash-main">
-    <!-- Header Topbar matching layout but keeping hamburger toggle -->
-    <div class="dash-topbar">
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-        <span class="dash-topbar-title">Vendor Reliability Platform</span>
-      </div>
-      <div class="dash-topbar-right">
-        <span class="notifications-bell">🔔 Notifications</span>
-        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
-      </div>
-    </div>
-    
     <div class="dash-content">
-      <div class="details-card">
-        <h2 class="details-header">Vendor Details</h2>
-        
+      
+      <div class="details-container">
+        <h2 class="details-main-title">Vendor Details</h2>
+
         <div class="details-grid">
           <!-- Left Column -->
           <div class="details-column">
+            
             <div class="info-section">
               <h3>Company Information</h3>
               <table class="info-table">
                 <tr>
-                  <td class="label">Vendor ID</td>
-                  <td class="colon">:</td>
-                  <td class="value">V001</td>
+                  <td class="lbl">Vendor ID</td>
+                  <td class="cln">:</td>
+                  <td class="val">V001</td>
                 </tr>
                 <tr>
-                  <td class="label">Company Name</td>
-                  <td class="colon">:</td>
-                  <td class="value">ABC Pvt Ltd</td>
+                  <td class="lbl">Company Name</td>
+                  <td class="cln">:</td>
+                  <td class="val">ABC Pvt Ltd</td>
                 </tr>
                 <tr>
-                  <td class="label">Vendor Category</td>
-                  <td class="colon">:</td>
-                  <td class="value">Raw Material Supplier</td>
+                  <td class="lbl">Vendor Category</td>
+                  <td class="cln">:</td>
+                  <td class="val">Raw Material Supplier</td>
                 </tr>
                 <tr>
-                  <td class="label">Vendor Status</td>
-                  <td class="colon">:</td>
-                  <td class="value"><span class="status-indicator active-dot">🟢</span> Active</td>
+                  <td class="lbl">Vendor Status</td>
+                  <td class="cln">:</td>
+                  <td class="val"><span class="status-dot green"></span> Active</td>
                 </tr>
                 <tr>
-                  <td class="label">Approval Status</td>
-                  <td class="colon">:</td>
-                  <td class="value"><span class="status-indicator approved-check">✅</span> Approved</td>
+                  <td class="lbl">Approval Status</td>
+                  <td class="cln">:</td>
+                  <td class="val"><span class="status-check">✅</span> Approved</td>
                 </tr>
                 <tr>
-                  <td class="label">Registration Number</td>
-                  <td class="colon">:</td>
-                  <td class="value">REG123456</td>
+                  <td class="lbl">Registration Number</td>
+                  <td class="cln">:</td>
+                  <td class="val">REG123456</td>
                 </tr>
               </table>
             </div>
@@ -61,99 +61,96 @@
               <h3>Contact Information</h3>
               <table class="info-table">
                 <tr>
-                  <td class="label">Contact Person</td>
-                  <td class="colon">:</td>
-                  <td class="value">Rahul Sharma</td>
+                  <td class="lbl">Contact Person</td>
+                  <td class="cln">:</td>
+                  <td class="val">Rahul Sharma</td>
                 </tr>
                 <tr>
-                  <td class="label">Designation</td>
-                  <td class="colon">:</td>
-                  <td class="value">Purchase Manager</td>
+                  <td class="lbl">Designation</td>
+                  <td class="cln">:</td>
+                  <td class="val">Purchase Manager</td>
                 </tr>
                 <tr>
-                  <td class="label">Email</td>
-                  <td class="colon">:</td>
-                  <td class="value">abc&#64;gmail.com</td>
+                  <td class="lbl">Email</td>
+                  <td class="cln">:</td>
+                  <td class="val">abc&#64;gmail.com</td>
                 </tr>
                 <tr>
-                  <td class="label">Phone Number</td>
-                  <td class="colon">:</td>
-                  <td class="value">+91 9876543210</td>
+                  <td class="lbl">Phone Number</td>
+                  <td class="cln">:</td>
+                  <td class="val">+91 9876543210</td>
                 </tr>
                 <tr>
-                  <td class="label">Alternate Number</td>
-                  <td class="colon">:</td>
-                  <td class="value">+91 9123456780</td>
+                  <td class="lbl">Alternate Number</td>
+                  <td class="cln">:</td>
+                  <td class="val">+91 9123456780</td>
                 </tr>
                 <tr>
-                  <td class="label">Website</td>
-                  <td class="colon">:</td>
-                  <td class="value">www.abcpvt.com</td>
+                  <td class="lbl">Website</td>
+                  <td class="cln">:</td>
+                  <td class="val">www.abcpvt.com</td>
                 </tr>
               </table>
             </div>
 
             <div class="info-section">
               <h3>Uploaded Documents</h3>
-              <div class="document-list">
-                <div class="document-item">
-                  <span class="doc-icon">📄</span>
-                  <span class="doc-name">GST Certificate</span>
+              <div class="docs-list">
+                <div class="doc-item">
+                  <span>📄 GST Certificate</span>
                   <a href="#" class="view-link" (click)="$event.preventDefault()">View</a>
                 </div>
-                <div class="document-item">
-                  <span class="doc-icon">📄</span>
-                  <span class="doc-name">PAN Card</span>
+                <div class="doc-item">
+                  <span>📄 PAN Card</span>
                   <a href="#" class="view-link" (click)="$event.preventDefault()">View</a>
                 </div>
-                <div class="document-item">
-                  <span class="doc-icon">📄</span>
-                  <span class="doc-name">Registration Certificate</span>
+                <div class="doc-item">
+                  <span>📄 Registration Certificate</span>
                   <a href="#" class="view-link" (click)="$event.preventDefault()">View</a>
                 </div>
-                <div class="document-item">
-                  <span class="doc-icon">📄</span>
-                  <span class="doc-name">ISO Certificate</span>
+                <div class="doc-item">
+                  <span>📄 ISO Certificate</span>
                   <a href="#" class="view-link" (click)="$event.preventDefault()">View</a>
                 </div>
-                <div class="document-item">
-                  <span class="doc-icon">📄</span>
-                  <span class="doc-name">Other Documents</span>
+                <div class="doc-item">
+                  <span>📄 Other Documents</span>
                   <a href="#" class="view-link" (click)="$event.preventDefault()">View</a>
                 </div>
               </div>
             </div>
+
           </div>
-          
+
           <!-- Right Column -->
           <div class="details-column">
+            
             <div class="info-section">
               <h3>Business Information</h3>
               <table class="info-table">
                 <tr>
-                  <td class="label">GST Number</td>
-                  <td class="colon">:</td>
-                  <td class="value font-mono">29ABCDE1234F1Z5</td>
+                  <td class="lbl">GST Number</td>
+                  <td class="cln">:</td>
+                  <td class="val font-mono">29ABCDE1234F1Z5</td>
                 </tr>
                 <tr>
-                  <td class="label">PAN Number</td>
-                  <td class="colon">:</td>
-                  <td class="value font-mono">ABCDE1234F</td>
+                  <td class="lbl">PAN Number</td>
+                  <td class="cln">:</td>
+                  <td class="val font-mono">ABCDE1234F</td>
                 </tr>
                 <tr>
-                  <td class="label">Bank Account Number</td>
-                  <td class="colon">:</td>
-                  <td class="value">********4521</td>
+                  <td class="lbl">Bank Account Number</td>
+                  <td class="cln">:</td>
+                  <td class="val font-mono">********4521</td>
                 </tr>
                 <tr>
-                  <td class="label">IFSC Code</td>
-                  <td class="colon">:</td>
-                  <td class="value font-mono">SBIN0001234</td>
+                  <td class="lbl">IFSC Code</td>
+                  <td class="cln">:</td>
+                  <td class="val font-mono">SBIN0001234</td>
                 </tr>
                 <tr>
-                  <td class="label">Payment Terms</td>
-                  <td class="colon">:</td>
-                  <td class="value">30 Days</td>
+                  <td class="lbl">Payment Terms</td>
+                  <td class="cln">:</td>
+                  <td class="val">30 Days</td>
                 </tr>
               </table>
             </div>
@@ -162,64 +159,67 @@
               <h3>Address</h3>
               <table class="info-table">
                 <tr>
-                  <td class="label">Address Line 1</td>
-                  <td class="colon">:</td>
-                  <td class="value">No.25, Anna Nagar</td>
+                  <td class="lbl">Address Line 1</td>
+                  <td class="cln">:</td>
+                  <td class="val">No.25, Anna Nagar</td>
                 </tr>
                 <tr>
-                  <td class="label">Address Line 2</td>
-                  <td class="colon">:</td>
-                  <td class="value">Near Bus Stand</td>
+                  <td class="lbl">Address Line 2</td>
+                  <td class="cln">:</td>
+                  <td class="val">Near Bus Stand</td>
                 </tr>
                 <tr>
-                  <td class="label">City</td>
-                  <td class="colon">:</td>
-                  <td class="value">Chennai</td>
+                  <td class="lbl">City</td>
+                  <td class="cln">:</td>
+                  <td class="val">Chennai</td>
                 </tr>
                 <tr>
-                  <td class="label">State</td>
-                  <td class="colon">:</td>
-                  <td class="value">Tamil Nadu</td>
+                  <td class="lbl">State</td>
+                  <td class="cln">:</td>
+                  <td class="val">Tamil Nadu</td>
                 </tr>
                 <tr>
-                  <td class="label">Country</td>
-                  <td class="colon">:</td>
-                  <td class="value">India</td>
+                  <td class="lbl">Country</td>
+                  <td class="cln">:</td>
+                  <td class="val">India</td>
                 </tr>
                 <tr>
-                  <td class="label">Pincode</td>
-                  <td class="colon">:</td>
-                  <td class="value">600001</td>
+                  <td class="lbl">Pincode</td>
+                  <td class="cln">:</td>
+                  <td class="val">600001</td>
                 </tr>
               </table>
             </div>
 
             <div class="info-section">
               <h3>Description</h3>
-              <div class="description-box">
+              <div class="desc-card-box">
                 ABC Pvt Ltd is a trusted raw material supplier with excellent delivery performance and quality compliance.
               </div>
             </div>
 
-            <div class="info-section permission-section">
+            <div class="info-section">
               <h3>Role Permission</h3>
               <div class="permission-item">
-                <span class="permission-dot">🟢</span>
-                <span class="permission-text">Logged in as: <strong>Administrator</strong> , <strong>Procurement Manager</strong></span>
+                <span class="status-dot green"></span>
+                <strong>Logged in as: Administrator , Procurement Manage</strong>
               </div>
-              <div class="permission-status">
+              <div class="permission-item" style="margin-top:0.5rem;font-weight:700;">
                 ✓ You have permission to edit this vendor.
               </div>
             </div>
+
           </div>
         </div>
-        
+
         <!-- Action Buttons -->
-        <div class="action-buttons-container">
-          <button class="btn btn-back" (click)="goBack()">Back</button>
-          <button class="btn btn-edit">✏️ Edit Vendor</button>
+        <div class="details-actions">
+          <button (click)="goBack()" class="btn-back">Back</button>
+          <button (click)="goBack()" class="btn-edit-vendor">✏️ Edit Vendor</button>
         </div>
+
       </div>
+
     </div>
   </div>
 </div>

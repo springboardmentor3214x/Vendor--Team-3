@@ -19,6 +19,10 @@ export class VendorListComponent {
     const route = localStorage.getItem('dashboardRoute') || '/admin-dashboard';
     this.router.navigate([route]);
   }
+  loadVendors() {
+    alert('Vendor list refreshed!');
+  }
+
   searchTerm = '';
   selectedCategory = '';
   selectedStatus = '';
