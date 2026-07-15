@@ -1,95 +1,158 @@
+<div class="header-strip">Vendor Reliability Platform</div>
+<div class="subheader-strip">
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+  </div>
+  <div class="topbar-right-info">
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
+    <span class="user-span">👤 Administrator</span>
+  </div>
+</div>
+
 <div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
   <app-sidebar></app-sidebar>
   <div class="dash-main">
-    <!-- Top Navbar -->
-    <div class="dash-topbar">
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
-          ← Go Back
-        </button>
-        <span class="dash-topbar-title">Vendor Reliability Platform</span>
+    <div class="dash-content">
+      
+      <div class="add-vendor-header">
+        <h2>Add New Vendor</h2>
+        <p>Register and Manage Vendor Information</p>
       </div>
-      <div class="dash-topbar-right">
-        <span>🔔 Notifications</span>
-        <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+
+      <div class="add-vendor-grid">
+        
+        <!-- Column 1 -->
+        <div class="form-col">
+          <div class="form-section-title">Company Information</div>
+          <div class="field-group">
+            <label class="field-label">Company Name *</label>
+            <input type="text" placeholder="Enter company name" class="field-input">
+          </div>
+          <div class="field-group" style="margin-bottom:1.5rem;">
+            <label class="field-label">Vendor Category *</label>
+            <select class="field-select">
+              <option value="" disabled selected>Select Category</option>
+              <option *ngFor="let c of categories">{{c}}</option>
+            </select>
+          </div>
+
+          <div class="form-section-title">Contact Information</div>
+          <div class="field-group">
+            <label class="field-label">Contact Person *</label>
+            <input type="text" class="field-input">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Email Address *</label>
+            <input type="email" class="field-input">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Phone Number *</label>
+            <input type="tel" class="field-input">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Designation</label>
+            <input type="text" class="field-input">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Alternate Phone</label>
+            <input type="tel" class="field-input">
+          </div>
+        </div>
+
+        <!-- Column 2 -->
+        <div class="form-col">
+          <div class="form-section-title">Business Information</div>
+          <div class="field-group">
+            <label class="field-label">GST Number</label>
+            <input type="text" class="field-input">
+          </div>
+          <div class="field-group">
+            <label class="field-label">PAN Number</label>
+            <input type="text" class="field-input">
+          </div>
+          <div class="field-group" style="margin-bottom:1.5rem;">
+            <label class="field-label">Company Registration Number</label>
+            <input type="text" class="field-input">
+          </div>
+
+          <div class="form-section-title">Banking Information</div>
+          <div class="field-group">
+            <label class="field-label">Bank Account Number</label>
+            <input type="text" class="field-input">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Payment Terms ▼</label>
+            <select class="field-select">
+              <option *ngFor="let pt of paymentTerms">{{pt}}</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label class="field-label">IFSC Code</label>
+            <input type="text" class="field-input">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Vendor Status ▼</label>
+            <select class="field-select">
+              <option *ngFor="let s of statusOptions">{{s}}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Column 3 -->
+        <div class="form-col">
+          <div class="form-section-title">Address</div>
+          <div class="field-group">
+            <label class="field-label">Address Line 1</label>
+            <input type="text" class="field-input">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Address Line 2</label>
+            <input type="text" class="field-input">
+          </div>
+          <div class="address-sub-grid">
+            <div class="field-group">
+              <label class="field-label">City</label>
+              <input type="text" class="field-input">
+            </div>
+            <div class="field-group">
+              <label class="field-label">State</label>
+              <input type="text" class="field-input">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Country</label>
+              <input type="text" class="field-input">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Pincode</label>
+              <input type="text" class="field-input">
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Website</label>
+            <input type="url" class="field-input">
+          </div>
+          <div class="field-group" style="margin-bottom:1.5rem;">
+            <label class="field-label">Description</label>
+            <input type="text" class="field-input">
+          </div>
+
+          <div class="form-section-title">Upload Vendor Documents</div>
+          <div class="docs-upload-grid">
+            <button class="btn-upload">GST Cert. Upload ⬆️</button>
+            <button class="btn-upload">ISO Cert Upload ⬆️</button>
+            <button class="btn-upload">PAN Card Upload ⬆️</button>
+            <button class="btn-upload">Company Reg Upload ⬆️</button>
+            <button class="btn-upload" style="grid-column: span 2;">Other Docs Upload ⬆️</button>
+          </div>
+
+          <div class="actions-row">
+            <button routerLink="/vendors" class="btn-save">Save Vendor</button>
+            <button routerLink="/vendors" class="btn-cancel">Cancel</button>
+          </div>
+        </div>
+
       </div>
-    </div>
-    
-    <div class="dash-content" style="background:#d1d5db;">
-  <div style="padding:2rem;max-width:1400px;margin:0 auto;">
-    <div style="text-align:center;margin-bottom:1.5rem;">
-      <h2 style="margin:0;font-weight:800;">Add New Vendor</h2>
-      <p style="margin:0;font-weight:700;">Register and Manage Vendor Information</p>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;">
-      <!-- Column 1 -->
-      <div>
-        <h4 style="font-weight:800;margin-bottom:1rem;">Company Information</h4>
-        <div style="margin-bottom:0.75rem;">
-          <label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Company Name *</label>
-          <input type="text" placeholder="Enter company name" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;">
-        </div>
-        <div style="margin-bottom:1.5rem;">
-          <label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Vendor Category *</label>
-          <select style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;">
-            <option value="" disabled selected>Select Category</option>
-            <option *ngFor="let c of categories">{{c}}</option>
-          </select>
-        </div>
-        <h4 style="font-weight:800;margin-bottom:1rem;">Contact Information</h4>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Contact Person *</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Email Address *</label><input type="email" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Phone Number *</label><input type="tel" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Designation</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Alternate Phone</label><input type="tel" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-      </div>
-      <!-- Column 2 -->
-      <div>
-        <h4 style="font-weight:800;margin-bottom:1rem;">Business Information</h4>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">GST Number</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">PAN Number</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="margin-bottom:1.5rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Company Registration Number</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <h4 style="font-weight:800;margin-bottom:1rem;">Banking Information</h4>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Bank Account Number</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="margin-bottom:0.75rem;">
-          <label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Payment Terms ▼</label>
-          <select style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"><option *ngFor="let pt of paymentTerms">{{pt}}</option></select>
-        </div>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">IFSC Code</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="margin-bottom:0.75rem;">
-          <label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Vendor Status ▼</label>
-          <select style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"><option *ngFor="let s of statusOptions">{{s}}</option></select>
-        </div>
-      </div>
-      <!-- Column 3 -->
-      <div>
-        <h4 style="font-weight:800;margin-bottom:1rem;">Address</h4>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Address Line 1</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Address Line 2</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.75rem;">
-          <div><label style="display:block;font-size:0.8rem;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">City</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-          <div><label style="display:block;font-size:0.8rem;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">State</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-          <div><label style="display:block;font-size:0.8rem;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Country</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-          <div><label style="display:block;font-size:0.8rem;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Pincode</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        </div>
-        <div style="margin-bottom:0.75rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Website</label><input type="url" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <div style="margin-bottom:1.5rem;"><label style="display:block;font-weight:600;color:#6b7280;margin-bottom:0.3rem;">Description</label><input type="text" style="width:100%;padding:0.6rem;border:none;background:white;border-radius:4px;"></div>
-        <h4 style="font-weight:800;margin-bottom:1rem;">Upload Vendor Documents</h4>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1.5rem;">
-          <button style="padding:0.75rem;background:#2563eb;color:white;border:none;border-radius:4px;font-weight:700;cursor:pointer;">GST Cert. Upload ⬆️</button>
-          <button style="padding:0.75rem;background:#2563eb;color:white;border:none;border-radius:4px;font-weight:700;cursor:pointer;">ISO Cert Upload ⬆️</button>
-          <button style="padding:0.75rem;background:#2563eb;color:white;border:none;border-radius:4px;font-weight:700;cursor:pointer;">PAN Card Upload ⬆️</button>
-          <button style="padding:0.75rem;background:#2563eb;color:white;border:none;border-radius:4px;font-weight:700;cursor:pointer;">Company Reg Upload ⬆️</button>
-          <button style="padding:0.75rem;background:#2563eb;color:white;border:none;border-radius:4px;font-weight:700;cursor:pointer;grid-column:span 1;">Other Docs Upload ⬆️</button>
-        </div>
-        <div style="display:flex;gap:1rem;">
-          <button routerLink="/vendors" style="flex:1;padding:0.85rem;background:#8b5cf6;color:white;border:none;border-radius:4px;font-weight:700;font-size:1rem;cursor:pointer;">Save Vendor</button>
-          <button routerLink="/vendors" style="flex:1;padding:0.85rem;background:#8b5cf6;color:white;border:none;border-radius:4px;font-weight:700;font-size:1rem;cursor:pointer;">Cancel</button>
-        </div>
-      </div>
+
     </div>
   </div>
-</div>
-</div>
 </div>

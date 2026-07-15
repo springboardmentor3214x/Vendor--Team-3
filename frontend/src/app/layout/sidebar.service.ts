@@ -69,11 +69,11 @@ export class SidebarService {
   getSidebarBackground(): string {
     const role = this.getCurrentRole();
     switch (role) {
-      case 'admin': return '#3b00ff';
+      case 'admin': return '#1e3a8a';
       case 'procurement': return '#1e3a8a';
       case 'supply': return '#5c3d2e';
-      case 'finance': return '#92620a';
-      case 'auditor': return '#1a1f1c';
+      case 'finance': return '#8b753a';
+      case 'auditor': return '#1e1e1e';
       case 'vendor': return '#8b3a3a';
       default: return '#2b303b';
     }

@@ -1,46 +1,57 @@
 <div class="auth-bg">
   <div class="auth-card">
     <div class="auth-title">Vendor Reliability<br>Intelligence Platform</div>
+    
     <div class="auth-subtitle">Create Account</div>
+    
     <div class="auth-form">
       <div *ngIf="errorMessage" class="error-alert">
         ⚠️ {{ errorMessage }}
       </div>
+      
       <div class="field-group">
         <label class="field-label">Full Name</label>
         <input class="field-input" type="text" [(ngModel)]="fullName" placeholder="Enter your Name">
       </div>
+      
       <div class="field-group">
         <label class="field-label">Employee id</label>
         <input class="field-input" type="text" [(ngModel)]="employeeId" placeholder="Enter your Employee id">
       </div>
+      
       <div class="field-group">
         <label class="field-label">Company Name</label>
-        <input class="field-input" type="text" [(ngModel)]="companyName" placeholder="Enter company Name">
+        <input class="field-input" type="text" [(ngModel)]="companyName" placeholder="Enter complany Name">
       </div>
+      
       <div class="field-group">
         <label class="field-label">Email Address</label>
         <input class="field-input" type="email" [(ngModel)]="email" placeholder="Enter your Email">
       </div>
+      
       <div class="field-group">
         <label class="field-label">Mobile Number</label>
-        <input class="field-input" type="tel" [(ngModel)]="mobile" placeholder="Enter mobile Number">
+        <input class="field-input" type="text" [(ngModel)]="mobile" placeholder="Enter mobile Number">
       </div>
+      
       <div class="field-group">
         <label class="field-label">Password</label>
         <input class="field-input" type="password" [(ngModel)]="password" placeholder="Enter your Password">
       </div>
+      
       <div class="field-group">
         <label class="field-label">Confirm Password</label>
         <input class="field-input" type="password" [(ngModel)]="confirmPassword" placeholder="Re-enter your Password">
       </div>
+      
       <div class="field-group">
         <label class="field-label">Role</label>
-        <select class="field-input" [(ngModel)]="role">
+        <select class="field-select" [(ngModel)]="role">
           <option value="" disabled selected>Select your Role</option>
           <option *ngFor="let r of roles" [value]="r">{{r}}</option>
         </select>
       </div>
+
       <button class="btn-primary" (click)="onRegister()">Register</button>
       <p class="login-link">Already have an account? <a routerLink="/login" class="link-blue">Login</a></p>
     </div>
