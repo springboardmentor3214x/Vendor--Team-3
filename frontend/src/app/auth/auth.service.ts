@@ -21,11 +21,22 @@ export class AuthService {
   }
 
   register(data: any): Observable<any> {
-    // Backend expects UserRegister: { full_name, email, password }
+    const roleMapping: { [key: string]: number } = {
+      'Administrator': 1,
+      'Procurement Manager': 2,
+      'Supply Chain Manager': 3,
+      'Vendor': 4,
+      'Finance Officer': 5,
+      'Auditor': 6
+    };
+    const roleId = roleMapping[data.role] || 4; // Default to Vendor
+
     const payload = {
       full_name: data.fullName || data.full_name,
       email: data.email,
-      password: data.password
+      password: data.password,
+      phone: data.mobile || '',
+      role_id: roleId
     };
     return this.http.post(`${this.apiUrl}/register`, payload).pipe(
       tap((res: any) => {
