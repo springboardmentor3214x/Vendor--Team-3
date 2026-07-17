@@ -14,8 +14,23 @@ export class SidebarService {
     { id: 4, title: 'Compliance Flag', message: 'Anti-Bribery Statement check failed for Delta Traders.', time: '1 day ago' }
   ];
 
+  constructor() {
+    this.updateBodyClass();
+  }
+
   toggleSidebar() {
     this.isSidebarVisible = !this.isSidebarVisible;
+    this.updateBodyClass();
+  }
+
+  private updateBodyClass() {
+    if (typeof document !== 'undefined') {
+      if (this.isSidebarVisible) {
+        document.body.classList.remove('sidebar-hidden');
+      } else {
+        document.body.classList.add('sidebar-hidden');
+      }
+    }
   }
 
   toggleNotifications() {

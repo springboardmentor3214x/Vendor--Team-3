@@ -1,4 +1,6 @@
-<router-outlet></router-outlet>
+<div [@routeAnimations]="prepareRoute(outlet)" style="position: relative; min-height: 100vh;">
+  <router-outlet #outlet="outlet"></router-outlet>
+</div>
 
 <!-- Global Notification Drawer Overlay -->
 <div *ngIf="sidebarService.isNotificationVisible" 

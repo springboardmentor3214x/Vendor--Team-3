@@ -124,6 +124,24 @@
           <!-- Right Column -->
           <div class="details-column">
             
+            <!-- AI Trust Score Widget -->
+            <div class="info-section ai-trust-section" style="background:#f8fafc; border: 1.5px solid #2563eb; border-radius: 8px; padding: 1.25rem;">
+              <h3 style="margin-top:0; color:#2563eb; font-weight:800;">🤖 AI Trust Score & Risk Level</h3>
+              <div class="ai-gauge-wrapper" style="display:flex; align-items:center; gap:1.5rem; margin-top:0.75rem;">
+                <div class="ai-gauge-circle" style="position:relative; width:80px; height:80px; flex-shrink:0;">
+                  <svg viewBox="0 0 100 100" style="transform:rotate(-90deg); width:100%; height:100%;">
+                    <circle cx="50" cy="50" r="40" style="fill:none; stroke:#e2e8f0; stroke-width:10;" />
+                    <circle cx="50" cy="50" r="40" style="fill:none; stroke:#10b981; stroke-width:10; stroke-dasharray:251.2; stroke-dashoffset:20; stroke-linecap:round;" />
+                  </svg>
+                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:1.25rem; font-weight:800; color:#0f172a;">92%</div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:0.4rem;">
+                  <div style="align-self:flex-start; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:800; border-radius:20px; background:#d1fae5; color:#065f46;">LOW RISK</div>
+                  <p style="font-size:0.8rem; color:#475569; line-height:1.45; margin:0; font-weight:600;">GST registration is active. PAN matches the company name. Payment history shows 98% on-time compliance.</p>
+                </div>
+              </div>
+            </div>
+            
             <div class="info-section">
               <h3>Business Information</h3>
               <table class="info-table">

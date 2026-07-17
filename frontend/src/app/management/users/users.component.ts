@@ -41,12 +41,12 @@ export class UsersComponent {
       this.users = JSON.parse(cached);
     } else {
       this.users = [
-        { id: 'U001', name: 'Alex Harrison', email: 'admin@vrp.com', phone: '+91 9876543210', role: 'Administrator', status: 'Active' },
-        { id: 'U002', name: 'John Doe', email: 'finance@vrp.com', phone: '+91 9988776655', role: 'Finance Officer', status: 'Active' },
-        { id: 'U003', name: 'Maria Smith', email: 'procurement@vrp.com', phone: '+91 9898989898', role: 'Procurement Manager', status: 'Active' },
-        { id: 'U004', name: 'Bruce Wayne', email: 'supply@vrp.com', phone: '+91 9797979797', role: 'Supply Chain Manager', status: 'Active' },
-        { id: 'U005', name: 'Clark Kent', email: 'auditor@vrp.com', phone: '+91 9696969696', role: 'Auditor', status: 'Active' },
-        { id: 'U006', name: 'Peter Parker', email: 'vendor@vrp.com', phone: '+91 9595959595', role: 'Vendor', status: 'Active' }
+        { id: 'U001', name: 'Alex Harrison', email: 'a@gmail.com', phone: '+91 9876543210', role: 'Administrator', status: 'Active' },
+        { id: 'U002', name: 'John Doe', email: 'f@gmail.com', phone: '+91 9988776655', role: 'Finance Officer', status: 'Active' },
+        { id: 'U003', name: 'Maria Smith', email: 'p@gmail.com', phone: '+91 9898989898', role: 'Procurement Manager', status: 'Active' },
+        { id: 'U004', name: 'Bruce Wayne', email: 's@gmail.com', phone: '+91 9797979797', role: 'Supply Chain Manager', status: 'Active' },
+        { id: 'U005', name: 'Clark Kent', email: 'au@gmail.com', phone: '+91 9696969696', role: 'Auditor', status: 'Active' },
+        { id: 'U006', name: 'Peter Parker', email: 'v@gmail.com', phone: '+91 9595959595', role: 'Vendor', status: 'Active' }
       ];
       this.saveUsers();
     }

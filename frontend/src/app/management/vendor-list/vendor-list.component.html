@@ -44,7 +44,21 @@
               <th>Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody *ngIf="isLoading">
+            <tr *ngFor="let dummy of [1,2,3,4]">
+              <td><div class="shimmer shimmer-text" style="width: 50px; height: 14px;"></div></td>
+              <td><div class="shimmer shimmer-text" style="width: 130px; height: 14px;"></div></td>
+              <td><div class="shimmer shimmer-text" style="width: 90px; height: 14px;"></div></td>
+              <td><div class="shimmer shimmer-text" style="width: 100px; height: 14px;"></div></td>
+              <td><div class="shimmer shimmer-text" style="width: 140px; height: 14px;"></div></td>
+              <td><div class="shimmer shimmer-text" style="width: 70px; height: 14px;"></div></td>
+              <td><div class="shimmer shimmer-text" style="width: 70px; height: 14px;"></div></td>
+              <td>
+                <div class="shimmer shimmer-text" style="width: 60px; height: 14px;"></div>
+              </td>
+            </tr>
+          </tbody>
+          <tbody *ngIf="!isLoading">
             <tr *ngFor="let v of vendors">
               <td style="font-weight:700;">{{ v.id }}</td>
               <td style="font-weight:700;">{{ v.name }}</td>

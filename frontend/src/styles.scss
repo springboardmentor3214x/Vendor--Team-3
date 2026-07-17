@@ -322,3 +322,74 @@ body {
   }
 }
 
+/* Global Sidebar and Header Layout Alignment */
+body .sidebar {
+  top: 0 !important;
+  height: 100vh !important;
+  z-index: 999 !important;
+}
+
+body .header-strip, 
+body .subheader-strip {
+  margin-left: 210px !important;
+  transition: margin-left 0.25s ease-in-out;
+}
+
+body.sidebar-hidden .header-strip, 
+body.sidebar-hidden .subheader-strip {
+  margin-left: 0 !important;
+}
+
+body .dash-main {
+  margin-left: 210px !important;
+  transition: margin-left 0.25s ease-in-out;
+}
+
+body.sidebar-hidden .dash-main {
+  margin-left: 0 !important;
+}
+
+body.sidebar-hidden .sidebar {
+  transform: translateX(-210px) !important;
+}
+
+/* Shimmer Loader Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.shimmer {
+  background: #f1f5f9;
+  background-image: linear-gradient(to right, #f1f5f9 0%, #e2e8f0 20%, #f1f5f9 40%, #f1f5f9 100%);
+  background-repeat: no-repeat;
+  background-size: 800px 104px;
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: shimmer;
+  animation-timing-function: linear;
+  display: inline-block;
+  color: transparent !important;
+  border-color: transparent !important;
+  pointer-events: none !important;
+}
+
+.shimmer-text {
+  height: 12px;
+  border-radius: 4px;
+  width: 85%;
+  margin: 0.25rem 0;
+}
+
+.shimmer-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+

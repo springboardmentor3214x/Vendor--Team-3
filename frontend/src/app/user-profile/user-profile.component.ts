@@ -28,7 +28,7 @@ export class UserProfileComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.email = localStorage.getItem('userEmail') || 'admin@vrp.com';
+    this.email = localStorage.getItem('userEmail') || 'a@gmail.com';
     this.authService.getProfile(this.email).subscribe({
       next: (profile) => {
         this.fullName = profile.fullName;

@@ -38,21 +38,21 @@
     <!-- Finance Links -->
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'finance'">
       <a routerLink="/finance-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
-      <a routerLink="/invoices" routerLinkActive="active">📄 Invoice Management</a>
+      <a routerLink="/invoices" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📄 Invoice Management</a>
       <a routerLink="/orders" routerLinkActive="active">💰 Purchase Orders</a>
-      <a routerLink="/invoices" routerLinkActive="active">💳 Payments</a>
-      <a routerLink="/reports" routerLinkActive="active">📊 Reports</a>
-      <a routerLink="/reports" routerLinkActive="active">📈 Financial Reports</a>
+      <a [routerLink]="['/invoices']" [queryParams]="{tab: 'payments'}" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">💳 Payments</a>
+      <a routerLink="/reports" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Reports</a>
+      <a [routerLink]="['/reports']" [queryParams]="{type: 'financial'}" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📈 Financial Reports</a>
     </ng-container>
 
     <!-- Auditor Links -->
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'auditor'">
       <a routerLink="/auditor-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
-      <a routerLink="/compliance" routerLinkActive="active">📋 Compliance</a>
-      <a routerLink="/compliance" routerLinkActive="active">🗂 Audit Logs</a>
-      <a routerLink="/compliance" routerLinkActive="active">📜 Audit History</a>
-      <a routerLink="/reports" routerLinkActive="active">📄 Reports</a>
-      <a routerLink="/compliance" routerLinkActive="active">🔔 Notifications</a>
+      <a routerLink="/compliance" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📋 Compliance</a>
+      <a [routerLink]="['/compliance']" [queryParams]="{tab: 'logs'}" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">🗂 Audit Logs</a>
+      <a [routerLink]="['/compliance']" [queryParams]="{tab: 'history'}" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📜 Audit History</a>
+      <a routerLink="/reports" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📄 Reports</a>
+      <a style="cursor:pointer;">🔔 Notifications</a>
     </ng-container>
 
     <!-- Vendor Links -->

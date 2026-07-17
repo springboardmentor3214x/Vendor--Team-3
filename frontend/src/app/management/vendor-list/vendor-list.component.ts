@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -12,15 +12,27 @@ import { SidebarService } from '../../layout/sidebar.service';
   templateUrl: './vendor-list.component.html',
   styleUrl: './vendor-list.component.scss'
 })
-export class VendorListComponent {
+export class VendorListComponent implements OnInit {
+  isLoading = true;
+
   constructor(public sidebarService: SidebarService, private router: Router) {}
+
+  ngOnInit() {
+    setTimeout(() => {
+      this.isLoading = false;
+    }, 850);
+  }
 
   goBack() {
     const route = localStorage.getItem('dashboardRoute') || '/admin-dashboard';
     this.router.navigate([route]);
   }
   loadVendors() {
-    alert('Vendor list refreshed!');
+    this.isLoading = true;
+    setTimeout(() => {
+      this.isLoading = false;
+      alert('Vendor list refreshed!');
+    }, 600);
   }
 
   searchTerm = '';

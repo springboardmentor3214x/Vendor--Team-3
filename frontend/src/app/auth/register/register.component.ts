@@ -57,6 +57,8 @@ export class RegisterComponent {
         console.error('Registration error:', err);
         if (err.status === 422) {
           this.errorMessage = 'Please verify the email format is correct.';
+        } else if (err.error && err.error.detail) {
+          this.errorMessage = err.error.detail;
         } else {
           this.errorMessage = 'Registration request failed. Please check if the backend is running.';
         }

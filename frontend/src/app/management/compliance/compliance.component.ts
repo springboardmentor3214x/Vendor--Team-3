@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
 
@@ -20,11 +20,22 @@ interface ComplianceCheck {
   templateUrl: './compliance.component.html',
   styleUrl: './compliance.component.scss'
 })
-export class ComplianceComponent {
+export class ComplianceComponent implements OnInit {
   checks: ComplianceCheck[] = [];
+  activeTab = 'compliance';
 
-  constructor(public sidebarService: SidebarService, private router: Router) {
+  constructor(
+    public sidebarService: SidebarService, 
+    private router: Router,
+    private route: ActivatedRoute
+  ) {
     this.loadChecks();
+  }
+
+  ngOnInit() {
+    this.route.queryParams.subscribe(params => {
+      this.activeTab = params['tab'] || 'compliance';
+    });
   }
 
   loadChecks() {

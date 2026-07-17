@@ -55,12 +55,12 @@ export class AuthService {
 
   login(data: any): Observable<any> {
     const fixedAccounts: { [key: string]: { pass: string; role: string; route: string } } = {
-      'admin@vrp.com': { pass: 'Admin@123', role: 'Administrator', route: '/admin-dashboard' },
-      'procurement@vrp.com': { pass: 'Procure@123', role: 'Procurement Manager', route: '/procurement-dashboard' },
-      'supply@vrp.com': { pass: 'Supply@123', role: 'Supply Chain Manager', route: '/supply-chain-dashboard' },
-      'vendor@vrp.com': { pass: 'Vendor@123', role: 'Vendor', route: '/vendor-dashboard' },
-      'finance@vrp.com': { pass: 'Finance@123', role: 'Finance Officer', route: '/finance-dashboard' },
-      'auditor@vrp.com': { pass: 'Auditor@123', role: 'Auditor', route: '/auditor-dashboard' }
+      'a@gmail.com': { pass: 'a@123', role: 'Administrator', route: '/admin-dashboard' },
+      'p@gmail.com': { pass: 'p@123', role: 'Procurement Manager', route: '/procurement-dashboard' },
+      's@gmail.com': { pass: 's@123', role: 'Supply Chain Manager', route: '/supply-chain-dashboard' },
+      'v@gmail.com': { pass: 'v@123', role: 'Vendor', route: '/vendor-dashboard' },
+      'f@gmail.com': { pass: 'f@123', role: 'Finance Officer', route: '/finance-dashboard' },
+      'au@gmail.com': { pass: 'au@123', role: 'Auditor', route: '/auditor-dashboard' }
     };
 
     const emailLower = data.email.toLowerCase();
@@ -102,23 +102,23 @@ export class AuthService {
           localStorage.setItem('userEmail', data.email);
           
           let route = '/admin-dashboard';
-          if (data.email.includes('admin')) route = '/admin-dashboard';
-          else if (data.email.includes('procurement')) route = '/procurement-dashboard';
-          else if (data.email.includes('supply')) route = '/supply-chain-dashboard';
-          else if (data.email.includes('finance')) route = '/finance-dashboard';
-          else if (data.email.includes('auditor')) route = '/auditor-dashboard';
-          else if (data.email.includes('vendor')) route = '/vendor-dashboard';
+          if (data.email.includes('admin') || data.email.toLowerCase() === 'a@gmail.com') route = '/admin-dashboard';
+          else if (data.email.includes('procurement') || data.email.toLowerCase() === 'p@gmail.com') route = '/procurement-dashboard';
+          else if (data.email.includes('supply') || data.email.toLowerCase() === 's@gmail.com') route = '/supply-chain-dashboard';
+          else if (data.email.includes('finance') || data.email.toLowerCase() === 'f@gmail.com') route = '/finance-dashboard';
+          else if (data.email.includes('auditor') || data.email.toLowerCase() === 'au@gmail.com') route = '/auditor-dashboard';
+          else if (data.email.includes('vendor') || data.email.toLowerCase() === 'v@gmail.com') route = '/vendor-dashboard';
           else {
             const profileStr = localStorage.getItem(`profile_${data.email}`);
             if (profileStr) {
               const profile = JSON.parse(profileStr);
               const r = profile.role?.toLowerCase() || '';
-              if (r.includes('admin')) route = '/admin-dashboard';
-              else if (r.includes('procurement')) route = '/procurement-dashboard';
-              else if (r.includes('supply')) route = '/supply-chain-dashboard';
-              else if (r.includes('finance')) route = '/finance-dashboard';
-              else if (r.includes('auditor')) route = '/auditor-dashboard';
-              else if (r.includes('vendor')) route = '/vendor-dashboard';
+              if (r.includes('admin') || r === 'a@gmail.com') route = '/admin-dashboard';
+              else if (r.includes('procurement') || r === 'p@gmail.com') route = '/procurement-dashboard';
+              else if (r.includes('supply') || r === 's@gmail.com') route = '/supply-chain-dashboard';
+              else if (r.includes('finance') || r === 'f@gmail.com') route = '/finance-dashboard';
+              else if (r.includes('auditor') || r === 'au@gmail.com') route = '/auditor-dashboard';
+              else if (r.includes('vendor') || r === 'v@gmail.com') route = '/vendor-dashboard';
             }
           }
           localStorage.setItem('dashboardRoute', route);
@@ -134,12 +134,12 @@ export class AuthService {
         
         let role = 'Administrator';
         let route = '/admin-dashboard';
-        if (data.email.includes('admin')) { role = 'Administrator'; route = '/admin-dashboard'; }
-        else if (data.email.includes('procurement')) { role = 'Procurement Manager'; route = '/procurement-dashboard'; }
-        else if (data.email.includes('supply')) { role = 'Supply Chain Manager'; route = '/supply-chain-dashboard'; }
-        else if (data.email.includes('finance')) { role = 'Finance Officer'; route = '/finance-dashboard'; }
-        else if (data.email.includes('auditor')) { role = 'Auditor'; route = '/auditor-dashboard'; }
-        else if (data.email.includes('vendor')) { role = 'Vendor'; route = '/vendor-dashboard'; }
+        if (data.email.includes('admin') || data.email.toLowerCase() === 'a@gmail.com') { role = 'Administrator'; route = '/admin-dashboard'; }
+        else if (data.email.includes('procurement') || data.email.toLowerCase() === 'p@gmail.com') { role = 'Procurement Manager'; route = '/procurement-dashboard'; }
+        else if (data.email.includes('supply') || data.email.toLowerCase() === 's@gmail.com') { role = 'Supply Chain Manager'; route = '/supply-chain-dashboard'; }
+        else if (data.email.includes('finance') || data.email.toLowerCase() === 'f@gmail.com') { role = 'Finance Officer'; route = '/finance-dashboard'; }
+        else if (data.email.includes('auditor') || data.email.toLowerCase() === 'au@gmail.com') { role = 'Auditor'; route = '/auditor-dashboard'; }
+        else if (data.email.includes('vendor') || data.email.toLowerCase() === 'v@gmail.com') { role = 'Vendor'; route = '/vendor-dashboard'; }
 
         localStorage.setItem('authToken', mockResponse.access_token);
         localStorage.setItem('userEmail', data.email);
@@ -192,13 +192,13 @@ export class AuthService {
       fullName: email.split('@')[0].toUpperCase(),
       email: email,
       mobile: '+91 9876543210',
-      role: email.includes('admin') ? 'Administrator' : 
-            email.includes('procurement') ? 'Procurement Manager' : 
-            email.includes('supply') ? 'Supply Chain Manager' : 
-            email.includes('finance') ? 'Finance Officer' : 
-            email.includes('auditor') ? 'Auditor' : 
-            email.includes('vendor') ? 'Vendor' : 'Staff',
-      companyName: email.includes('vendor') ? 'ABC Suppliers Ltd' : 'VendorIQ Corp',
+      role: (email.includes('admin') || email.toLowerCase() === 'a@gmail.com') ? 'Administrator' : 
+            (email.includes('procurement') || email.toLowerCase() === 'p@gmail.com') ? 'Procurement Manager' : 
+            (email.includes('supply') || email.toLowerCase() === 's@gmail.com') ? 'Supply Chain Manager' : 
+            (email.includes('finance') || email.toLowerCase() === 'f@gmail.com') ? 'Finance Officer' : 
+            (email.includes('auditor') || email.toLowerCase() === 'au@gmail.com') ? 'Auditor' : 
+            (email.includes('vendor') || email.toLowerCase() === 'v@gmail.com') ? 'Vendor' : 'Staff',
+      companyName: (email.includes('vendor') || email.toLowerCase() === 'v@gmail.com') ? 'ABC Suppliers Ltd' : 'VendorIQ Corp',
       employeeId: 'EMP' + Math.floor(1000 + Math.random() * 9000)
     };
     return of(defaultProfile);
