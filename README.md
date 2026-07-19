@@ -122,3 +122,17 @@ Week 1 Backend Setup Completed
 - Swagger Tested
 - GitHub Branch Created
 - Code Pushed Successfully
+  
+## Module 4 – Vendor Performance Management
+
+### Description
+This module manages vendor performance by tracking deliveries, product quality, communication records, service ratings, performance history, and vendor rankings.
+
+### Tables Added
+- Delivery_Performance
+- Product_Quality_Evaluations
+- Communication_Logs
+- Service_Ratings
+- Performance_History
+- Vendor_Rankings
+- 
