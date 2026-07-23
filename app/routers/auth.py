@@ -1,7 +1,22 @@
-from fastapi import APIRouter, HTTPException
+
+# from fastapi import APIRouter, HTTPException, Depends
+# from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.security import OAuth2PasswordRequestForm
+
+from fastapi import UploadFile, File
+import os
+import shutil
+
 from sqlalchemy.orm import Session
 
-from app.schemas.user import UserRegister, UserLogin
+from app.schemas.user import (
+    UserRegister,
+    UserLogin,
+    UserProfileUpdate,
+    UserProfileResponse,
+)
+
 from app.core.security import (
     create_access_token,
     hash_password,
@@ -23,9 +38,6 @@ def get_db():
         db.close()
 
 
-# -----------------------------
-# Register
-# -----------------------------
 @router.post("/register")
 def register(user: UserRegister):
     try:
@@ -63,16 +75,19 @@ def register(user: UserRegister):
     finally:
         db.close()
 
-# -----------------------------
-# Login
-# -----------------------------
+
+
+
+
+
+
 @router.post("/login")
-def login(user: UserLogin):
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
     db = SessionLocal()
 
     db_user = db.query(User).filter(
-        User.email == user.email
+        User.email == form_data.username
     ).first()
 
     if not db_user:
@@ -83,7 +98,7 @@ def login(user: UserLogin):
         )
 
     if not verify_password(
-        user.password,
+        form_data.password,
         db_user.password
     ):
         db.close()
@@ -107,40 +122,16 @@ def login(user: UserLogin):
         "token_type": "bearer"
     }
 
+   
 
 
 
-from fastapi import Depends
-from sqlalchemy.orm import Session
-from app.core.oauth2 import get_current_user
+  
 
 
-@router.get("/profile")
-def get_profile(
-    current_user=Depends(get_current_user)
-):
 
-    db = SessionLocal()
 
-    user = db.query(User).filter(
-        User.email == current_user["sub"]
-    ).first()
 
-    db.close()
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found"
-        )
-
-    return {
-        "user_id": user.user_id,
-        "full_name": user.full_name,
-        "email": user.email,
-        "phone": user.phone,
-        "role_id": user.role_id
-    }
 
 
 from fastapi import Depends
@@ -175,6 +166,42 @@ def get_profile(
         "role_id": user.role_id
     }
 
+
+@router.put("/profile", response_model=UserProfileResponse)
+def update_profile(
+    profile: UserProfileUpdate,
+    current_user=Depends(get_current_user)
+):
+    db = SessionLocal()
+
+    user = db.query(User).filter(
+        User.email == current_user["sub"]
+    ).first()
+
+    if not user:
+        db.close()
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    if profile.full_name is not None:
+        user.full_name = profile.full_name
+
+    if profile.phone is not None:
+        user.phone = profile.phone
+
+    if profile.address is not None:
+        user.address = profile.address
+
+    if profile.company is not None:
+        user.company = profile.company
+
+    db.commit()
+    db.refresh(user)
+    db.close()
+
+    return user
 
 from pydantic import BaseModel
 
@@ -235,4 +262,60 @@ def reset_password(request: ResetPasswordRequest):
 
     return {
         "message": "Password Reset Successfully"
+    }
+
+
+
+@router.post("/profile/upload-picture")
+def upload_profile_picture(
+    file: UploadFile = File(...),
+    current_user=Depends(get_current_user)
+):
+    db = SessionLocal()
+
+    user = db.query(User).filter(
+        User.email == current_user["sub"]
+    ).first()
+
+    if not user:
+        db.close()
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    # Allowed image types
+    allowed_extensions = ["jpg", "jpeg", "png"]
+
+    extension = file.filename.split(".")[-1].lower()
+
+    if extension not in allowed_extensions:
+        db.close()
+        raise HTTPException(
+            status_code=400,
+            detail="Only JPG, JPEG and PNG files are allowed."
+        )
+
+    filename = f"user_{user.user_id}.{extension}"
+
+    file_path = os.path.join(
+        "uploads",
+        "profile_pictures",
+        filename
+    )
+
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    user.profile_picture = file_path
+
+    db.commit()
+
+    db.refresh(user)
+
+    db.close()
+
+    return {
+        "message": "Profile picture uploaded successfully.",
+        "profile_picture": file_path
     }

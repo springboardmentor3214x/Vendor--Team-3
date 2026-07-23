@@ -33,5 +33,7 @@ def verify_token(token: str):
         )
 
 
+
 def get_current_user(token: str = Depends(oauth2_scheme)):
+    print("Received Token:", token)
     return verify_token(token)

@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
 from app.database.database import Base
 
 
@@ -11,7 +12,7 @@ class Vendor(Base):
     vendor_category = Column(String, nullable=False)
 
     contact_person = Column(String, nullable=False)
-    designation = Column(String) 
+    designation = Column(String)
 
     email = Column(String, unique=True, nullable=False)
     phone = Column(String)
@@ -38,3 +39,20 @@ class Vendor(Base):
 
     vendor_status = Column(String, default="Pending")
     approval_status = Column(String, default="Pending")
+
+    # Relationships
+    procurement_requests = relationship(
+        "ProcurementRequest",
+        back_populates="vendor"
+    )
+
+    purchase_orders = relationship(
+        "PurchaseOrder",
+        back_populates="vendor"
+    )
+
+    contracts = relationship(
+        "Contract",
+        back_populates="vendor",
+        cascade="all, delete-orphan"
+    )

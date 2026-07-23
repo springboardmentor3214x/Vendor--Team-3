@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
+from app.core.role import require_roles
 from app.database.database import SessionLocal
 from app.models.vendor import Vendor
 from app.schemas.vendor import VendorCreate, VendorResponse
-from app.core.oauth2 import get_current_user
 
 router = APIRouter(
     prefix="/vendors",
@@ -24,8 +24,12 @@ def get_db():
 # -----------------------------
 # Add Vendor
 # -----------------------------
-@router.post("/", response_model=VendorResponse)
-def add_vendor(vendor: VendorCreate, db: Session = Depends(get_db)):
+@router.post("/")
+def create_vendor(
+    vendor: VendorCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles("Admin", "Procurement"))
+):
 
     # Duplicate Email
     if db.query(Vendor).filter(Vendor.email == vendor.email).first():
@@ -69,7 +73,6 @@ def add_vendor(vendor: VendorCreate, db: Session = Depends(get_db)):
 # Search + Filter + Pagination
 # -----------------------------
 @router.get("/", response_model=list[VendorResponse])
-
 def get_all_vendors(
     search: str = Query(default=None),
     category: str = Query(default=None),
@@ -80,7 +83,9 @@ def get_all_vendors(
     sort_by: str = Query(default="company_name"),
     order: str = Query(default="asc"),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
+    current_user=Depends(
+        require_roles("Admin", "Procurement", "Vendor")
+    )
 ):
     query = db.query(Vendor)
 
@@ -133,8 +138,13 @@ def get_all_vendors(
 # Get Vendor By ID
 # -----------------------------
 @router.get("/{vendor_id}", response_model=VendorResponse)
-def get_vendor(vendor_id: int, db: Session =Depends(get_db),
-               current_user=Depends(get_current_user)):
+def get_vendor(
+    vendor_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(
+        require_roles("Admin", "Procurement", "Vendor")
+    )
+):
 
     vendor = db.query(Vendor).filter(
         Vendor.vendor_id == vendor_id
@@ -153,7 +163,10 @@ def get_vendor(vendor_id: int, db: Session =Depends(get_db),
 def update_vendor(
     vendor_id: int,
     updated_vendor: VendorCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user=Depends(
+        require_roles("Admin", "Procurement")
+    )
 ):
 
     vendor = db.query(Vendor).filter(
@@ -179,18 +192,10 @@ def update_vendor(
 def delete_vendor(
     vendor_id: int,
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user)
-):
-
-    if current_user["role_id"] != 1:raise HTTPException(
-        status_code=403,
-        detail="Only Admin can delete vendors"
+    current_user=Depends(
+        require_roles("Admin")
     )
-
-
-
-
-
+):
 
     vendor = db.query(Vendor).filter(
         Vendor.vendor_id == vendor_id
@@ -211,7 +216,13 @@ def delete_vendor(
 # Approve Vendor
 # -----------------------------
 @router.put("/{vendor_id}/approve")
-def approve_vendor(vendor_id: int, db: Session = Depends(get_db)):
+def approve_vendor(
+    vendor_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(
+        require_roles("Admin")
+    )
+):
 
     vendor = db.query(Vendor).filter(
         Vendor.vendor_id == vendor_id
@@ -234,7 +245,13 @@ def approve_vendor(vendor_id: int, db: Session = Depends(get_db)):
 # Reject Vendor
 # -----------------------------
 @router.put("/{vendor_id}/reject")
-def reject_vendor(vendor_id: int, db: Session = Depends(get_db)):
+def reject_vendor(
+    vendor_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(
+        require_roles("Admin")
+    )
+):
 
     vendor = db.query(Vendor).filter(
         Vendor.vendor_id == vendor_id
