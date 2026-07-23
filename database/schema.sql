@@ -106,3 +106,123 @@ CREATE TABLE Reports (
 SELECT table_name
 FROM information_schema.tables
 WHERE table_schema = 'public';
+
+-- =====================================================
+-- Module 4: Vendor Performance Management
+-- Vendor Reliability Intelligence Platform
+-- =====================================================
+
+-- 1. Delivery Performance
+CREATE TABLE Delivery_Performance (
+    delivery_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    purchase_order_id INT,
+    expected_delivery_date DATE NOT NULL,
+    actual_delivery_date DATE,
+    delay_days INT DEFAULT 0,
+    delivery_status VARCHAR(30),
+    remarks TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_delivery_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id)
+);
+
+---------------------------------------------------------
+
+-- 2. Product Quality Evaluations
+CREATE TABLE Product_Quality_Evaluations (
+    quality_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    purchase_order_id INT,
+    quality_score DECIMAL(5,2),
+    defect_count INT DEFAULT 0,
+    inspection_status VARCHAR(30),
+    remarks TEXT,
+    evaluated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_quality_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id)
+);
+
+---------------------------------------------------------
+
+-- 3. Communication Logs
+CREATE TABLE Communication_Logs (
+    communication_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    user_id INT,
+    communication_type VARCHAR(30),
+    subject VARCHAR(100),
+    message TEXT,
+    communication_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_comm_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id),
+
+    CONSTRAINT fk_comm_user
+        FOREIGN KEY (user_id)
+        REFERENCES Users(user_id)
+);
+
+---------------------------------------------------------
+
+-- 4. Service Ratings
+CREATE TABLE Service_Ratings (
+    rating_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    user_id INT,
+    rating DECIMAL(3,2) CHECK (rating BETWEEN 1 AND 5),
+    feedback TEXT,
+    rating_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_rating_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id),
+
+    CONSTRAINT fk_rating_user
+        FOREIGN KEY (user_id)
+        REFERENCES Users(user_id)
+);
+
+---------------------------------------------------------
+
+-- 5. Performance History
+CREATE TABLE Performance_History (
+    history_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    performance_score DECIMAL(5,2),
+    evaluation_period VARCHAR(50),
+    remarks TEXT,
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_history_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id)
+);
+
+---------------------------------------------------------
+
+-- 6. Vendor Rankings
+CREATE TABLE Vendor_Rankings (
+    ranking_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    overall_score DECIMAL(5,2),
+    rank_position INT,
+    ranking_date DATE,
+    remarks TEXT,
+
+    CONSTRAINT fk_ranking_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id)
+);
+
+---------------------------------------------------------
+
+-- Verify all tables
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public';
