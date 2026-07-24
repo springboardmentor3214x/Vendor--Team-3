@@ -51,8 +51,22 @@ export class SidebarService {
   getCurrentRole(): string {
     const email = localStorage.getItem('userEmail');
     if (!email) return 'admin';
-    
-    // Check if there is a cached profile for this email
+
+    // PRIMARY CHECK: use the userRole stored directly from the backend login response.
+    // This is the most reliable source and handles short emails like s@gmail.com / f@gmail.com
+    // that don't contain their role name as a substring.
+    const storedRole = localStorage.getItem('userRole');
+    if (storedRole) {
+      const r = storedRole.toLowerCase();
+      if (r === 'admin' || r === 'administrator') return 'admin';
+      if (r === 'procurement') return 'procurement';
+      if (r === 'supply') return 'supply';
+      if (r === 'finance') return 'finance';
+      if (r === 'auditor') return 'auditor';
+      if (r === 'vendor') return 'vendor';
+    }
+
+    // SECONDARY CHECK: cached profile (set during registration in same session)
     const profileStr = localStorage.getItem(`profile_${email}`);
     if (profileStr) {
       try {
@@ -68,8 +82,9 @@ export class SidebarService {
         console.error('Error parsing user profile role:', e);
       }
     }
-    
-    // Fallback to substring matching if no profile cached
+
+    // LAST RESORT: substring match on email address
+    // Works for descriptive emails (e.g. supply@company.com) but NOT short ones
     if (email.includes('admin')) return 'admin';
     if (email.includes('procurement')) return 'procurement';
     if (email.includes('supply')) return 'supply';

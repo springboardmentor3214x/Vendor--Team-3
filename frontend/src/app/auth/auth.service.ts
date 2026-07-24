@@ -72,27 +72,41 @@ export class AuthService {
           localStorage.setItem('authToken', res.access_token);
           localStorage.setItem('userEmail', data.email);
           
-          // Store the role from backend response
+          // Store the role from backend response (lowercase, matches roleGuard expectations)
+          const roleMap: { [key: string]: string } = {
+            'Administrator': 'admin',
+            'Procurement Manager': 'procurement',
+            'Supply Chain Manager': 'supply',
+            'Vendor': 'vendor',
+            'Finance Officer': 'finance',
+            'Auditor': 'auditor'
+          };
           if (res.role) {
-            const roleMap: { [key: string]: string } = {
-              'Administrator': 'Admin',
-              'Procurement Manager': 'Procurement',
-              'Supply Chain Manager': 'Supply',
-              'Vendor': 'Vendor',
-              'Finance Officer': 'Finance',
-              'Auditor': 'Auditor'
-            };
-            localStorage.setItem('userRole', roleMap[res.role] || res.role);
+            localStorage.setItem('userRole', roleMap[res.role] || res.role.toLowerCase());
           }
-          
-          let route = '/admin-dashboard';
-          const emailLower = data.email.toLowerCase();
-          if (emailLower === 'a@gmail.com' || emailLower.includes('admin')) route = '/admin-dashboard';
-          else if (emailLower === 'p@gmail.com' || emailLower.includes('procurement')) route = '/procurement-dashboard';
-          else if (emailLower === 's@gmail.com' || emailLower.includes('supply')) route = '/supply-chain-dashboard';
-          else if (emailLower === 'f@gmail.com' || emailLower.includes('finance')) route = '/finance-dashboard';
-          else if (emailLower === 'au@gmail.com' || emailLower.includes('auditor')) route = '/auditor-dashboard';
-          else if (emailLower === 'v@gmail.com' || emailLower.includes('vendor')) route = '/vendor-dashboard';
+
+          // Determine dashboard route — use backend role first (most reliable),
+          // then fall back to email-pattern matching for flexibility
+          const routeMap: { [key: string]: string } = {
+            'Administrator': '/admin-dashboard',
+            'Procurement Manager': '/procurement-dashboard',
+            'Supply Chain Manager': '/supply-chain-dashboard',
+            'Finance Officer': '/finance-dashboard',
+            'Auditor': '/auditor-dashboard',
+            'Vendor': '/vendor-dashboard'
+          };
+          let route = (res.role && routeMap[res.role]) ? routeMap[res.role] : '/admin-dashboard';
+
+          // Email-based fallback (for users without a role in the backend response)
+          if (!res.role) {
+            const emailLower = data.email.toLowerCase();
+            if (emailLower === 'a@gmail.com' || emailLower.includes('admin')) route = '/admin-dashboard';
+            else if (emailLower === 'p@gmail.com' || emailLower.includes('procurement')) route = '/procurement-dashboard';
+            else if (emailLower === 's@gmail.com' || emailLower.includes('supply')) route = '/supply-chain-dashboard';
+            else if (emailLower === 'f@gmail.com' || emailLower.includes('finance')) route = '/finance-dashboard';
+            else if (emailLower === 'au@gmail.com' || emailLower.includes('auditor')) route = '/auditor-dashboard';
+            else if (emailLower === 'v@gmail.com' || emailLower.includes('vendor')) route = '/vendor-dashboard';
+          }
 
           localStorage.setItem('dashboardRoute', route);
           this.userSubject.next({ email: data.email });
