@@ -222,6 +222,30 @@ CREATE TABLE Vendor_Rankings (
 
 ---------------------------------------------------------
 
+CREATE TABLE Recommended_Vendors (
+    recommendation_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    recommendation_reason TEXT,
+    recommendation_score DECIMAL(5,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_recommended_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id)
+);
+
+CREATE TABLE Vendor_Reliability (
+    reliability_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    reliability_score DECIMAL(5,2),
+    risk_level VARCHAR(20),
+    last_evaluated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_reliability_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id)
+);
+
 -- Verify all tables
 SELECT table_name
 FROM information_schema.tables
