@@ -1,18 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
-
-interface PurchaseOrder {
-  id: string;
-  vendorName: string;
-  amount: number;
-  orderDate: string;
-  deliveryDate: string;
-  status: string;
-}
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-purchase-orders',
@@ -21,35 +13,70 @@ interface PurchaseOrder {
   templateUrl: './purchase-orders.component.html',
   styleUrl: './purchase-orders.component.scss'
 })
-export class PurchaseOrdersComponent {
-  orders: PurchaseOrder[] = [];
-  vendors = ['ABC Pvt Ltd', 'XYZ Suppliers', 'Tech India', 'Delta Traders', 'Omega Industries'];
+export class PurchaseOrdersComponent implements OnInit {
+  orders: any[] = [];
+  procurements: any[] = [];
+  vendors: any[] = [];
+  loading = false;
+  submitting = false;
+  updatingId: number | null = null;
+  errorMessage = '';
+  successMessage = '';
 
   // Form Fields
-  newVendor = '';
+  selectedProcurementId: number | null = null;
+  selectedVendorId: number | null = null;
   newAmount = 0;
   deliveryDays = 7;
 
-  constructor(public sidebarService: SidebarService, private router: Router) {
+  constructor(
+    public sidebarService: SidebarService,
+    private router: Router,
+    private api: ApiService
+  ) {}
+
+  ngOnInit() {
+    this.loadVendors();
+    this.loadProcurements();
     this.loadOrders();
   }
 
-  loadOrders() {
-    const cached = localStorage.getItem('vrp_purchase_orders');
-    if (cached) {
-      this.orders = JSON.parse(cached);
-    } else {
-      this.orders = [
-        { id: 'PO101', vendorName: 'ABC Pvt Ltd', amount: 52000, orderDate: '2026-07-15', deliveryDate: '2026-07-22', status: 'Approved' },
-        { id: 'PO102', vendorName: 'XYZ Suppliers', amount: 18000, orderDate: '2026-07-15', deliveryDate: '2026-07-25', status: 'Pending' },
-        { id: 'PO103', vendorName: 'Tech India', amount: 31000, orderDate: '2026-07-14', deliveryDate: '2026-07-21', status: 'Approved' }
-      ];
-      this.saveOrders();
-    }
+  loadVendors() {
+    this.api.getVendors().subscribe({
+      next: (data) => { this.vendors = data; },
+      error: () => { this.vendors = []; }
+    });
   }
 
-  saveOrders() {
-    localStorage.setItem('vrp_purchase_orders', JSON.stringify(this.orders));
+  loadProcurements() {
+    this.api.getProcurements().subscribe({
+      next: (data) => { this.procurements = data; },
+      error: () => { this.procurements = []; }
+    });
+  }
+
+  loadOrders() {
+    this.loading = true;
+    this.api.getPurchaseOrders().subscribe({
+      next: (data) => {
+        this.orders = data;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.errorMessage = 'Failed to load purchase orders.';
+      }
+    });
+  }
+
+  getVendorName(vendorId: number): string {
+    const v = this.vendors.find(v => v.vendor_id === vendorId);
+    return v ? v.company_name : `Vendor #${vendorId}`;
+  }
+
+  getProcurementTitle(procId: number): string {
+    const p = this.procurements.find(p => p.procurement_id === procId);
+    return p ? p.title : `PR #${procId}`;
   }
 
   goBack() {
@@ -58,41 +85,75 @@ export class PurchaseOrdersComponent {
   }
 
   createOrder() {
-    if (!this.newVendor || this.newAmount <= 0) {
-      alert('Vendor and amount are required!');
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (!this.selectedVendorId || !this.selectedProcurementId || this.newAmount <= 0) {
+      this.errorMessage = 'Vendor, Procurement Request, and Amount are required!';
       return;
     }
-    const newId = 'PO' + String(this.orders.length + 101);
+
     const today = new Date();
     const delivery = new Date();
     delivery.setDate(today.getDate() + this.deliveryDays);
 
-    const newPO: PurchaseOrder = {
-      id: newId,
-      vendorName: this.newVendor,
-      amount: this.newAmount,
-      orderDate: today.toISOString().split('T')[0],
-      deliveryDate: delivery.toISOString().split('T')[0],
+    const orderNum = 'PO-' + Date.now();
+
+    const payload = {
+      procurement_id: this.selectedProcurementId,
+      vendor_id: this.selectedVendorId,
+      order_number: orderNum,
+      order_date: today.toISOString().split('T')[0],
+      delivery_date: delivery.toISOString().split('T')[0],
+      total_amount: this.newAmount,
       status: 'Pending'
     };
 
-    this.orders.push(newPO);
-    this.saveOrders();
-
-    // Clear
-    this.newVendor = '';
-    this.newAmount = 0;
-    this.deliveryDays = 7;
-    alert('Purchase order created successfully!');
+    this.submitting = true;
+    this.api.createPurchaseOrder(payload).subscribe({
+      next: (created) => {
+        this.orders.unshift(created);
+        this.successMessage = `✅ Purchase Order ${created.order_number} issued! Vendor has been notified automatically.`;
+        this.submitting = false;
+        this.selectedVendorId = null;
+        this.selectedProcurementId = null;
+        this.newAmount = 0;
+        this.deliveryDays = 7;
+      },
+      error: (err) => {
+        this.errorMessage = err?.error?.detail || 'Failed to create purchase order.';
+        this.submitting = false;
+      }
+    });
   }
 
-  updateStatus(order: PurchaseOrder, status: string) {
-    order.status = status;
-    this.saveOrders();
-    alert(`Order ${order.id} updated to ${status}!`);
+  updateStatus(order: any, status: string) {
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.updatingId = order.order_id;
+
+    this.api.updatePurchaseOrder(order.order_id, { status }).subscribe({
+      next: (updated) => {
+        const idx = this.orders.findIndex(o => o.order_id === updated.order_id);
+        if (idx !== -1) this.orders[idx] = updated;
+        this.successMessage = `✅ Order ${order.order_number} updated to "${status}". Vendor notified.`;
+        this.updatingId = null;
+      },
+      error: (err) => {
+        this.errorMessage = err?.error?.detail || 'Failed to update order status.';
+        this.updatingId = null;
+      }
+    });
   }
 
-  simulateUpload(order: PurchaseOrder) {
-    alert(`Mock invoice uploaded successfully for order ${order.id}!`);
+  getStatusStyle(status: string): { [key: string]: string } {
+    const styles: Record<string, { [key: string]: string }> = {
+      'Pending':   { background: '#fef9c3', color: '#854d0e' },
+      'Approved':  { background: '#dcfce7', color: '#166534' },
+      'Delivered': { background: '#e0e7ff', color: '#3730a3' },
+      'Completed': { background: '#dbeafe', color: '#1e40af' },
+      'Cancelled': { background: '#fee2e2', color: '#991b1b' }
+    };
+    return styles[status] || { background: '#f1f5f9', color: '#334155' };
   }
 }

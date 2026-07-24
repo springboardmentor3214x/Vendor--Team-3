@@ -8,8 +8,7 @@
   </div>
   <div class="topbar-right-info">
     <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
-    <span class="user-span">👤 Procurement Manager</span>
-    <button class="new-request-btn" (click)="loadRequests()">+ New Request</button>
+    <span class="user-span">👤 {{ requestedBy }}</span>
   </div>
 </div>
 
@@ -17,23 +16,44 @@
   <app-sidebar></app-sidebar>
   <div class="dash-main">
     <div class="dash-content">
-      
+
       <div class="form-header-block">
         <h2 class="form-title">Procurement Request Form</h2>
         <p class="form-subtitle">Fill in the details below to create a new procurement request.</p>
       </div>
 
+      <!-- Alerts -->
+      <div *ngIf="successMessage" style="background:#dcfce7;border:1px solid #bbf7d0;color:#166534;padding:0.75rem 1.25rem;border-radius:6px;margin-bottom:1rem;font-weight:600;">
+        {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" style="background:#fee2e2;border:1px solid #fecaca;color:#991b1b;padding:0.75rem 1.25rem;border-radius:6px;margin-bottom:1rem;font-weight:600;">
+        {{ errorMessage }}
+      </div>
+
       <div class="form-card-container">
-        
+
         <div class="form-row-item">
           <div class="row-label">Procurement Request Number</div>
           <div class="row-value" style="font-weight:700;">{{ requestNumber }} (Auto Generated)</div>
         </div>
 
         <div class="form-row-item">
-          <div class="row-label">Request Title</div>
+          <div class="row-label">Request Title *</div>
           <div class="row-value">
-            <input type="text" [(ngModel)]="newTitle" placeholder="" class="line-input">
+            <input type="text" [(ngModel)]="newTitle" placeholder="e.g. Office Laptops Purchase" class="line-input">
+          </div>
+        </div>
+
+        <div class="form-row-item">
+          <div class="row-label">Assign Vendor *</div>
+          <div class="row-value">
+            <select [(ngModel)]="selectedVendorId" class="line-select">
+              <option [ngValue]="null">-- Select a Vendor --</option>
+              <option *ngFor="let v of vendors" [ngValue]="v.vendor_id">
+                {{ v.company_name }} ({{ v.vendor_category }})
+              </option>
+            </select>
+            <span *ngIf="vendors.length === 0" style="font-size:0.8rem;color:#64748b;margin-top:0.25rem;display:block;">No approved vendors found. Please add vendors first.</span>
           </div>
         </div>
 
@@ -127,32 +147,10 @@
           </div>
         </div>
 
-        <div class="form-row-item full-width">
+        <div class="form-row-item full-width" style="border-bottom:none;">
           <div class="row-label">Additional Remarks</div>
           <div class="row-value">
             <input type="text" [(ngModel)]="remarks" class="line-input">
-          </div>
-        </div>
-
-        <div class="form-row-item full-width" style="border-bottom:none;">
-          <div class="row-label">Supporting Documents</div>
-          <div class="row-value">
-            <span style="font-weight:700;cursor:pointer;">📎 Upload File</span>
-          </div>
-        </div>
-
-        <!-- Attached Documents Panel -->
-        <div class="attached-docs-panel">
-          <div style="font-weight:800;font-size:0.9rem;margin-bottom:0.75rem;color:#000000;">Uploaded Documents</div>
-          <div class="doc-item">
-            <span>📄 quotation.pdf</span>
-            <span style="color:#000000;font-weight:700;">✓ Uploaded</span>
-            <span class="remove-btn">Remove</span>
-          </div>
-          <div class="doc-item" style="margin-bottom:0;">
-            <span>📄 specification.docx</span>
-            <span style="color:#000000;font-weight:700;">✓ Uploaded</span>
-            <span class="remove-btn">Remove</span>
           </div>
         </div>
 
@@ -160,9 +158,48 @@
 
       <!-- Action Buttons -->
       <div class="form-actions-row">
-        <button (click)="addRequest()" class="btn-submit">Submit</button>
-        <button (click)="goBack()" class="btn-draft">Save Draft</button>
+        <button (click)="addRequest()" class="btn-submit" [disabled]="submitting">
+          {{ submitting ? 'Submitting...' : 'Submit' }}
+        </button>
+        <button (click)="resetForm()" class="btn-draft">Reset</button>
         <button (click)="goBack()" class="btn-cancel">Cancel</button>
+      </div>
+
+      <!-- Existing Procurement Requests -->
+      <div style="margin-top:2.5rem;">
+        <h3 style="font-weight:800;color:#1e293b;margin-bottom:1rem;">📋 Submitted Procurement Requests</h3>
+
+        <div *ngIf="loading" style="text-align:center;padding:2rem;color:#64748b;">Loading requests...</div>
+
+        <table *ngIf="!loading && requests.length > 0" style="width:100%;border-collapse:collapse;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-radius:8px;overflow:hidden;">
+          <thead>
+            <tr style="background:#1e3a8a;color:white;">
+              <th style="padding:0.875rem 1rem;text-align:left;font-size:0.85rem;">ID</th>
+              <th style="padding:0.875rem 1rem;text-align:left;font-size:0.85rem;">Title</th>
+              <th style="padding:0.875rem 1rem;text-align:left;font-size:0.85rem;">Vendor ID</th>
+              <th style="padding:0.875rem 1rem;text-align:left;font-size:0.85rem;">Created</th>
+              <th style="padding:0.875rem 1rem;text-align:center;font-size:0.85rem;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of requests" style="background:white;border-bottom:1px solid #e2e8f0;">
+              <td style="padding:0.875rem 1rem;font-weight:700;color:#1e3a8a;">#{{ r.procurement_id }}</td>
+              <td style="padding:0.875rem 1rem;font-weight:600;color:#1e293b;">{{ r.title }}</td>
+              <td style="padding:0.875rem 1rem;color:#475569;">{{ r.vendor_id }}</td>
+              <td style="padding:0.875rem 1rem;color:#64748b;">{{ r.created_date }}</td>
+              <td style="padding:0.875rem 1rem;text-align:center;">
+                <span [ngClass]="getStatusClass(r.status)"
+                      style="padding:0.25rem 0.6rem;border-radius:4px;font-size:0.8rem;font-weight:700;">
+                  {{ r.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div *ngIf="!loading && requests.length === 0" style="text-align:center;padding:2rem;color:#64748b;background:#f8fafc;border-radius:8px;border:1px dashed #cbd5e1;">
+          No procurement requests found. Submit your first request above.
+        </div>
       </div>
 
     </div>

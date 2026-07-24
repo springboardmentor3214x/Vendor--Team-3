@@ -37,6 +37,17 @@ export class SidebarService {
     this.isNotificationVisible = !this.isNotificationVisible;
   }
 
+  getNotifications() {
+    const role = this.getCurrentRole();
+    if (role === 'auditor') {
+      // Restrict operational notifications (Procurement Alert, Delivery Delay) for Auditors.
+      return this.notifications.filter(n =>
+        n.title === 'Contract Expiry Alert' || n.title === 'Compliance Flag'
+      );
+    }
+    return this.notifications;
+  }
+
   getCurrentRole(): string {
     const email = localStorage.getItem('userEmail');
     if (!email) return 'admin';

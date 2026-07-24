@@ -1,60 +1,425 @@
 <div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
   <app-sidebar></app-sidebar>
   <div class="dash-main">
+    
     <!-- Top Navbar -->
     <div class="dash-topbar">
       <div style="display:flex;align-items:center;gap:1rem;">
         <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
+        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
           ← Go Back
         </button>
-        <span class="dash-topbar-title">Vendor Reliability & Risk Analysis</span>
+        <span class="dash-topbar-title">Module 5 – Vendor Reliability & Risk Management</span>
       </div>
       <div class="dash-topbar-right">
-        <span>🔔 Notifications</span>
         <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
       </div>
     </div>
 
-    <!-- Reliability Overview -->
-    <div style="padding:2rem;">
-      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">📉 Reliability Scorecards & Recommendations</h3>
-      <div style="display:flex;flex-direction:column;gap:1.5rem;">
-        <div *ngFor="let m of metrics" style="background:white;border-radius:8px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:grid;grid-template-columns:1fr 1.5fr 1fr 1fr 2fr;align-items:center;gap:2rem;border-left:5px solid;"
-             [style.borderLeftColor]="m.reliabilityScore >= 90 ? '#10b981' : m.reliabilityScore >= 80 ? '#f59e0b' : '#ef4444'">
-          <div>
-            <div style="font-weight:800;font-size:1.1rem;color:#1e293b;margin-bottom:0.25rem;">{{m.vendorName}}</div>
-            <div style="font-size:0.8rem;color:#64748b;font-weight:600;">ID: {{m.vendorId}}</div>
-          </div>
-          <div>
-            <label style="display:block;font-size:0.8rem;font-weight:700;color:#64748b;margin-bottom:0.25rem;">Reliability Score</label>
-            <div style="display:flex;align-items:center;gap:0.5rem;">
-              <div style="flex:1;max-width:120px;height:14px;background:#e2e8f0;border-radius:7px;overflow:hidden;">
-                <div [style.width]="m.reliabilityScore + '%'" [style.background]="m.reliabilityScore >= 90 ? '#10b981' : '#ca8a04'" style="height:100%;"></div>
-              </div>
-              <strong style="font-size:1.1rem;color:#1e293b;">{{m.reliabilityScore}}%</strong>
-            </div>
-          </div>
-          <div>
-            <label style="display:block;font-size:0.8rem;font-weight:700;color:#64748b;margin-bottom:0.25rem;">Procurement Risk</label>
-            <span [style.background]="m.riskLevel === 'Low' ? '#dcfce7' : m.riskLevel === 'Medium' ? '#fef9c3' : '#fee2e2'"
-                  [style.color]="m.riskLevel === 'Low' ? '#166534' : m.riskLevel === 'Medium' ? '#854d0e' : '#991b1b'"
-                  style="padding:0.25rem 0.5rem;border-radius:4px;font-size:0.85rem;font-weight:700;">
-              {{m.riskLevel}} Risk
-            </span>
-          </div>
-          <div>
-            <label style="display:block;font-size:0.8rem;font-weight:700;color:#64748b;margin-bottom:0.25rem;">Trend</label>
-            <span style="font-size:1.2rem;font-weight:800;">
-              {{m.trend === 'Up' ? '📈 Improving' : m.trend === 'Down' ? '📉 Declining' : '➡️ Stable'}}
-            </span>
-          </div>
-          <div>
-            <label style="display:block;font-size:0.8rem;font-weight:700;color:#64748b;margin-bottom:0.25rem;">Procurement Recommendation</label>
-            <div style="font-size:0.85rem;color:#334155;font-weight:600;line-height:1.4;">{{m.recommendation}}</div>
-          </div>
+    <!-- Alert Drawer -->
+    <div *ngIf="successMessage" style="margin: 1.5rem; padding: 1rem; background: #dcfce7; color: #166534; border-left: 5px solid #10b981; border-radius: 6px; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+      <span>🎉 {{ successMessage }}</span>
+      <button (click)="successMessage = ''" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #166534;">×</button>
+    </div>
+    <div *ngIf="errorMessage" style="margin: 1.5rem; padding: 1rem; background: #fee2e2; color: #991b1b; border-left: 5px solid #ef4444; border-radius: 6px; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+      <span>⚠️ {{ errorMessage }}</span>
+      <button (click)="errorMessage = ''" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #991b1b;">×</button>
+    </div>
+
+    <!-- Summary cards (Module 5.1) -->
+    <div style="padding: 1.5rem 1.5rem 0 1.5rem;">
+      <div class="metrics-grid">
+        <div class="metric-card" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6);">
+          <div class="metric-val">{{ dashboardData.total_vendors_evaluated }}</div>
+          <div class="metric-lbl">Total Vendors Evaluated</div>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #1e1b4b, #6366f1);">
+          <div class="metric-val">{{ dashboardData.avg_reliability_score }}%</div>
+          <div class="metric-lbl">Average Reliability Score</div>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #064e3b, #10b981);">
+          <div class="metric-val">{{ dashboardData.high_reliability_count }}</div>
+          <div class="metric-lbl">High Reliability Vendors</div>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #78350f, #f59e0b);">
+          <div class="metric-val">{{ dashboardData.medium_reliability_count }}</div>
+          <div class="metric-lbl">Medium Reliability Vendors</div>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #7f1d1d, #ef4444);">
+          <div class="metric-val">{{ dashboardData.high_risk_count }}</div>
+          <div class="metric-lbl">High Risk Vendors (Action Needed)</div>
         </div>
       </div>
     </div>
+
+    <!-- Workflow Tabs -->
+    <div style="padding: 1rem 1.5rem 0 1.5rem;">
+      <div class="tab-switcher">
+        <button [class.active]="activeTab === 'dashboard'" (click)="switchTab('dashboard')">🏠 Reliability Dashboard</button>
+        <button [class.active]="activeTab === 'rankings'" (click)="switchTab('rankings')">
+          {{ isVendor ? '📊 My Ranks' : '📊 Supplier Rankings' }}
+        </button>
+        <button [class.active]="activeTab === 'factors'" (click)="switchTab('factors')">
+          {{ isVendor ? '🔬 My Reliability Factors' : '🔬 Reliability Score Details' }}
+        </button>
+        <button [class.active]="activeTab === 'risk'" (click)="switchTab('risk')">
+          {{ isVendor ? '⚠️ My Risk Assessment' : '⚠️ Procurement Risk Assessment' }}
+        </button>
+        <button *ngIf="!isVendor" [class.active]="activeTab === 'recommendations'" (click)="switchTab('recommendations')">💡 Procurement Recommendations</button>
+      </div>
+    </div>
+
+    <!-- Tab Contents -->
+    <div style="padding: 1.5rem;">
+      <div *ngIf="isLoading" style="text-align: center; padding: 3rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 1.2rem; font-weight: bold; color: #475569;">Fetching live intelligence records...</div>
+        <div style="margin-top: 1rem; display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      </div>
+
+      <div *ngIf="!isLoading">
+        
+        <!-- Tab 1: Reliability Overview Dashboard -->
+        <div *ngIf="activeTab === 'dashboard'" class="tab-panel">
+          <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:2rem;">
+            
+            <!-- Top Rated Vendors -->
+            <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+              <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">🏢 Top Recommended Vendors</h4>
+              
+              <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                <div *ngFor="let v of dashboardData.top_ranked" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; border-left:5px solid;"
+                     [style.borderLeftColor]="v.risk_level === 'Low' ? '#10b981' : v.risk_level === 'Medium' ? '#f59e0b' : '#ef4444'">
+                  <div>
+                    <div style="font-weight: 700; font-size: 1.05rem; color:#1e293b;">{{ v.vendor_name }}</div>
+                    <div style="font-size: 0.8rem; color:#64748b; font-weight:600; margin-top:0.25rem;">Category: {{ v.vendor_category }}</div>
+                  </div>
+                  
+                  <div style="text-align: right;">
+                    <div style="font-size: 1.2rem; font-weight: 800; color:#1e3a8a;">{{ v.reliability_score }}%</div>
+                    <span [style.background]="v.risk_level === 'Low' ? '#dcfce7' : v.risk_level === 'Medium' ? '#fef9c3' : '#fee2e2'"
+                          [style.color]="v.risk_level === 'Low' ? '#166534' : v.risk_level === 'Medium' ? '#854d0e' : '#991b1b'"
+                          style="padding:0.2rem 0.5rem; border-radius:4px; font-size:0.75rem; font-weight:700; display:inline-block; margin-top:0.25rem;">
+                      {{ v.risk_level }} Risk
+                    </span>
+                  </div>
+                </div>
+                
+                <div *ngIf="dashboardData.top_ranked.length === 0" style="text-align: center; padding: 2rem; color: #94a3b8;">
+                  No vendor evaluations recorded.
+                </div>
+              </div>
+            </div>
+
+            <!-- Risk distribution & Quick summary -->
+            <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display:flex; flex-direction:column; gap:1.5rem;">
+              <h4 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.2rem; color: #1e293b;">📊 Risk Assessment Distribution</h4>
+              
+              <!-- Custom circular chart mock representational -->
+              <div style="background: #f8fafc; border-radius: 8px; padding: 1.5rem; text-align: center; border: 1px solid #e2e8f0; display:flex; justify-content:space-around; align-items:center;">
+                <div style="text-align:center;">
+                  <div style="font-size: 2.25rem; font-weight: 800; color:#10b981;">{{ dashboardData.high_reliability_count }}</div>
+                  <div style="font-size:0.75rem; font-weight:700; color:#64748b; margin-top:0.25rem;">Low Risk</div>
+                </div>
+                <div style="text-align:center; border-left:1px solid #e2e8f0; border-right:1px solid #e2e8f0; padding:0 2rem;">
+                  <div style="font-size: 2.25rem; font-weight: 800; color:#f59e0b;">{{ dashboardData.medium_reliability_count }}</div>
+                  <div style="font-size:0.75rem; font-weight:700; color:#64748b; margin-top:0.25rem;">Medium Risk</div>
+                </div>
+                <div style="text-align:center;">
+                  <div style="font-size: 2.25rem; font-weight: 800; color:#ef4444;">{{ dashboardData.high_risk_count }}</div>
+                  <div style="font-size:0.75rem; font-weight:700; color:#64748b; margin-top:0.25rem;">High Risk</div>
+                </div>
+              </div>
+
+              <!-- Recommendation status list -->
+              <div style="background: #fee2e2; padding: 1.25rem; border-radius: 6px; border-left: 4px solid #ef4444;" *ngIf="dashboardData.high_risk_count > 0">
+                <h5 style="margin:0 0 0.5rem 0; color:#991b1b; font-weight:700; font-size:0.9rem;">⚠️ Critical Procurement Alert</h5>
+                <p style="margin:0; font-size:0.8rem; color:#991b1b; line-height:1.4;">
+                  There is currently {{ dashboardData.high_risk_count }} vendor classified as **High Risk**. Purchase orders issued to this vendor will trigger authorization warnings.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Supplier Rankings (Module 5.3) -->
+        <div *ngIf="activeTab === 'rankings'" class="tab-panel">
+          <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">📊 Complete Supplier Rankings Leaderboard</h4>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569; font-size: 0.95rem;">
+                  <th style="padding: 0.75rem 0.5rem;">Rank</th>
+                  <th style="padding: 0.75rem 0.5rem;">Vendor Name</th>
+                  <th style="padding: 0.75rem 0.5rem;">Category</th>
+                  <th style="padding: 0.75rem 0.5rem; text-align: center;">Reliability Score</th>
+                  <th style="padding: 0.75rem 0.5rem; text-align: center;">Procurement Risk</th>
+                  <th style="padding: 0.75rem 0.5rem; text-align: center;">Trend</th>
+                  <th style="padding: 0.75rem 0.5rem; text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of rankingsList; let index = index" style="border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.95rem; font-weight: 600;">
+                  <td style="padding: 1rem 0.5rem; font-size: 1.1rem; color: #1e3a8a;">
+                    {{ index + 1 }} {{ index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '' }}
+                  </td>
+                  <td style="padding: 1rem 0.5rem; color: #1e293b; font-weight: 700;">{{ r.vendor_name }}</td>
+                  <td style="padding: 1rem 0.5rem; color: #64748b;">{{ r.vendor_category }}</td>
+                  <td style="padding: 1rem 0.5rem; text-align: center; font-size: 1.1rem; color: #1e293b;">
+                    <strong>{{ r.reliability_score }}%</strong>
+                  </td>
+                  <td style="padding: 1rem 0.5rem; text-align: center;">
+                    <span [style.background]="r.risk_level === 'Low' ? '#dcfce7' : r.risk_level === 'Medium' ? '#fef9c3' : '#fee2e2'"
+                          [style.color]="r.risk_level === 'Low' ? '#166534' : r.risk_level === 'Medium' ? '#854d0e' : '#991b1b'"
+                          style="padding:0.25rem 0.6rem; border-radius:4px; font-size:0.8rem; font-weight:700;">
+                      {{ r.risk_level }} Risk
+                    </span>
+                  </td>
+                  <td style="padding: 1rem 0.5rem; text-align: center;">
+                    <span style="font-size:0.9rem; font-weight:700;">
+                      {{ r.trend === 'Up' ? '📈 Improving' : r.trend === 'Down' ? '📉 Declining' : '➡️ Stable' }}
+                    </span>
+                  </td>
+                  <td style="padding: 1rem 0.5rem; text-align: right;">
+                    <button *ngIf="!isVendor" (click)="triggerRecalculate(r.vendor_id)" style="background:#f1f5f9; border:1px solid #cbd5e1; padding:0.3rem 0.6rem; border-radius:4px; font-weight:700; cursor:pointer; font-size:0.8rem;">
+                      🔄 Recalculate
+                    </button>
+                    <span *ngIf="isVendor" style="color: #64748b; font-size: 0.85rem;">Read Only</span>
+                  </td>
+                </tr>
+                <tr *ngIf="rankingsList.length === 0">
+                  <td colspan="7" style="text-align: center; padding: 2rem; color: #94a3b8;">No supplier rankings calculated yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 3: Reliability Score Details (Module 5.2) -->
+        <div *ngIf="activeTab === 'factors'" class="tab-panel">
+          <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:2rem;">
+            
+            <!-- Vendor Selector -->
+            <div *ngIf="!isVendor" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content;">
+              <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">🔬 Inspect Score Factors</h4>
+              
+              <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                <label style="font-weight:700; color:#475569; font-size:0.85rem;">Select Supplier:</label>
+                <select (change)="onVendorDetailsSelected($any($event.target).value)" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1; font-weight:600; background:white;">
+                  <option value="">-- Select Vendor --</option>
+                  <option *ngFor="let v of vendors" [value]="v.vendor_id">{{ v.company_name }}</option>
+                </select>
+              </div>
+            </div>
+            
+            <div *ngIf="isVendor" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content; text-align: center; display: flex; flex-direction: column; gap: 1rem;">
+              <div style="font-size: 2.5rem;">🔬</div>
+              <h4 style="margin: 0; color: #1e293b;">My Score Breakdown</h4>
+              <p style="color: #64748b; font-size: 0.85rem; line-height: 1.5;">
+                These factors are recalculated automatically after your deliveries are processed and inspected.
+              </p>
+            </div>
+
+            <!-- Score breakdown details -->
+            <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); min-height: 350px;">
+              <div *ngIf="!selectedVendorDetails" style="text-align: center; padding: 5rem; color: #94a3b8;">
+                Select a vendor from the dropdown list to load their analytical reliability factors breakdown.
+              </div>
+
+              <div *ngIf="selectedVendorDetails">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #f1f5f9; padding-bottom:1rem; margin-bottom:1.5rem;">
+                  <div>
+                    <h4 style="margin:0; font-size:1.35rem; color:#1e293b;">{{ selectedVendorDetails.vendor_name }}</h4>
+                    <span style="font-size:0.8rem; color:#64748b; font-weight:700; text-transform:uppercase;">Category: {{ selectedVendorDetails.vendor_category }}</span>
+                  </div>
+                  
+                  <div style="text-align:right;">
+                    <div style="font-size: 2.25rem; font-weight: 800; color:#1e3a8a; line-height:1;">{{ selectedVendorDetails.reliability_score }}%</div>
+                    <span style="font-size:0.8rem; color:#64748b; font-weight:700;">Reliability Rating</span>
+                  </div>
+                </div>
+
+                <h5 style="margin: 0 0 1rem 0; color:#475569; font-weight:700; font-size:0.95rem;">Key Performance Drivers (Weighted Breakdown)</h5>
+
+                <div style="display:flex; flex-direction:column; gap:1.25rem;">
+                  <!-- Delivery -->
+                  <div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:600; margin-bottom:0.25rem; color:#334155;">
+                      <span>Delivery History (Weight: 35%)</span>
+                      <strong style="color:#166534;">{{ selectedVendorDetails.delivery_score }}%</strong>
+                    </div>
+                    <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
+                      <div [style.width]="selectedVendorDetails.delivery_score + '%'" style="height: 100%; background: #10b981;" ></div>
+                    </div>
+                  </div>
+
+                  <!-- Quality -->
+                  <div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:600; margin-bottom:0.25rem; color:#334155;">
+                      <span>Product Quality Compliance (Weight: 30%)</span>
+                      <strong style="color:#ca8a04;">{{ selectedVendorDetails.quality_score }}%</strong>
+                    </div>
+                    <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
+                      <div [style.width]="selectedVendorDetails.quality_score + '%'" style="height: 100%; background: #f59e0b;" ></div>
+                    </div>
+                  </div>
+
+                  <!-- Communication -->
+                  <div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:600; margin-bottom:0.25rem; color:#334155;">
+                      <span>Communication Efficiency (Weight: 20%)</span>
+                      <strong style="color:#1e40af;">{{ selectedVendorDetails.communication_score }}%</strong>
+                    </div>
+                    <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
+                      <div [style.width]="selectedVendorDetails.communication_score + '%'" style="height: 100%; background: #3b82f6;" ></div>
+                    </div>
+                  </div>
+
+                  <!-- Service -->
+                  <div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:600; margin-bottom:0.25rem; color:#334155;">
+                      <span>Contract Compliance & Service (Weight: 15%)</span>
+                      <strong style="color:#0f766e;">{{ selectedVendorDetails.service_score }}%</strong>
+                    </div>
+                    <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
+                      <div [style.width]="selectedVendorDetails.service_score + '%'" style="height: 100%; background: #0d9488;" ></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top: 2rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1rem; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <strong style="font-size:0.85rem; color:#475569;">Procurement Status:</strong>
+                    <div style="font-weight: 700; color:#1e3a8a; margin-top:0.25rem;">{{ selectedVendorDetails.recommendation_status }}</div>
+                  </div>
+                  <span [style.background]="selectedVendorDetails.risk_level === 'Low' ? '#dcfce7' : selectedVendorDetails.risk_level === 'Medium' ? '#fef9c3' : '#fee2e2'"
+                        [style.color]="selectedVendorDetails.risk_level === 'Low' ? '#166534' : selectedVendorDetails.risk_level === 'Medium' ? '#854d0e' : '#991b1b'"
+                        style="padding:0.4rem 0.8rem; border-radius:4px; font-weight:800; font-size:0.85rem;">
+                    {{ selectedVendorDetails.risk_level }} Risk
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab 4: Procurement Risk Dashboard (Module 5.4) -->
+        <div *ngIf="activeTab === 'risk'" class="tab-panel">
+          <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.25rem; color: #1e293b;">⚠️ Supplier Procurement Risk Assessment Dashboard</h4>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:2rem; margin-bottom:2rem;">
+              
+              <div style="background: #fdf2f2; border: 1px solid #fde2e2; padding: 1.5rem; border-radius: 8px; border-left: 6px solid #ef4444;">
+                <h5 style="margin:0 0 0.5rem 0; color:#991b1b; font-size:1.1rem; font-weight:700;">🚨 High-Risk Suppliers Restricted</h5>
+                <p style="margin:0; font-size:0.85rem; color:#7f1d1d; line-height:1.5;">
+                  High-Risk status represents repeat delivery delays or material compliance failures. Assigning a Purchase Order to these suppliers requires mandatory Procurement Manager or Administrator secondary overrides.
+                </p>
+              </div>
+
+              <div style="background: #fffbeb; border: 1px solid #fef3c7; padding: 1.5rem; border-radius: 8px; border-left: 6px solid #f59e0b;">
+                <h5 style="margin:0 0 0.5rem 0; color:#92400e; font-size:1.1rem; font-weight:700;">⚠️ Medium-Risk Suppliers Monitored</h5>
+                <p style="margin:0; font-size:0.85rem; color:#78350f; line-height:1.5;">
+                  Medium-Risk status represents minor delays or communication caps. These suppliers should only be selected with designated backup supplier plans in place.
+                </p>
+              </div>
+
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569; font-size: 0.9rem;">
+                  <th style="padding: 0.75rem 0.5rem;">Supplier Name</th>
+                  <th style="padding: 0.75rem 0.5rem;">Risk Status</th>
+                  <th style="padding: 0.75rem 0.5rem;">Reliability Score</th>
+                  <th style="padding: 0.75rem 0.5rem;">Compliance Level</th>
+                  <th style="padding: 0.75rem 0.5rem; text-align: right;">System Overrides</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let r of rankingsList" style="border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.9rem;">
+                  <td style="padding: 1rem 0.5rem; font-weight: 700; color:#1e293b;">{{ r.vendor_name }}</td>
+                  <td style="padding: 1rem 0.5rem;">
+                    <span [style.background]="r.risk_level === 'Low' ? '#dcfce7' : r.risk_level === 'Medium' ? '#fef9c3' : '#fee2e2'"
+                          [style.color]="r.risk_level === 'Low' ? '#166534' : r.risk_level === 'Medium' ? '#854d0e' : '#991b1b'"
+                          style="padding:0.25rem 0.5rem; border-radius:4px; font-weight:700; font-size:0.75rem;">
+                      {{ r.risk_level }} Risk
+                    </span>
+                  </td>
+                  <td style="padding: 1rem 0.5rem; font-weight:600;">{{ r.reliability_score }}%</td>
+                  <td style="padding: 1rem 0.5rem; color:#475569;">
+                    {{ r.reliability_score >= 90 ? 'Full Compliance' : r.reliability_score >= 75 ? 'Conditional Compliance' : 'Non-Compliant' }}
+                  </td>
+                  <td style="padding: 1rem 0.5rem; text-align: right; color:#ef4444; font-weight:700; font-size:0.8rem;">
+                    {{ r.risk_level === 'High' ? '⚠️ Override Required' : 'Not Required' }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 5: Procurement Recommendations (Module 5.6) -->
+        <div *ngIf="activeTab === 'recommendations'" class="tab-panel">
+          <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); min-height: 400px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 1rem;">
+              <h4 style="margin: 0; font-size: 1.25rem; color: #1e293b;">💡 Smart Procurement Recommendation Engine</h4>
+              
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <label style="font-weight: 700; color: #475569; font-size: 0.9rem;">Product Category:</label>
+                <select [(ngModel)]="categoryFilter" (change)="loadRecommendations()" style="padding: 0.4rem 0.8rem; border-radius: 4px; border: 1px solid #cbd5e1; font-weight: 600; background:white;">
+                  <option value="">-- All Categories --</option>
+                  <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                </select>
+              </div>
+            </div>
+
+            <p style="color:#64748b; font-size:0.85rem; margin-bottom:1.5rem; line-height:1.4;">
+              Instead of manually comparing bids, the platform ranks suppliers within each product category dynamically. Vendors with the highest reliability score and lowest risk are recommended for high-priority requisitions.
+            </p>
+
+            <div style="display:flex; flex-direction:column; gap:1.25rem;">
+              <div *ngFor="let rec of recommendationsList; let index = index" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1.25rem; display:grid; grid-template-columns: auto 1fr auto; align-items:center; gap:2rem; border-left:6px solid;"
+                   [style.borderLeftColor]="index === 0 ? '#10b981' : '#cbd5e1'">
+                
+                <!-- Rank Badge -->
+                <div style="width:40px; height:40px; background:#eff6ff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1.1rem; color:#3b82f6; border:1px solid #bfdbfe;">
+                  #{{ index + 1 }}
+                </div>
+
+                <!-- Text Details -->
+                <div>
+                  <div style="font-weight:700; font-size:1.1rem; color:#1e293b;">
+                    {{ rec.vendor_name }}
+                    <span *ngIf="index === 0" style="background:#dcfce7; color:#166534; padding:0.15rem 0.5rem; border-radius:4px; font-size:0.7rem; font-weight:800; vertical-align:middle; margin-left:0.5rem;">
+                      ⭐ RECOMMENDED PARTNER
+                    </span>
+                  </div>
+                  <div style="font-size:0.85rem; color:#64748b; margin-top:0.25rem; font-weight:600;">
+                    Reliability Score: {{ rec.reliability_score }}% | Category: {{ rec.vendor_category }}
+                  </div>
+                </div>
+
+                <!-- Risk Tag -->
+                <div>
+                  <span [style.background]="rec.risk_level === 'Low' ? '#dcfce7' : rec.risk_level === 'Medium' ? '#fef9c3' : '#fee2e2'"
+                        [style.color]="rec.risk_level === 'Low' ? '#166534' : rec.risk_level === 'Medium' ? '#854d0e' : '#991b1b'"
+                        style="padding:0.4rem 0.8rem; border-radius:4px; font-size:0.85rem; font-weight:800;">
+                    {{ rec.risk_level }} Risk
+                  </span>
+                </div>
+              </div>
+
+              <div *ngIf="recommendationsList.length === 0" style="text-align: center; padding: 3rem; color: #94a3b8;">
+                No recommended suppliers found in this category.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>

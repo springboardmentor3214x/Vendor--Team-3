@@ -5,7 +5,7 @@
     <div class="dash-topbar">
       <div style="display:flex;align-items:center;gap:1rem;">
         <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
+        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;font-size:0.85rem;">
           ← Go Back
         </button>
         <span class="dash-topbar-title">Purchase Orders</span>
@@ -16,80 +16,122 @@
       </div>
     </div>
 
-    <!-- Create PO Form (Admin / PM only) -->
-    <div *ngIf="sidebarService.getCurrentRole() === 'admin' || sidebarService.getCurrentRole() === 'procurement'" style="background:#f1f5f9;padding:1.5rem 2rem;border-bottom:1px solid #cbd5e1;">
-      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">💰 Create Purchase Order</h3>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr) auto;gap:1rem;align-items:end;">
+    <!-- Alerts -->
+    <div *ngIf="successMessage" style="margin:1rem 2rem 0;background:#dcfce7;border:1px solid #bbf7d0;color:#166534;padding:0.75rem 1.25rem;border-radius:6px;font-weight:600;">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" style="margin:1rem 2rem 0;background:#fee2e2;border:1px solid #fecaca;color:#991b1b;padding:0.75rem 1.25rem;border-radius:6px;font-weight:600;">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Create PO Form (Admin / Procurement only) -->
+    <div *ngIf="sidebarService.getCurrentRole() === 'admin' || sidebarService.getCurrentRole() === 'procurement'"
+         style="background:#f1f5f9;padding:1.5rem 2rem;border-bottom:1px solid #cbd5e1;">
+      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">💰 Issue Purchase Order</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:1rem;align-items:end;">
         <div>
-          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Vendor Assignment</label>
-          <select [(ngModel)]="newVendor" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
-            <option value="">Choose Vendor...</option>
-            <option *ngFor="let v of vendors" [value]="v">{{v}}</option>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Procurement Request *</label>
+          <select [(ngModel)]="selectedProcurementId" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option [ngValue]="null">Select Procurement...</option>
+            <option *ngFor="let p of procurements" [ngValue]="p.procurement_id">
+              #{{ p.procurement_id }} — {{ p.title }}
+            </option>
           </select>
         </div>
         <div>
-          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Order Amount (₹)</label>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Vendor *</label>
+          <select [(ngModel)]="selectedVendorId" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option [ngValue]="null">Select Vendor...</option>
+            <option *ngFor="let v of vendors" [ngValue]="v.vendor_id">{{ v.company_name }}</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Order Amount (₹) *</label>
           <input type="number" [(ngModel)]="newAmount" placeholder="Amount" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
         </div>
         <div>
-          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Expected Delivery (Days)</label>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Delivery (Days)</label>
           <input type="number" [(ngModel)]="deliveryDays" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
         </div>
-        <button (click)="createOrder()" style="background:#1e3a8a;color:white;border:none;padding:0.6rem 1.2rem;border-radius:4px;font-weight:700;cursor:pointer;height:38px;">
-          Issue PO
+        <button (click)="createOrder()" [disabled]="submitting"
+                style="background:#1e3a8a;color:white;border:none;padding:0.6rem 1.2rem;border-radius:4px;font-weight:700;cursor:pointer;height:38px;white-space:nowrap;">
+          {{ submitting ? 'Issuing...' : '📤 Issue PO' }}
         </button>
       </div>
+      <p style="margin:0.5rem 0 0;font-size:0.8rem;color:#64748b;">
+        🔔 Vendor will be automatically notified via in-app message when a PO is issued.
+      </p>
     </div>
 
     <!-- PO List Table -->
     <div style="padding:2rem;">
       <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">Issued Purchase Orders</h3>
-      <table style="width:100%;border-collapse:collapse;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-radius:6px;overflow:hidden;">
+
+      <div *ngIf="loading" style="text-align:center;padding:2rem;color:#64748b;">Loading purchase orders...</div>
+
+      <table *ngIf="!loading && orders.length > 0" style="width:100%;border-collapse:collapse;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-radius:6px;overflow:hidden;">
         <thead>
           <tr style="background:#1e3a8a;color:white;">
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">PO ID</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Vendor Name</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Amount</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Order Date</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Est. Delivery</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Status</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Actions</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;">PO #</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;">Procurement</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;">Vendor</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;">Amount (₹)</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;">Order Date</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;">Est. Delivery</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;">Status</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let o of orders" style="background:white;border-bottom:1px solid #cbd5e1;">
-            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{o.id}}</td>
-            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{o.vendorName}}</td>
-            <td style="padding:1rem;text-align:center;color:#1e3a8a;font-weight:700;">₹{{o.amount | number}}</td>
-            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{o.orderDate}}</td>
-            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{o.deliveryDate}}</td>
-            <td style="padding:1rem;text-align:center;">
-              <span [style.background]="o.status === 'Approved' ? '#dcfce7' : o.status === 'Delivered' ? '#cbd5e1' : o.status === 'Completed' ? '#dbeafe' : '#fef9c3'"
-                    [style.color]="o.status === 'Approved' ? '#166534' : o.status === 'Delivered' ? '#334155' : o.status === 'Completed' ? '#1e40af' : '#854d0e'"
-                    style="padding:0.25rem 0.5rem;border-radius:4px;font-size:0.8rem;font-weight:700;">
-                {{o.status}}
+            <td style="padding:0.875rem 1rem;text-align:center;font-weight:700;color:#1e3a8a;">{{ o.order_number }}</td>
+            <td style="padding:0.875rem 1rem;text-align:center;font-size:0.85rem;color:#475569;">{{ getProcurementTitle(o.procurement_id) }}</td>
+            <td style="padding:0.875rem 1rem;text-align:center;font-weight:600;">{{ getVendorName(o.vendor_id) }}</td>
+            <td style="padding:0.875rem 1rem;text-align:center;color:#1e3a8a;font-weight:700;">₹{{ o.total_amount | number }}</td>
+            <td style="padding:0.875rem 1rem;text-align:center;color:#475569;">{{ o.order_date }}</td>
+            <td style="padding:0.875rem 1rem;text-align:center;color:#475569;">{{ o.delivery_date || '—' }}</td>
+            <td style="padding:0.875rem 1rem;text-align:center;">
+              <span [ngStyle]="getStatusStyle(o.status)"
+                    style="padding:0.25rem 0.6rem;border-radius:4px;font-size:0.8rem;font-weight:700;">
+                {{ o.status }}
               </span>
             </td>
-            <td style="padding:1rem;text-align:center;display:flex;justify-content:center;gap:0.5rem;">
-              <button *ngIf="o.status === 'Pending' && (sidebarService.getCurrentRole() === 'admin' || sidebarService.getCurrentRole() === 'procurement')" 
-                      (click)="updateStatus(o, 'Approved')" style="background:#dcfce7;color:#15803d;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
-                Approve
-              </button>
-              <button *ngIf="o.status === 'Approved' && (sidebarService.getCurrentRole() === 'admin' || sidebarService.getCurrentRole() === 'supply')" 
-                      (click)="updateStatus(o, 'Delivered')" style="background:#cbd5e1;color:#1e293b;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
-                Mark Delivered
-              </button>
-              <button *ngIf="o.status === 'Delivered' && (sidebarService.getCurrentRole() === 'admin' || sidebarService.getCurrentRole() === 'finance')" 
-                      (click)="updateStatus(o, 'Completed')" style="background:#dbeafe;color:#1e40af;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
-                Pay & Close
-              </button>
-              <button (click)="simulateUpload(o)" style="background:#f3f4f6;color:#374151;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:600;font-size:0.75rem;cursor:pointer;">
-                📄 Invoice
-              </button>
+            <td style="padding:0.875rem 1rem;text-align:center;">
+              <div style="display:flex;justify-content:center;gap:0.4rem;flex-wrap:wrap;">
+                <button *ngIf="o.status === 'Pending' && (sidebarService.getCurrentRole() === 'admin' || sidebarService.getCurrentRole() === 'procurement')"
+                        (click)="updateStatus(o, 'Approved')"
+                        [disabled]="updatingId === o.order_id"
+                        style="background:#dcfce7;color:#15803d;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
+                  ✅ Approve
+                </button>
+                <button *ngIf="o.status === 'Approved' && (sidebarService.getCurrentRole() === 'admin' || sidebarService.getCurrentRole() === 'supply')"
+                        (click)="updateStatus(o, 'Delivered')"
+                        [disabled]="updatingId === o.order_id"
+                        style="background:#e0e7ff;color:#3730a3;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
+                  📬 Delivered
+                </button>
+                <button *ngIf="o.status === 'Delivered' && (sidebarService.getCurrentRole() === 'admin' || sidebarService.getCurrentRole() === 'finance')"
+                        (click)="updateStatus(o, 'Completed')"
+                        [disabled]="updatingId === o.order_id"
+                        style="background:#dbeafe;color:#1e40af;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
+                  💳 Pay & Close
+                </button>
+                <button *ngIf="(o.status === 'Pending' || o.status === 'Approved') && (sidebarService.getCurrentRole() === 'admin')"
+                        (click)="updateStatus(o, 'Cancelled')"
+                        [disabled]="updatingId === o.order_id"
+                        style="background:#fee2e2;color:#991b1b;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
+                  ❌ Cancel
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
+
+      <div *ngIf="!loading && orders.length === 0"
+           style="text-align:center;padding:2rem;color:#64748b;background:#f8fafc;border-radius:8px;border:1px dashed #cbd5e1;">
+        No purchase orders found.
+      </div>
     </div>
   </div>
 </div>

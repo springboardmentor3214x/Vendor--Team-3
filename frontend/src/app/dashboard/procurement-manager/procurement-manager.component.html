@@ -27,19 +27,19 @@
       <div class="stat-grid">
         <div class="stat-card blue-card">
           <div class="label">Total Vendors</div>
-          <div class="value">248</div>
+          <div class="value">{{ totalVendors }}</div>
         </div>
         <div class="stat-card green-card">
           <div class="label">Purchase Orders</div>
-          <div class="value">152</div>
+          <div class="value">{{ purchaseOrdersCount }}</div>
         </div>
         <div class="stat-card yellow-card">
           <div class="label">Active Procurement</div>
-          <div class="value">35</div>
+          <div class="value">{{ activeProcurementCount }}</div>
         </div>
         <div class="stat-card pink-card">
           <div class="label">Contracts Expiring</div>
-          <div class="value">12</div>
+          <div class="value">{{ expiringContractsCount }}</div>
         </div>
       </div>
 
@@ -184,29 +184,16 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="font-weight:700;">PO101</td>
-                <td style="font-weight:700;">ABC Pvt Ltd</td>
-                <td style="font-weight:700;">₹52,000</td>
-                <td>IT</td>
-                <td>Today</td>
-                <td style="font-weight:700;">Approved</td>
+              <tr *ngFor="let po of recentPOs">
+                <td style="font-weight:700;">PO{{ po.order_id }}</td>
+                <td style="font-weight:700;">{{ po.vendor_name }}</td>
+                <td style="font-weight:700;">₹{{ po.total_amount | number }}</td>
+                <td>{{ po.department || 'Procurement' }}</td>
+                <td>{{ po.order_date | date }}</td>
+                <td style="font-weight:700;">{{ po.status }}</td>
               </tr>
-              <tr>
-                <td style="font-weight:700;">PO102</td>
-                <td style="font-weight:700;">XYZ Suppliers</td>
-                <td style="font-weight:700;">₹18,000</td>
-                <td>HR</td>
-                <td>Today</td>
-                <td style="font-weight:700;">Pending</td>
-              </tr>
-              <tr>
-                <td style="font-weight:700;">PO103</td>
-                <td style="font-weight:700;">Tech India</td>
-                <td style="font-weight:700;">₹31,000</td>
-                <td>Production</td>
-                <td>Yesterday</td>
-                <td style="font-weight:700;">Approved</td>
+              <tr *ngIf="recentPOs.length === 0">
+                <td colspan="6" style="text-align:center;">No recent purchase orders found.</td>
               </tr>
             </tbody>
           </table>
@@ -216,20 +203,19 @@
           <div class="panel">
             <h3>Upcoming Deliveries</h3>
             <div class="delivery-list">
-              <p>🚚 ABC Pvt Ltd - Today</p>
-              <p>🚚 XYZ Supplier - Tomorro</p>
-              <p>🚚 Tech India - Friday</p>
+              <p *ngFor="let del of upcomingDeliveries">🚚 {{ del.vendor }} - {{ del.date | date }}</p>
+              <p *ngIf="upcomingDeliveries.length === 0">No upcoming deliveries scheduled.</p>
             </div>
           </div>
           <div class="panel">
             <h3>Budget Utilization</h3>
             <p style="font-weight:700;margin-bottom:0.5rem;color:#1e293b;">Monthly Budget ₹15L</p>
             <div class="budget-bar-container">
-              <div class="budget-bar-fill" style="width:68%"></div>
+              <div class="budget-bar-fill" [style.width.%]="budgetSpentPercent"></div>
             </div>
             <div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:0.85rem;font-weight:700;color:#475569;">
-              <span>Remaining ₹4.8L</span>
-              <span>68%</span>
+              <span>Remaining ₹{{ budgetRemaining | number }}</span>
+              <span>{{ budgetSpentPercent }}%</span>
             </div>
           </div>
         </div>

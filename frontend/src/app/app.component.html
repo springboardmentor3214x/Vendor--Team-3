@@ -18,7 +18,7 @@
   </div>
 
   <div style="display:flex;flex-direction:column;gap:1rem;flex:1;overflow-y:auto;">
-    <div *ngFor="let n of sidebarService.notifications" 
+    <div *ngFor="let n of sidebarService.getNotifications()" 
          style="background:#f8fafc;border:1px solid #e2e8f0;padding:1rem;border-radius:6px;display:flex;flex-direction:column;gap:0.25rem;">
       <div style="font-weight:800;font-size:0.85rem;color:#1e293b;">{{n.title}}</div>
       <div style="font-size:0.85rem;color:#475569;line-height:1.4;font-weight:500;">{{n.message}}</div>

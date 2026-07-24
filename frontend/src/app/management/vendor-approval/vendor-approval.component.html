@@ -2,13 +2,10 @@
 <div class="subheader-strip">
   <div style="display:flex;align-items:center;gap:1rem;">
     <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-    <div class="search-box-container">
-      <input type="text" placeholder="Search Vendor..." class="search-pill">
-    </div>
   </div>
   <div class="topbar-right-info">
     <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
-    <span class="user-span">👤 Administrator</span>
+    <span class="user-span">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
   </div>
 </div>
 
@@ -17,10 +14,34 @@
   <div class="dash-main">
     <div class="dash-content">
       
-      <div class="approval-card">
-        <div class="approval-header-block">
-          <h2 class="approval-title">Vendor Approval Workflow</h2>
-          <p class="approval-subtitle">Review vendor information before approval.</p>
+      <div *ngIf="isLoading" style="text-align: center; padding: 5rem; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin: 2rem;">
+        <div style="font-size: 1.25rem; font-weight: bold; color: #475569;">Loading Approval Workflows...</div>
+        <div style="margin-top: 1.5rem; display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      </div>
+
+      <div *ngIf="!isLoading && pendingVendors.length === 0" style="text-align: center; padding: 5rem; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin: 2rem;">
+        <div style="font-size: 1.5rem; font-weight: bold; color: #1e293b;">🎉 No Pending Vendor Applications</div>
+        <p style="color: #64748b; margin-top: 0.5rem;">All onboarding applications have been successfully reviewed.</p>
+        <button (click)="goBack()" class="btn-wf btn-wf-back" style="margin-top: 1.5rem; max-width: 150px; display: inline-block;">Go Dashboard</button>
+      </div>
+
+      <div *ngIf="!isLoading && pendingVendors.length > 0 && selectedVendor" class="approval-card">
+        
+        <div class="approval-header-block" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+          <div>
+            <h2 class="approval-title">Vendor Approval Workflow</h2>
+            <p class="approval-subtitle">Review vendor information before approval.</p>
+          </div>
+          
+          <!-- Dropdown to select different pending vendor application -->
+          <div style="display:flex; align-items:center; gap:0.5rem; background:#f1f5f9; padding:0.5rem 1rem; border-radius:8px; border:1px solid #cbd5e1;">
+            <label style="font-weight:700; color:#475569; font-size:0.85rem;">Select Application:</label>
+            <select (change)="selectVendor($any($event.target).value)" style="padding:0.4rem 0.8rem; border-radius:4px; border:1px solid #cbd5e1; font-weight:600;">
+              <option *ngFor="let pv of pendingVendors" [value]="pv.vendor_id" [selected]="pv.vendor_id === selectedVendor.vendor_id">
+                {{ pv.company_name }}
+              </option>
+            </select>
+          </div>
         </div>
         
         <div class="approval-body-grid">
@@ -30,52 +51,52 @@
               <tr>
                 <td class="lbl">Company Name</td>
                 <td class="cln">:</td>
-                <td class="val">ABC Pvt Ltd</td>
+                <td class="val" style="font-weight: 800; color: #1e3a8a;">{{ selectedVendor.company_name }}</td>
               </tr>
               <tr>
                 <td class="lbl">Vendor ID</td>
                 <td class="cln">:</td>
-                <td class="val">VEN001</td>
+                <td class="val">{{ selectedVendor.vendor_id }}</td>
               </tr>
               <tr>
                 <td class="lbl">Category</td>
                 <td class="cln">:</td>
-                <td class="val">Raw Material Supplier</td>
+                <td class="val">{{ selectedVendor.vendor_category }}</td>
               </tr>
               <tr>
                 <td class="lbl">Email</td>
                 <td class="cln">:</td>
-                <td class="val">abcvendor&#64;gmail.com</td>
+                <td class="val">{{ selectedVendor.email }}</td>
               </tr>
               <tr>
                 <td class="lbl">Phone</td>
                 <td class="cln">:</td>
-                <td class="val">+91 9876543210</td>
+                <td class="val">{{ selectedVendor.phone || '—' }}</td>
               </tr>
               <tr>
                 <td class="lbl">GST Number</td>
                 <td class="cln">:</td>
-                <td class="val font-mono">33ABCDE1234F1Z5</td>
+                <td class="val font-mono">{{ selectedVendor.gst_number || '—' }}</td>
               </tr>
               <tr>
                 <td class="lbl">PAN Number</td>
                 <td class="cln">:</td>
-                <td class="val font-mono">ABCDE1234F</td>
+                <td class="val font-mono">{{ selectedVendor.pan_number || '—' }}</td>
               </tr>
               <tr>
                 <td class="lbl">Approval Status</td>
                 <td class="cln">:</td>
-                <td class="val status-pending-text">Pending Approval</td>
+                <td class="val status-pending-text" style="color:#b45309; font-weight:700;">🟡 {{ selectedVendor.approval_status }}</td>
               </tr>
               <tr>
                 <td class="lbl">Contact Person</td>
                 <td class="cln">:</td>
-                <td class="val">Raj Kumar</td>
+                <td class="val">{{ selectedVendor.contact_person }}</td>
               </tr>
               <tr>
                 <td class="lbl">Vendor Status</td>
                 <td class="cln">:</td>
-                <td class="val"><span class="status-badge">Pending 🟡</span></td>
+                <td class="val"><span class="status-badge" style="background:#fef3c7; color:#d97706; padding:0.2rem 0.5rem; border-radius:4px; font-weight:700;">{{ selectedVendor.vendor_status }}</span></td>
               </tr>
             </table>
           </div>
@@ -88,22 +109,17 @@
                 <div class="doc-row">
                   <span class="doc-indicator">📄</span>
                   <span class="doc-title">GST Certificate</span>
-                  <a href="#" class="view-btn" (click)="$event.preventDefault()">👁️ View</a>
+                  <span class="view-btn">{{ selectedVendor.gst_number ? '✓ Uploaded' : '—' }}</span>
                 </div>
                 <div class="doc-row">
                   <span class="doc-indicator">📄</span>
                   <span class="doc-title">PAN Card</span>
-                  <a href="#" class="view-btn" (click)="$event.preventDefault()">👁️ View</a>
+                  <span class="view-btn">{{ selectedVendor.pan_number ? '✓ Uploaded' : '—' }}</span>
                 </div>
                 <div class="doc-row">
                   <span class="doc-indicator">📄</span>
                   <span class="doc-title">Registration Certificate</span>
-                  <a href="#" class="view-btn" (click)="$event.preventDefault()">👁️ View</a>
-                </div>
-                <div class="doc-row">
-                  <span class="doc-indicator">📄</span>
-                  <span class="doc-title">ISO Certificate</span>
-                  <a href="#" class="view-btn" (click)="$event.preventDefault()">👁️ View</a>
+                  <span class="view-btn">{{ selectedVendor.company_registration_number ? '✓ Uploaded' : '—' }}</span>
                 </div>
               </div>
             </div>

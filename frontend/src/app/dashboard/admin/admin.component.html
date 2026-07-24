@@ -24,19 +24,19 @@
       <div class="stat-grid">
         <div class="stat-card blue-card">
           <div class="label">👥 Users</div>
-          <div class="value">520</div>
+          <div class="value">{{ usersCount }}</div>
         </div>
         <div class="stat-card green-card">
           <div class="label">👥 Vendors</div>
-          <div class="value">248</div>
+          <div class="value">{{ totalVendors }}</div>
         </div>
         <div class="stat-card yellow-card">
           <div class="label">📦 Orders</div>
-          <div class="value">152</div>
+          <div class="value">{{ ordersCount }}</div>
         </div>
         <div class="stat-card pink-card">
           <div class="label">💰 Revenue</div>
-          <div class="value">₹12.5 L</div>
+          <div class="value">₹{{ totalRevenue | number }}</div>
         </div>
       </div>
 
@@ -70,20 +70,13 @@
         <div class="panel">
           <h3>Top Vendors</h3>
           <div class="top-vendors-list">
-            <div class="vendor-row">
-              <span class="v-medal">🥇</span>
-              <span>ABC Pvt Ltd</span>
-              <span class="stars">⭐⭐⭐⭐⭐</span>
+            <div *ngFor="let tv of topVendors" class="vendor-row">
+              <span class="v-medal">{{ tv.medal }}</span>
+              <span>{{ tv.name }}</span>
+              <span class="stars">{{ tv.stars }}</span>
             </div>
-            <div class="vendor-row">
-              <span class="v-medal">🥈</span>
-              <span>Tech India</span>
-              <span class="stars">⭐⭐⭐⭐⭐</span>
-            </div>
-            <div class="vendor-row">
-              <span class="v-medal">🥉</span>
-              <span>XYZ Suppliers</span>
-              <span class="stars">⭐⭐⭐⭐☆</span>
+            <div *ngIf="topVendors.length === 0" style="padding:1rem;color:#64748b;font-weight:600;text-align:center;">
+              No ranked vendors available.
             </div>
           </div>
         </div>
@@ -118,23 +111,14 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>John</td>
-              <td>Vendor Approved</td>
-              <td>Today</td>
-              <td style="font-weight:700;">✅ Completed</td>
+            <tr *ngFor="let act of recentActivities">
+              <td>{{ act.user }}</td>
+              <td>{{ act.action }}</td>
+              <td>{{ act.date | date }}</td>
+              <td style="font-weight:700;">{{ act.status }}</td>
             </tr>
-            <tr>
-              <td>Alex</td>
-              <td>Purchase Order Created</td>
-              <td>Yesterday</td>
-              <td style="font-weight:700;">🟡 Pending</td>
-            </tr>
-            <tr>
-              <td>Maria</td>
-              <td>Report Generated</td>
-              <td>Monday</td>
-              <td style="font-weight:700;">🔵 Active</td>
+            <tr *ngIf="recentActivities.length === 0">
+              <td colspan="4" style="text-align:center;">No recent activities found.</td>
             </tr>
           </tbody>
         </table>

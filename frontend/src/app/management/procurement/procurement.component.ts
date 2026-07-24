@@ -1,26 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
-
-interface ProcurementRequest {
-  id: string;
-  title: string;
-  department: string;
-  requestedBy: string;
-  itemName: string;
-  itemCategory: string;
-  quantity: number;
-  unit: string;
-  budget: number;
-  deliveryDate: string;
-  priority: string;
-  justification: string;
-  remarks: string;
-  status: string;
-}
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-procurement',
@@ -29,14 +13,19 @@ interface ProcurementRequest {
   templateUrl: './procurement.component.html',
   styleUrl: './procurement.component.scss'
 })
-export class ProcurementComponent {
-  requests: ProcurementRequest[] = [];
-  
+export class ProcurementComponent implements OnInit {
+  requests: any[] = [];
+  vendors: any[] = [];
+  loading = false;
+  submitting = false;
+  errorMessage = '';
+  successMessage = '';
+
   // Form Fields
-  requestNumber = 'PR004';
+  selectedVendorId: number | null = null;
   newTitle = '';
   newDepartment = 'IT';
-  requestedBy = 'Procurement Manager';
+  requestedBy = '';
   itemName = '';
   itemCategory = 'Raw Material';
   quantity = 100;
@@ -47,56 +36,42 @@ export class ProcurementComponent {
   justification = '';
   remarks = '';
 
-  constructor(public sidebarService: SidebarService, private router: Router) {
+  constructor(
+    public sidebarService: SidebarService,
+    private router: Router,
+    private api: ApiService
+  ) {}
+
+  ngOnInit() {
+    this.loadVendors();
     this.loadRequests();
+    const email = localStorage.getItem('userEmail') || '';
+    this.requestedBy = email.split('@')[0].toUpperCase();
+  }
+
+  loadVendors() {
+    this.api.getVendors().subscribe({
+      next: (data) => { this.vendors = data; },
+      error: () => { this.vendors = []; }
+    });
   }
 
   loadRequests() {
-    const cached = localStorage.getItem('vrp_procurement_requests_full');
-    if (cached) {
-      this.requests = JSON.parse(cached);
-    } else {
-      this.requests = [
-        { 
-          id: 'PR001', 
-          title: 'Office Laptops Purchase', 
-          department: 'IT', 
-          requestedBy: 'Maria Smith',
-          itemName: 'Developer Laptops',
-          itemCategory: 'Equipment',
-          quantity: 15,
-          unit: 'Pieces',
-          budget: 1200000, 
-          deliveryDate: '2026-07-30', 
-          priority: 'High',
-          justification: 'Replacement for old developer systems.',
-          remarks: 'Ensure quick warranty terms.',
-          status: 'Approved' 
-        },
-        { 
-          id: 'PR002', 
-          title: 'Warehouse Cardboards', 
-          department: 'Logistics', 
-          requestedBy: 'John Doe',
-          itemName: 'Cardboard Boxes',
-          itemCategory: 'Packaging',
-          quantity: 1000,
-          unit: 'Box',
-          budget: 450000, 
-          deliveryDate: '2026-07-25', 
-          priority: 'Medium',
-          justification: 'Monthly inventory boxes.',
-          remarks: 'None.',
-          status: 'Pending' 
-        }
-      ];
-      this.saveRequests();
-    }
-    this.requestNumber = 'PR' + String(this.requests.length + 1).padStart(3, '0');
+    this.loading = true;
+    this.api.getProcurements().subscribe({
+      next: (data) => {
+        this.requests = data;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+        this.errorMessage = 'Failed to load procurement requests.';
+      }
+    });
   }
 
-  saveRequests() {
-    localStorage.setItem('vrp_procurement_requests_full', JSON.stringify(this.requests));
+  get requestNumber(): string {
+    return 'PR' + String(this.requests.length + 1).padStart(3, '0');
   }
 
   goBack() {
@@ -105,37 +80,59 @@ export class ProcurementComponent {
   }
 
   addRequest() {
-    if (!this.newTitle || this.newBudget <= 0) {
-      alert('Title and budget are required!');
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (!this.newTitle || !this.selectedVendorId) {
+      this.errorMessage = 'Title and vendor are required!';
       return;
     }
-    const newReq: ProcurementRequest = {
-      id: this.requestNumber,
-      title: this.newTitle,
-      department: this.newDepartment,
-      requestedBy: this.requestedBy,
-      itemName: this.itemName,
-      itemCategory: this.itemCategory,
-      quantity: this.quantity,
-      unit: this.unit,
-      budget: this.newBudget,
-      deliveryDate: this.deliveryDate || new Date().toISOString().split('T')[0],
-      priority: this.priority,
-      justification: this.justification,
-      remarks: this.remarks,
-      status: 'Pending'
-    };
-    this.requests.push(newReq);
-    this.saveRequests();
 
-    // Clear
+    const today = new Date().toISOString().split('T')[0];
+
+    const payload = {
+      title: this.newTitle,
+      description: `${this.itemName} | ${this.itemCategory} | Qty: ${this.quantity} ${this.unit} | Budget: ₹${this.newBudget} | Priority: ${this.priority} | ${this.justification}`,
+      vendor_id: this.selectedVendorId,
+      status: 'Pending',
+      created_date: today
+    };
+
+    this.submitting = true;
+    this.api.createProcurement(payload).subscribe({
+      next: (created) => {
+        this.requests.unshift(created);
+        this.successMessage = `✅ Procurement Request #${created.procurement_id} created successfully!`;
+        this.submitting = false;
+        this.resetForm();
+      },
+      error: (err) => {
+        this.errorMessage = err?.error?.detail || 'Failed to create procurement request.';
+        this.submitting = false;
+      }
+    });
+  }
+
+  resetForm() {
     this.newTitle = '';
-    this.newBudget = 0;
+    this.selectedVendorId = null;
     this.itemName = '';
     this.justification = '';
     this.remarks = '';
-    
-    this.requestNumber = 'PR' + String(this.requests.length + 1).padStart(3, '0');
-    alert('Procurement request created successfully!');
+    this.newBudget = 0;
+    this.deliveryDate = '';
+    this.quantity = 100;
+    this.priority = 'Medium';
+  }
+
+  getStatusClass(status: string): string {
+    const map: Record<string, string> = {
+      'Pending': 'status-pending',
+      'Approved': 'status-approved',
+      'Rejected': 'status-rejected',
+      'Draft': 'status-draft',
+      'Completed': 'status-completed'
+    };
+    return map[status] || 'status-pending';
   }
 }

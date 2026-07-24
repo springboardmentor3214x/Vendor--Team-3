@@ -8,12 +8,18 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000'; // Default FastAPI port
+  private apiUrl = 'http://localhost:8080'; // FastAPI backend port
   
   private userSubject = new BehaviorSubject<any>(null);
   currentUser$ = this.userSubject.asObservable();
 
   constructor(private http: HttpClient, private router: Router) {
+    const token = localStorage.getItem('authToken');
+    if (token && token.startsWith('mock_jwt_token_')) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('dashboardRoute');
+    }
     const email = localStorage.getItem('userEmail');
     if (email) {
       this.userSubject.next({ email });
@@ -54,99 +60,43 @@ export class AuthService {
   }
 
   login(data: any): Observable<any> {
-    const fixedAccounts: { [key: string]: { pass: string; role: string; route: string } } = {
-      'a@gmail.com': { pass: 'a@123', role: 'Administrator', route: '/admin-dashboard' },
-      'p@gmail.com': { pass: 'p@123', role: 'Procurement Manager', route: '/procurement-dashboard' },
-      's@gmail.com': { pass: 's@123', role: 'Supply Chain Manager', route: '/supply-chain-dashboard' },
-      'v@gmail.com': { pass: 'v@123', role: 'Vendor', route: '/vendor-dashboard' },
-      'f@gmail.com': { pass: 'f@123', role: 'Finance Officer', route: '/finance-dashboard' },
-      'au@gmail.com': { pass: 'au@123', role: 'Auditor', route: '/auditor-dashboard' }
-    };
+    const body = new URLSearchParams();
+    body.set('username', data.email);
+    body.set('password', data.password);
 
-    const emailLower = data.email.toLowerCase();
-    const fixed = fixedAccounts[emailLower];
-
-    if (fixed && data.password === fixed.pass) {
-      const mockResponse = {
-        access_token: `mock_jwt_token_${fixed.role.replace(/ /g, '_')}`,
-        token_type: 'bearer'
-      };
-      
-      localStorage.setItem('authToken', mockResponse.access_token);
-      localStorage.setItem('userEmail', data.email);
-      localStorage.setItem('dashboardRoute', fixed.route);
-      
-      // Ensure profile is cached
-      localStorage.setItem(`profile_${data.email}`, JSON.stringify({
-        fullName: fixed.role.toUpperCase() + ' TEST',
-        email: data.email,
-        mobile: '+91 9999999999',
-        role: fixed.role,
-        companyName: fixed.role === 'Vendor' ? 'Test Vendor Inc' : 'VRP Platform',
-        employeeId: 'TEST' + Math.floor(1000 + Math.random() * 9000)
-      }));
-
-      this.userSubject.next({ email: data.email });
-      return of(mockResponse);
-    }
-
-    // Normal backend authentication flow
-    const payload = {
-      email: data.email,
-      password: data.password
-    };
-    return this.http.post(`${this.apiUrl}/login`, payload).pipe(
+    return this.http.post(`${this.apiUrl}/login`, body.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    }).pipe(
       tap((res: any) => {
         if (res && res.access_token) {
           localStorage.setItem('authToken', res.access_token);
           localStorage.setItem('userEmail', data.email);
           
-          let route = '/admin-dashboard';
-          if (data.email.includes('admin') || data.email.toLowerCase() === 'a@gmail.com') route = '/admin-dashboard';
-          else if (data.email.includes('procurement') || data.email.toLowerCase() === 'p@gmail.com') route = '/procurement-dashboard';
-          else if (data.email.includes('supply') || data.email.toLowerCase() === 's@gmail.com') route = '/supply-chain-dashboard';
-          else if (data.email.includes('finance') || data.email.toLowerCase() === 'f@gmail.com') route = '/finance-dashboard';
-          else if (data.email.includes('auditor') || data.email.toLowerCase() === 'au@gmail.com') route = '/auditor-dashboard';
-          else if (data.email.includes('vendor') || data.email.toLowerCase() === 'v@gmail.com') route = '/vendor-dashboard';
-          else {
-            const profileStr = localStorage.getItem(`profile_${data.email}`);
-            if (profileStr) {
-              const profile = JSON.parse(profileStr);
-              const r = profile.role?.toLowerCase() || '';
-              if (r.includes('admin') || r === 'a@gmail.com') route = '/admin-dashboard';
-              else if (r.includes('procurement') || r === 'p@gmail.com') route = '/procurement-dashboard';
-              else if (r.includes('supply') || r === 's@gmail.com') route = '/supply-chain-dashboard';
-              else if (r.includes('finance') || r === 'f@gmail.com') route = '/finance-dashboard';
-              else if (r.includes('auditor') || r === 'au@gmail.com') route = '/auditor-dashboard';
-              else if (r.includes('vendor') || r === 'v@gmail.com') route = '/vendor-dashboard';
-            }
+          // Store the role from backend response
+          if (res.role) {
+            const roleMap: { [key: string]: string } = {
+              'Administrator': 'Admin',
+              'Procurement Manager': 'Procurement',
+              'Supply Chain Manager': 'Supply',
+              'Vendor': 'Vendor',
+              'Finance Officer': 'Finance',
+              'Auditor': 'Auditor'
+            };
+            localStorage.setItem('userRole', roleMap[res.role] || res.role);
           }
+          
+          let route = '/admin-dashboard';
+          const emailLower = data.email.toLowerCase();
+          if (emailLower === 'a@gmail.com' || emailLower.includes('admin')) route = '/admin-dashboard';
+          else if (emailLower === 'p@gmail.com' || emailLower.includes('procurement')) route = '/procurement-dashboard';
+          else if (emailLower === 's@gmail.com' || emailLower.includes('supply')) route = '/supply-chain-dashboard';
+          else if (emailLower === 'f@gmail.com' || emailLower.includes('finance')) route = '/finance-dashboard';
+          else if (emailLower === 'au@gmail.com' || emailLower.includes('auditor')) route = '/auditor-dashboard';
+          else if (emailLower === 'v@gmail.com' || emailLower.includes('vendor')) route = '/vendor-dashboard';
+
           localStorage.setItem('dashboardRoute', route);
           this.userSubject.next({ email: data.email });
         }
-      }),
-      catchError((err) => {
-        console.warn('Backend login failed, falling back to mock login');
-        const mockResponse = {
-          access_token: `mock_jwt_token_Fallback`,
-          token_type: 'bearer'
-        };
-        
-        let role = 'Administrator';
-        let route = '/admin-dashboard';
-        if (data.email.includes('admin') || data.email.toLowerCase() === 'a@gmail.com') { role = 'Administrator'; route = '/admin-dashboard'; }
-        else if (data.email.includes('procurement') || data.email.toLowerCase() === 'p@gmail.com') { role = 'Procurement Manager'; route = '/procurement-dashboard'; }
-        else if (data.email.includes('supply') || data.email.toLowerCase() === 's@gmail.com') { role = 'Supply Chain Manager'; route = '/supply-chain-dashboard'; }
-        else if (data.email.includes('finance') || data.email.toLowerCase() === 'f@gmail.com') { role = 'Finance Officer'; route = '/finance-dashboard'; }
-        else if (data.email.includes('auditor') || data.email.toLowerCase() === 'au@gmail.com') { role = 'Auditor'; route = '/auditor-dashboard'; }
-        else if (data.email.includes('vendor') || data.email.toLowerCase() === 'v@gmail.com') { role = 'Vendor'; route = '/vendor-dashboard'; }
-
-        localStorage.setItem('authToken', mockResponse.access_token);
-        localStorage.setItem('userEmail', data.email);
-        localStorage.setItem('dashboardRoute', route);
-        
-        this.userSubject.next({ email: data.email });
-        return of(mockResponse);
       })
     );
   }
@@ -158,6 +108,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userEmail');
+    localStorage.removeItem('userRole');
     localStorage.removeItem('dashboardRoute');
     this.userSubject.next(null);
     this.router.navigate(['/login']);

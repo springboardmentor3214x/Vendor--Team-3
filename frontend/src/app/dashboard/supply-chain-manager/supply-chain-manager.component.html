@@ -27,19 +27,19 @@
       <div class="stat-grid">
         <div class="stat-card grey-card">
           <div class="label">Active Vendors</div>
-          <div class="value">248</div>
+          <div class="value">{{ activeVendorsCount }}</div>
         </div>
         <div class="stat-card green-card">
           <div class="label">Deliveries Today</div>
-          <div class="value">38</div>
+          <div class="value">{{ deliveriesTodayCount }}</div>
         </div>
         <div class="stat-card yellow-card">
           <div class="label">Delayed Shipments</div>
-          <div class="value">6</div>
+          <div class="value">{{ delayedShipmentsCount }}</div>
         </div>
         <div class="stat-card pink-card">
           <div class="label">Reliability Score</div>
-          <div class="value">94%</div>
+          <div class="value">{{ avgReliabilityScore }}%</div>
         </div>
       </div>
 
@@ -48,28 +48,32 @@
         <div class="panel">
           <h3>Vendor Reliability</h3>
           <div class="rating-list">
-            <p>★★★★★ ABC Pvt Ltd</p>
-            <p>★★★★★ XYZ Suppliers</p>
-            <p>★★★★★ Tech India</p>
-            <p>★★★★☆ Delta Traders</p>
+            <p *ngFor="let rate of reliabilityRatings">{{ rate.stars }} {{ rate.name }}</p>
+            <p *ngIf="reliabilityRatings.length === 0">No rated vendors found.</p>
           </div>
         </div>
 
         <div class="panel">
           <h3>Delivery Tracking</h3>
           <div class="delivery-tracking-list">
-            <p>🚚 Truck 01 Delivered</p>
-            <p>🚚 Truck 02 On Route</p>
-            <p>🚚 Truck 03 Delayed</p>
+            <p *ngFor="let log of deliveryTrackingLogs">
+              <span class="status-dot" [class]="log.statusClass"></span>
+              {{ log.text }}
+            </p>
+            <p *ngIf="deliveryTrackingLogs.length === 0">No tracking logs available.</p>
           </div>
         </div>
 
         <div class="panel">
           <h3>Vendor Performance</h3>
           <div class="performance-list">
-            <div class="perf-row"><span>ABC Pvt Ltd</span> <span>95%</span></div>
-            <div class="perf-row"><span>XYZ Supplier</span> <span>89%</span></div>
-            <div class="perf-row"><span>Tech India</span> <span>98%</span></div>
+            <div *ngFor="let perf of vendorPerformanceList" class="perf-row">
+              <span>{{ perf.name }}</span>
+              <span>{{ perf.score }}%</span>
+            </div>
+            <div *ngIf="vendorPerformanceList.length === 0" style="padding:1rem;color:#64748b;text-align:center;">
+              No evaluation data found.
+            </div>
           </div>
         </div>
       </div>
@@ -93,37 +97,16 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="font-weight:700;">SH101</td>
-                <td style="font-weight:700;">ABC Pvt Ltd</td>
-                <td>Chennai</td>
-                <td>High</td>
-                <td>Today</td>
-                <td style="font-weight:700;">Delivered</td>
+              <tr *ngFor="let ship of recentShipments">
+                <td style="font-weight:700;">{{ ship.id }}</td>
+                <td style="font-weight:700;">{{ ship.vendor }}</td>
+                <td>{{ ship.destination }}</td>
+                <td>{{ ship.priority }}</td>
+                <td>{{ ship.date | date }}</td>
+                <td style="font-weight:700;">{{ ship.status }}</td>
               </tr>
-              <tr>
-                <td style="font-weight:700;">SH102</td>
-                <td style="font-weight:700;">XYZ Suppliers</td>
-                <td>Bangalore</td>
-                <td>Medium</td>
-                <td>Today</td>
-                <td style="font-weight:700;">On Route</td>
-              </tr>
-              <tr>
-                <td style="font-weight:700;">SH103</td>
-                <td style="font-weight:700;">Tech India</td>
-                <td>Coimbatore</td>
-                <td>High</td>
-                <td>Yesterday</td>
-                <td style="font-weight:700;">Delayed</td>
-              </tr>
-              <tr>
-                <td style="font-weight:700;">SH104</td>
-                <td style="font-weight:700;">Delta Traders</td>
-                <td>Hyderabad</td>
-                <td>Low</td>
-                <td>Today</td>
-                <td style="font-weight:700;">In Transit</td>
+              <tr *ngIf="recentShipments.length === 0">
+                <td colspan="6" style="text-align:center;">No recent shipments found.</td>
               </tr>
             </tbody>
           </table>
@@ -133,17 +116,16 @@
           <div class="panel">
             <h3>📦 Upcoming Deliveries</h3>
             <div class="delivery-list">
-              <p>🚚 Truck 05 → Today</p>
-              <p>🚚 Truck 08 → Tomorrow</p>
-              <p>🚚 Truck 11 → Friday</p>
+              <p *ngFor="let del of upcomingDeliveries">🚚 {{ del.truck }} → {{ del.day }}</p>
+              <p *ngIf="upcomingDeliveries.length === 0">No upcoming deliveries.</p>
             </div>
           </div>
           <div class="panel">
             <h3>Shipment Status</h3>
             <div class="status-list-dots">
-              <p><span class="dot green"></span> Delivered 72</p>
-              <p><span class="dot yellow"></span> On Route 18</p>
-              <p><span class="dot red"></span> Delayed 6</p>
+              <p><span class="dot green"></span> Delivered {{ deliveredCount }}</p>
+              <p><span class="dot yellow"></span> On Route {{ onRouteCount }}</p>
+              <p><span class="dot red"></span> Delayed {{ delayedCount }}</p>
             </div>
           </div>
         </div>

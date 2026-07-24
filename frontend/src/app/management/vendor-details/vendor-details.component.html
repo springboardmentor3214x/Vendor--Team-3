@@ -5,7 +5,7 @@
   </div>
   <div class="topbar-right-info">
     <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
-    <span class="user-span">👤 Administrator</span>
+    <span class="user-span">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
   </div>
 </div>
 
@@ -14,7 +14,16 @@
   <div class="dash-main">
     <div class="dash-content">
       
-      <div class="details-container">
+      <div *ngIf="isLoading" style="text-align: center; padding: 5rem; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin: 2rem;">
+        <div style="font-size: 1.25rem; font-weight: bold; color: #475569;">Fetching Vendor Details...</div>
+        <div style="margin-top: 1.5rem; display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      </div>
+
+      <div *ngIf="!isLoading && !vendor" style="text-align: center; padding: 5rem; background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin: 2rem; color: #ef4444; font-weight: bold;">
+        ⚠️ Vendor details could not be found.
+      </div>
+
+      <div *ngIf="!isLoading && vendor" class="details-container">
         <h2 class="details-main-title">Vendor Details</h2>
 
         <div class="details-grid">
@@ -27,32 +36,39 @@
                 <tr>
                   <td class="lbl">Vendor ID</td>
                   <td class="cln">:</td>
-                  <td class="val">V001</td>
+                  <td class="val">{{ vendor.vendor_id }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Company Name</td>
                   <td class="cln">:</td>
-                  <td class="val">ABC Pvt Ltd</td>
+                  <td class="val">{{ vendor.company_name }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Vendor Category</td>
                   <td class="cln">:</td>
-                  <td class="val">Raw Material Supplier</td>
+                  <td class="val">{{ vendor.vendor_category }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Vendor Status</td>
                   <td class="cln">:</td>
-                  <td class="val"><span class="status-dot green"></span> Active</td>
+                  <td class="val">
+                    <span class="status-dot" [class.green]="vendor.vendor_status === 'Active'" [class.yellow]="vendor.vendor_status === 'Pending'" [class.red]="vendor.vendor_status === 'Suspended'"></span>
+                    {{ vendor.vendor_status }}
+                  </td>
                 </tr>
                 <tr>
                   <td class="lbl">Approval Status</td>
                   <td class="cln">:</td>
-                  <td class="val"><span class="status-check">✅</span> Approved</td>
+                  <td class="val">
+                    <span *ngIf="vendor.approval_status === 'Approved'">✅ Approved</span>
+                    <span *ngIf="vendor.approval_status === 'Pending'">🟡 Pending Approval</span>
+                    <span *ngIf="vendor.approval_status === 'Rejected'">❌ Rejected</span>
+                  </td>
                 </tr>
                 <tr>
                   <td class="lbl">Registration Number</td>
                   <td class="cln">:</td>
-                  <td class="val">REG123456</td>
+                  <td class="val">{{ vendor.company_registration_number || '—' }}</td>
                 </tr>
               </table>
             </div>
@@ -63,32 +79,32 @@
                 <tr>
                   <td class="lbl">Contact Person</td>
                   <td class="cln">:</td>
-                  <td class="val">Rahul Sharma</td>
+                  <td class="val">{{ vendor.contact_person }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Designation</td>
                   <td class="cln">:</td>
-                  <td class="val">Purchase Manager</td>
+                  <td class="val">{{ vendor.designation || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Email</td>
                   <td class="cln">:</td>
-                  <td class="val">abc&#64;gmail.com</td>
+                  <td class="val">{{ vendor.email }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Phone Number</td>
                   <td class="cln">:</td>
-                  <td class="val">+91 9876543210</td>
+                  <td class="val">{{ vendor.phone || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Alternate Number</td>
                   <td class="cln">:</td>
-                  <td class="val">+91 9123456780</td>
+                  <td class="val">{{ vendor.alternate_phone || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Website</td>
                   <td class="cln">:</td>
-                  <td class="val">www.abcpvt.com</td>
+                  <td class="val">{{ vendor.website || '—' }}</td>
                 </tr>
               </table>
             </div>
@@ -98,23 +114,15 @@
               <div class="docs-list">
                 <div class="doc-item">
                   <span>📄 GST Certificate</span>
-                  <a href="#" class="view-link" (click)="$event.preventDefault()">View</a>
+                  <span class="status-check">{{ vendor.gst_number ? '✓ Provided' : '—' }}</span>
                 </div>
                 <div class="doc-item">
                   <span>📄 PAN Card</span>
-                  <a href="#" class="view-link" (click)="$event.preventDefault()">View</a>
+                  <span class="status-check">{{ vendor.pan_number ? '✓ Provided' : '—' }}</span>
                 </div>
                 <div class="doc-item">
-                  <span>📄 Registration Certificate</span>
-                  <a href="#" class="view-link" (click)="$event.preventDefault()">View</a>
-                </div>
-                <div class="doc-item">
-                  <span>📄 ISO Certificate</span>
-                  <a href="#" class="view-link" (click)="$event.preventDefault()">View</a>
-                </div>
-                <div class="doc-item">
-                  <span>📄 Other Documents</span>
-                  <a href="#" class="view-link" (click)="$event.preventDefault()">View</a>
+                  <span>📄 Company Registration</span>
+                  <span class="status-check">{{ vendor.company_registration_number ? '✓ Provided' : '—' }}</span>
                 </div>
               </div>
             </div>
@@ -124,51 +132,33 @@
           <!-- Right Column -->
           <div class="details-column">
             
-            <!-- AI Trust Score Widget -->
-            <div class="info-section ai-trust-section" style="background:#f8fafc; border: 1.5px solid #2563eb; border-radius: 8px; padding: 1.25rem;">
-              <h3 style="margin-top:0; color:#2563eb; font-weight:800;">🤖 AI Trust Score & Risk Level</h3>
-              <div class="ai-gauge-wrapper" style="display:flex; align-items:center; gap:1.5rem; margin-top:0.75rem;">
-                <div class="ai-gauge-circle" style="position:relative; width:80px; height:80px; flex-shrink:0;">
-                  <svg viewBox="0 0 100 100" style="transform:rotate(-90deg); width:100%; height:100%;">
-                    <circle cx="50" cy="50" r="40" style="fill:none; stroke:#e2e8f0; stroke-width:10;" />
-                    <circle cx="50" cy="50" r="40" style="fill:none; stroke:#10b981; stroke-width:10; stroke-dasharray:251.2; stroke-dashoffset:20; stroke-linecap:round;" />
-                  </svg>
-                  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); font-size:1.25rem; font-weight:800; color:#0f172a;">92%</div>
-                </div>
-                <div style="display:flex; flex-direction:column; gap:0.4rem;">
-                  <div style="align-self:flex-start; padding:0.25rem 0.75rem; font-size:0.75rem; font-weight:800; border-radius:20px; background:#d1fae5; color:#065f46;">LOW RISK</div>
-                  <p style="font-size:0.8rem; color:#475569; line-height:1.45; margin:0; font-weight:600;">GST registration is active. PAN matches the company name. Payment history shows 98% on-time compliance.</p>
-                </div>
-              </div>
-            </div>
-            
             <div class="info-section">
               <h3>Business Information</h3>
               <table class="info-table">
                 <tr>
                   <td class="lbl">GST Number</td>
                   <td class="cln">:</td>
-                  <td class="val font-mono">29ABCDE1234F1Z5</td>
+                  <td class="val font-mono">{{ vendor.gst_number || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">PAN Number</td>
                   <td class="cln">:</td>
-                  <td class="val font-mono">ABCDE1234F</td>
+                  <td class="val font-mono">{{ vendor.pan_number || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Bank Account Number</td>
                   <td class="cln">:</td>
-                  <td class="val font-mono">********4521</td>
+                  <td class="val font-mono">{{ vendor.bank_account_number || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">IFSC Code</td>
                   <td class="cln">:</td>
-                  <td class="val font-mono">SBIN0001234</td>
+                  <td class="val font-mono">{{ vendor.ifsc_code || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Payment Terms</td>
                   <td class="cln">:</td>
-                  <td class="val">30 Days</td>
+                  <td class="val">{{ vendor.payment_terms || '—' }}</td>
                 </tr>
               </table>
             </div>
@@ -179,32 +169,32 @@
                 <tr>
                   <td class="lbl">Address Line 1</td>
                   <td class="cln">:</td>
-                  <td class="val">No.25, Anna Nagar</td>
+                  <td class="val">{{ vendor.address_line1 || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Address Line 2</td>
                   <td class="cln">:</td>
-                  <td class="val">Near Bus Stand</td>
+                  <td class="val">{{ vendor.address_line2 || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">City</td>
                   <td class="cln">:</td>
-                  <td class="val">Chennai</td>
+                  <td class="val">{{ vendor.city || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">State</td>
                   <td class="cln">:</td>
-                  <td class="val">Tamil Nadu</td>
+                  <td class="val">{{ vendor.state || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Country</td>
                   <td class="cln">:</td>
-                  <td class="val">India</td>
+                  <td class="val">{{ vendor.country || '—' }}</td>
                 </tr>
                 <tr>
                   <td class="lbl">Pincode</td>
                   <td class="cln">:</td>
-                  <td class="val">600001</td>
+                  <td class="val">{{ vendor.pincode || '—' }}</td>
                 </tr>
               </table>
             </div>
@@ -212,7 +202,7 @@
             <div class="info-section">
               <h3>Description</h3>
               <div class="desc-card-box">
-                ABC Pvt Ltd is a trusted raw material supplier with excellent delivery performance and quality compliance.
+                {{ vendor.description || 'No vendor description available.' }}
               </div>
             </div>
 
@@ -220,10 +210,10 @@
               <h3>Role Permission</h3>
               <div class="permission-item">
                 <span class="status-dot green"></span>
-                <strong>Logged in as: Administrator , Procurement Manage</strong>
+                <strong>Logged in as: {{ sidebarService.getCurrentRoleLabel() }}</strong>
               </div>
               <div class="permission-item" style="margin-top:0.5rem;font-weight:700;">
-                ✓ You have permission to edit this vendor.
+                ✓ Access granted.
               </div>
             </div>
 

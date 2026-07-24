@@ -27,21 +27,21 @@
       <div class="stat-grid">
         <div class="stat-card blue-card">
           <div class="label">Total Orders</div>
-          <div class="value">48</div>
+          <div class="value">{{ totalOrders }}</div>
         </div>
         <div class="stat-card green-card">
           <div class="label">Contracts</div>
-          <div class="value">12</div>
+          <div class="value">{{ totalContracts }}</div>
         </div>
         <div class="stat-card yellow-card">
           <div class="label">Payments</div>
-          <div class="value" style="font-size:1.9rem;">₹3.8 Lakhs</div>
+          <div class="value" style="font-size:1.6rem;">{{ totalPaymentsStr }}</div>
         </div>
         <div class="stat-card pink-card">
           <div class="label">Vendor Rating</div>
-          <div class="value" style="font-size:1.6rem;display:flex;align-items:center;justify-content:center;gap:0.25rem;">
-            <span>⭐⭐⭐⭐☆</span>
-            <span style="font-size:0.95rem;font-weight:700;">(4.6/5)</span>
+          <div class="value" style="font-size:1.4rem;display:flex;align-items:center;justify-content:center;gap:0.25rem;">
+            <span>{{ ratingStars }}</span>
+            <span style="font-size:0.85rem;font-weight:700;">({{ ratingPercent }})</span>
           </div>
         </div>
       </div>
@@ -51,28 +51,26 @@
         <div class="panel">
           <h3>Recent Orders</h3>
           <div class="list-items">
-            <p>PO101 - Approved</p>
-            <p>PO102 - Processing</p>
-            <p>PO103 - Delivered</p>
+            <p *ngFor="let o of recentOrders">{{ o.id }} - {{ o.status }}</p>
+            <p *ngIf="recentOrders.length === 0">No orders found.</p>
           </div>
         </div>
 
         <div class="panel">
           <h3>Pending Contracts</h3>
           <div class="list-items">
-            <p>Contract A</p>
-            <p>Contract B</p>
-            <p>Contract Renewal</p>
+            <p *ngFor="let c of pendingContracts">{{ c.name }}</p>
+            <p *ngIf="pendingContracts.length === 0">No pending contracts.</p>
           </div>
         </div>
 
         <div class="panel">
           <h3>Payment Status</h3>
           <div class="payment-status-list">
-            <p>✓ Paid</p>
-            <p>⏳ Pending</p>
-            <p>✕ Rejected</p>
-            <p style="font-weight:700;margin-top:0.5rem;color:#1e293b;">₹3.8L Received</p>
+            <p>✓ Paid: ₹{{ paidAmount | number }}</p>
+            <p>⏳ Pending: ₹{{ pendingAmount | number }}</p>
+            <p>✕ Cancelled/Rejected: ₹{{ rejectedAmount | number }}</p>
+            <p style="font-weight:700;margin-top:0.5rem;color:#1e293b;">{{ totalReceivedStr }}</p>
           </div>
         </div>
       </div>
@@ -96,29 +94,16 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="font-weight:700;">Manager</td>
-                <td style="font-weight:700;">Submit Invoice</td>
-                <td style="font-weight:700;">PO101</td>
-                <td>High</td>
-                <td>Today</td>
-                <td style="font-weight:700;">Unread</td>
+              <tr *ngFor="let msg of procurementMessages">
+                <td style="font-weight:700;">{{ msg.from }}</td>
+                <td style="font-weight:700;">{{ msg.subject }}</td>
+                <td style="font-weight:700;">{{ msg.orderId }}</td>
+                <td>{{ msg.priority }}</td>
+                <td>{{ msg.date | date }}</td>
+                <td style="font-weight:700;">{{ msg.status }}</td>
               </tr>
-              <tr>
-                <td style="font-weight:700;">Finance</td>
-                <td style="font-weight:700;">Payment Released</td>
-                <td style="font-weight:700;">PO098</td>
-                <td>Medium</td>
-                <td>Today</td>
-                <td style="font-weight:700;">Read</td>
-              </tr>
-              <tr>
-                <td style="font-weight:700;">Admin</td>
-                <td style="font-weight:700;">Contract Renewal Reminder</td>
-                <td style="font-weight:700;">CT205</td>
-                <td>High</td>
-                <td>Yesterday</td>
-                <td style="font-weight:700;">Pending</td>
+              <tr *ngIf="procurementMessages.length === 0">
+                <td colspan="6" style="text-align:center;">No recent procurement messages.</td>
               </tr>
             </tbody>
           </table>
@@ -128,17 +113,15 @@
           <div class="panel">
             <h3>📦 Upcoming Deliveries</h3>
             <div class="delivery-list">
-              <p>📦 PO104 - Tomorrow</p>
-              <p>📦 PO108 - Friday</p>
-              <p>📦 PO110 - Monday</p>
+              <p *ngFor="let del of upcomingDeliveries">📦 {{ del.title }} - {{ del.date }}</p>
+              <p *ngIf="upcomingDeliveries.length === 0">No upcoming deliveries scheduled.</p>
             </div>
           </div>
           <div class="panel">
             <h3>🔔 Notifications</h3>
             <div class="bullet-notifications">
-              <p>• New Purchase Order</p>
-              <p>• Contract Approved</p>
-              <p>• Payment Released</p>
+              <p *ngFor="let notif of notifications">{{ notif }}</p>
+              <p *ngIf="notifications.length === 0">• No new notifications</p>
             </div>
           </div>
         </div>

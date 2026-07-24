@@ -1,91 +1,552 @@
 <div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
   <app-sidebar></app-sidebar>
   <div class="dash-main">
+    
     <!-- Top Navbar -->
     <div class="dash-topbar">
       <div style="display:flex;align-items:center;gap:1rem;">
         <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
+        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:6px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.85rem;">
           ← Go Back
         </button>
-        <span class="dash-topbar-title">Vendor Performance Evaluation</span>
+        <span class="dash-topbar-title">Module 4 – Vendor Performance Management</span>
       </div>
       <div class="dash-topbar-right">
-        <span>🔔 Notifications</span>
         <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
       </div>
     </div>
 
-    <!-- Stats & Analytics Overview -->
-    <div style="padding:2rem;">
-      <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">🏆 Performance Rankings & Leaderboard</h3>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:2rem;">
-        <div *ngFor="let m of metrics" style="background:white;border-radius:8px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;flex-direction:column;gap:0.5rem;border-top:4px solid #3b82f6;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-weight:800;font-size:1.1rem;color:#1e293b;">#{{m.ranking}} {{m.vendorName}}</span>
-            <span style="font-size:1.5rem;">{{m.ranking === 1 ? '🥇' : m.ranking === 2 ? '🥈' : '🥉'}}</span>
-          </div>
-          <div style="font-size:0.85rem;color:#64748b;font-weight:600;">Vendor ID: {{m.vendorId}}</div>
-          <hr style="border:0;border-top:1px solid #e2e8f0;margin:0.5rem 0;">
-          <div style="display:flex;justify-content:space-between;font-size:0.9rem;">
-            <span>On-Time Rate:</span>
-            <strong style="color:#166534;">{{m.onTimeRate}}%</strong>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.9rem;">
-            <span>Quality Rating:</span>
-            <strong style="color:#ca8a04;">⭐ {{m.qualityRating}} / 5.0</strong>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.9rem;">
-            <span>Avg Response:</span>
-            <strong style="color:#1e40af;">{{m.responseTimeHours}} Hr(s)</strong>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.9rem;">
-            <span>Completion Rate:</span>
-            <strong style="color:#0f766e;">{{m.orderCompletionRate}}%</strong>
-          </div>
+    <!-- Alert Drawer -->
+    <div *ngIf="successMessage" style="margin: 1.5rem; padding: 1rem; background: #dcfce7; color: #166534; border-left: 5px solid #10b981; border-radius: 6px; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+      <span>🎉 {{ successMessage }}</span>
+      <button (click)="successMessage = ''" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #166534;">×</button>
+    </div>
+    <div *ngIf="errorMessage" style="margin: 1.5rem; padding: 1rem; background: #fee2e2; color: #991b1b; border-left: 5px solid #ef4444; border-radius: 6px; font-weight: 600; display: flex; justify-content: space-between; align-items: center;">
+      <span>⚠️ {{ errorMessage }}</span>
+      <button (click)="errorMessage = ''" style="background: none; border: none; font-size: 1.1rem; cursor: pointer; color: #991b1b;">×</button>
+    </div>
+
+    <!-- Dashboard Summary Cards (Module 4.1) -->
+    <div style="padding: 1.5rem 1.5rem 0 1.5rem;">
+      <div class="metrics-grid">
+        <div class="metric-card" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6);">
+          <div class="metric-val">{{ dashboardData.total_vendors_evaluated }}</div>
+          <div class="metric-lbl">Total Vendors Evaluated</div>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #14532d, #22c55e);">
+          <div class="metric-val">{{ dashboardData.avg_delivery_performance }}%</div>
+          <div class="metric-lbl">Average Delivery Score</div>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #78350f, #eab308);">
+          <div class="metric-val">★ {{ (dashboardData.avg_product_quality / 20) | number:'1.1-1' }} / 5</div>
+          <div class="metric-lbl">Product Quality Rating</div>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #1e1b4b, #6366f1);">
+          <div class="metric-val">{{ dashboardData.avg_response_time_hours }} hrs</div>
+          <div class="metric-lbl">Avg Response Time</div>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #065f46, #0d9488);">
+          <div class="metric-val">{{ dashboardData.total_completed_orders }}</div>
+          <div class="metric-lbl">Total Completed Orders</div>
+        </div>
+        <div class="metric-card" style="background: linear-gradient(135deg, #7f1d1d, #f43f5e);">
+          <div class="metric-val">{{ dashboardData.delayed_deliveries_count }}</div>
+          <div class="metric-lbl">Delayed Deliveries</div>
         </div>
       </div>
-
-      <!-- Performance Grid Table -->
-      <h3 style="margin-bottom:1rem;color:#1e293b;font-weight:800;">Detailed Performance Scorecards</h3>
-      <table style="width:100%;border-collapse:collapse;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-radius:6px;overflow:hidden;">
-        <thead>
-          <tr style="background:#3b82f6;color:white;">
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Vendor Name</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">On-Time Delivery</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Quality Evaluation</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Response Hours</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Completion Rate</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Rating Update</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let m of metrics" style="background:white;border-bottom:1px solid #cbd5e1;">
-            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{m.vendorName}}</td>
-            <td style="padding:1rem;text-align:center;">
-              <div style="display:flex;align-items:center;justify-content:center;gap:0.5rem;">
-                <div style="flex:1;max-width:80px;height:12px;background:#e2e8f0;border-radius:6px;overflow:hidden;">
-                  <div [style.width]="m.onTimeRate + '%'" style="height:100%;background:#166534;"></div>
-                </div>
-                <span style="font-weight:700;color:#166534;font-size:0.85rem;">{{m.onTimeRate}}%</span>
-              </div>
-            </td>
-            <td style="padding:1rem;text-align:center;color:#ca8a04;font-weight:700;">★ {{m.qualityRating}} / 5</td>
-            <td style="padding:1rem;text-align:center;color:#475569;font-weight:600;">{{m.responseTimeHours}} hour(s)</td>
-            <td style="padding:1rem;text-align:center;color:#0f766e;font-weight:700;">{{m.orderCompletionRate}}%</td>
-            <td style="padding:1rem;text-align:center;">
-              <select #qSelect (change)="updateQualityRating(m, +qSelect.value)" style="padding:0.25rem;border-radius:4px;border:1px solid #ccc;font-size:0.8rem;background:white;">
-                <option value="">Rate Quality...</option>
-                <option value="5.0">5.0 - Excellent</option>
-                <option value="4.5">4.5 - Very Good</option>
-                <option value="4.0">4.0 - Good</option>
-                <option value="3.5">3.5 - Fair</option>
-                <option value="3.0">3.0 - Poor</option>
-              </select>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
+
+    <!-- Workflow Tabs -->
+    <div style="padding: 1rem 1.5rem 0 1.5rem;">
+      <div class="tab-switcher">
+        <button [class.active]="activeTab === 'dashboard'" (click)="switchTab('dashboard')">🏆 Leaderboard & Trends</button>
+        <button [class.active]="activeTab === 'delivery'" (click)="switchTab('delivery')">
+          {{ isVendor ? '🚚 My Orders' : '🚚 Delivery Monitor' }}
+        </button>
+        <button *ngIf="!isVendor" [class.active]="activeTab === 'quality'" (click)="switchTab('quality')">✨ Product Quality</button>
+        <button *ngIf="!isVendor" [class.active]="activeTab === 'comm'" (click)="switchTab('comm')">💬 Comm Tracking</button>
+        <button *ngIf="!isVendor" [class.active]="activeTab === 'service'" (click)="switchTab('service')">⭐ Service Rating</button>
+        <button [class.active]="activeTab === 'history'" (click)="switchTab('history')">
+          {{ isVendor ? '📜 My Performance History' : '📜 Performance History' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Contents -->
+    <div style="padding: 1.5rem;">
+      <div *ngIf="isLoading" style="text-align: center; padding: 3rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div style="font-size: 1.2rem; font-weight: bold; color: #475569;">Fetching live database records...</div>
+        <div style="margin-top: 1rem; display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+      </div>
+
+      <div *ngIf="!isLoading">
+        
+        <!-- Tab 1: Leaderboard & Dashboard Overview -->
+        <div *ngIf="activeTab === 'dashboard'" class="tab-panel">
+          <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem;">
+            
+            <!-- Rankings Table -->
+            <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+              <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">🥇 Performance Rankings Leaderboard</h4>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569;">
+                    <th style="padding: 0.75rem 0.5rem;">Rank</th>
+                    <th style="padding: 0.75rem 0.5rem;">Vendor Name</th>
+                    <th style="padding: 0.75rem 0.5rem;">Category</th>
+                    <th style="padding: 0.75rem 0.5rem; text-align: right;">Overall Performance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let r of rankings; let index = index" style="border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #334155;">
+                    <td style="padding: 1rem 0.5rem; font-size: 1.1rem; color: #1e3a8a;">
+                      {{ r.rank_position }} {{ r.rank_position === 1 ? '🥇' : r.rank_position === 2 ? '🥈' : r.rank_position === 3 ? '🥉' : '' }}
+                    </td>
+                    <td style="padding: 1rem 0.5rem; color: #1e293b; font-weight: 700;">{{ r.vendor_name }}</td>
+                    <td style="padding: 1rem 0.5rem; color: #64748b;">{{ r.vendor_category }}</td>
+                    <td style="padding: 1rem 0.5rem; text-align: right;">
+                      <div style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <span [style.color]="r.overall_score >= 90 ? '#166534' : r.overall_score >= 75 ? '#854d0e' : '#991b1b'">
+                          {{ r.overall_score }}%
+                        </span>
+                        <div style="width: 60px; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                          <div [style.width]="r.overall_score + '%'" [style.background]="r.overall_score >= 90 ? '#10b981' : r.overall_score >= 75 ? '#f59e0b' : '#ef4444'" style="height: 100%;"></div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="rankings.length === 0">
+                    <td colspan="4" style="text-align: center; padding: 2rem; color: #94a3b8;">No vendor performance evaluations found in database yet. Try marking a PO completed.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Custom SVG Charts -->
+            <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 1.5rem;">
+              <h4 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.2rem; color: #1e293b;">📈 Performance Trends over Time</h4>
+              
+              <!-- Mock SVG chart representational -->
+              <div style="background: #f8fafc; border-radius: 8px; padding: 1.5rem; text-align: center; border: 1px solid #e2e8f0;">
+                <span style="font-weight: 700; color: #64748b; font-size: 0.85rem; display: block; margin-bottom: 1rem;">Average Quality and Delivery Trend (Last 3 Months)</span>
+                
+                <svg viewBox="0 0 400 150" style="width: 100%; height: auto;">
+                  <!-- Grid Lines -->
+                  <line x1="20" y1="20" x2="380" y2="20" stroke="#e2e8f0" stroke-dasharray="4" />
+                  <line x1="20" y1="70" x2="380" y2="70" stroke="#e2e8f0" stroke-dasharray="4" />
+                  <line x1="20" y1="120" x2="380" y2="120" stroke="#cbd5e1" stroke-width="1.5" />
+                  
+                  <!-- Line 1: Delivery -->
+                  <path d="M 60 90 L 180 50 L 300 30" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+                  <circle cx="60" cy="90" r="4.5" fill="#10b981" />
+                  <circle cx="180" cy="50" r="4.5" fill="#10b981" />
+                  <circle cx="300" cy="30" r="4.5" fill="#10b981" />
+                  <text x="300" y="20" font-size="8" font-weight="bold" fill="#166534">97.0% (Deliv)</text>
+
+                  <!-- Line 2: Quality -->
+                  <path d="M 60 70 L 180 65 L 300 45" fill="none" stroke="#eab308" stroke-width="3" stroke-linecap="round" />
+                  <circle cx="60" cy="70" r="4.5" fill="#eab308" />
+                  <circle cx="180" cy="65" r="4.5" fill="#eab308" />
+                  <circle cx="300" cy="45" r="4.5" fill="#eab308" />
+                  <text x="300" y="60" font-size="8" font-weight="bold" fill="#78350f">88.0% (Qual)</text>
+                  
+                  <!-- X-Axis Labels -->
+                  <text x="60" y="140" font-size="9" font-weight="600" fill="#64748b" text-anchor="middle">May 2026</text>
+                  <text x="180" y="140" font-size="9" font-weight="600" fill="#64748b" text-anchor="middle">June 2026</text>
+                  <text x="300" y="140" font-size="9" font-weight="600" fill="#64748b" text-anchor="middle">July 2026</text>
+                </svg>
+              </div>
+
+              <!-- Recommendation status -->
+              <div style="background: #eff6ff; padding: 1rem; border-radius: 6px; border-left: 4px solid #3b82f6;">
+                <h5 style="margin:0 0 0.5rem 0; color:#1e3a8a; font-weight:700;">💡 Procurement Quick Tip</h5>
+                <p style="margin:0; font-size:0.85rem; color:#1e40af; line-height:1.4;">
+                  Every completed purchase order updates metrics in real-time. Use the forms on subsequent tabs to record delivery, message exchanges, quality inspections, and overall experiences.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Delivery Monitoring (Module 4.2) -->
+        <div *ngIf="activeTab === 'delivery'" class="tab-panel">
+          <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem;">
+            
+            <!-- Delivery List -->
+            <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+              <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">🚚 Active Purchase Order Deliveries</h4>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569; font-size: 0.9rem;">
+                    <th style="padding: 0.75rem 0.5rem;">PO Number</th>
+                    <th style="padding: 0.75rem 0.5rem;">Vendor Name</th>
+                    <th style="padding: 0.75rem 0.5rem;">Expected Date</th>
+                    <th style="padding: 0.75rem 0.5rem;">Actual Date</th>
+                    <th style="padding: 0.75rem 0.5rem; text-align: center;">PO Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let po of purchaseOrders" style="border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.9rem;">
+                    <td style="padding: 1rem 0.5rem; font-weight: 700; color: #1e3a8a;">{{ po.order_number }}</td>
+                    <td style="padding: 1rem 0.5rem; font-weight: 600;">{{ getVendorName(po.vendor_id) }}</td>
+                    <td style="padding: 1rem 0.5rem; color: #475569;">{{ po.delivery_date | date:'mediumDate' }}</td>
+                    <td style="padding: 1rem 0.5rem; color: #475569;">
+                      {{ po.actual_delivery_date ? (po.actual_delivery_date | date:'mediumDate') : '—' }}
+                    </td>
+                    <td style="padding: 1rem 0.5rem; text-align: center;">
+                      <span [style.background]="po.status === 'Completed' ? '#dcfce7' : '#fef9c3'"
+                            [style.color]="po.status === 'Completed' ? '#166534' : '#854d0e'"
+                            style="padding: 0.25rem 0.6rem; border-radius: 4px; font-weight: 700; font-size: 0.8rem;">
+                        {{ po.status }}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr *ngIf="purchaseOrders.length === 0">
+                    <td colspan="5" style="text-align: center; padding: 2rem; color: #94a3b8;">No purchase orders found in database.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Record Delivery Form (Hide for Vendor) -->
+            <div *ngIf="!isVendor" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+              <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">✍️ Record Delivery (Mark PO Completed)</h4>
+              
+              <form (submit)="onRecordDelivery()" style="display:flex; flex-direction:column; gap:1.25rem;">
+                <div>
+                  <label class="form-label">Select Pending Purchase Order</label>
+                  <select [(ngModel)]="deliveryForm.purchase_order_id" name="purchase_order_id" class="form-input" required>
+                    <option value="0">-- Select PO --</option>
+                    <option *ngFor="let po of getPendingPOs()" [value]="po.order_id">
+                      {{ po.order_number }} - {{ getVendorName(po.vendor_id) }} (Exp: {{ po.delivery_date }})
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="form-label">Actual Delivery Date</label>
+                  <input type="date" [(ngModel)]="deliveryForm.actual_delivery_date" name="actual_delivery_date" class="form-input" required>
+                </div>
+
+                <div>
+                  <label class="form-label">Inspector Remarks / Delivery Notes</label>
+                  <textarea [(ngModel)]="deliveryForm.remarks" name="remarks" class="form-input" style="height: 80px;" placeholder="Optional remarks on packaging, delay reasons, or logistics status."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" style="background: #22c55e;">
+                  🚚 Record Delivery & Calculate Delay
+                </button>
+              </form>
+            </div>
+            
+            <div *ngIf="isVendor" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 1rem;">
+              <div style="font-size: 3rem;">📦</div>
+              <h4 style="margin: 0; color: #1e293b;">Delivery Performance Status</h4>
+              <p style="color: #64748b; font-size: 0.9rem; line-height: 1.5;">
+                Actual delivery dates and delay scores are recorded and tracked by the procurement managers during incoming material inspections.
+              </p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Tab 3: Product Quality Evaluation (Module 4.3) -->
+        <div *ngIf="activeTab === 'quality'" class="tab-panel">
+          <div style="background: white; max-width: 800px; margin: 0 auto; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.25rem; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.75rem;">✨ Submit Product Quality Evaluation</h4>
+            
+            <form (submit)="onSubmitQuality()" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+              
+              <div style="grid-column: span 2;">
+                <label class="form-label">Completed Purchase Order *</label>
+                <select [(ngModel)]="qualityForm.purchase_order_id" (change)="onPOSelected(qualityForm.purchase_order_id, 'quality')" name="purchase_order_id" class="form-input" required>
+                  <option value="0">-- Select PO --</option>
+                  <option *ngFor="let po of getCompletedPOs()" [value]="po.order_id">
+                    {{ po.order_number }} - {{ getVendorName(po.vendor_id) }}
+                  </option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label">Inspection Date *</label>
+                <input type="date" [(ngModel)]="qualityForm.inspection_date" name="inspection_date" class="form-input" required>
+              </div>
+
+              <div>
+                <label class="form-label">Product Defects Count</label>
+                <input type="number" [(ngModel)]="qualityForm.product_defects" name="product_defects" class="form-input" min="0" required>
+              </div>
+
+              <!-- Ratings -->
+              <div style="background: #f8fafc; padding: 1rem; border-radius: 6px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 0.75rem;">
+                <h5 style="margin: 0; color: #475569; font-weight: bold;">Evaluation Ratings (1 - 5 Stars)</h5>
+                
+                <div>
+                  <label class="form-label" style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Material Quality</span>
+                    <span style="font-weight:bold; color:#eab308;">⭐ {{ qualityForm.material_quality }} / 5</span>
+                  </label>
+                  <input type="range" [(ngModel)]="qualityForm.material_quality" name="material_quality" min="1" max="5" step="1" style="width:100%;">
+                </div>
+
+                <div>
+                  <label class="form-label" style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Packaging Quality</span>
+                    <span style="font-weight:bold; color:#eab308;">⭐ {{ qualityForm.packaging_quality }} / 5</span>
+                  </label>
+                  <input type="range" [(ngModel)]="qualityForm.packaging_quality" name="packaging_quality" min="1" max="5" step="1" style="width:100%;">
+                </div>
+              </div>
+
+              <div style="background: #f8fafc; padding: 1rem; border-radius: 6px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 0.75rem;">
+                <h5 style="margin: 0; color: #475569; font-weight: bold;">Compliance Ratings (1 - 5 Stars)</h5>
+
+                <div>
+                  <label class="form-label" style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Quantity Accuracy</span>
+                    <span style="font-weight:bold; color:#eab308;">⭐ {{ qualityForm.quantity_accuracy }} / 5</span>
+                  </label>
+                  <input type="range" [(ngModel)]="qualityForm.quantity_accuracy" name="quantity_accuracy" min="1" max="5" step="1" style="width:100%;">
+                </div>
+
+                <div>
+                  <label class="form-label" style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Specification Compliance</span>
+                    <span style="font-weight:bold; color:#eab308;">⭐ {{ qualityForm.specification_compliance }} / 5</span>
+                  </label>
+                  <input type="range" [(ngModel)]="qualityForm.specification_compliance" name="specification_compliance" min="1" max="5" step="1" style="width:100%;">
+                </div>
+              </div>
+
+              <div style="grid-column: span 2;">
+                <label class="form-label">Inspector Remarks / Defect Descriptions</label>
+                <textarea [(ngModel)]="qualityForm.remarks" name="remarks" class="form-input" style="height: 80px;" placeholder="Optional inspection remarks."></textarea>
+              </div>
+
+              <div style="grid-column: span 2; display: flex; justify-content: flex-end;">
+                <button type="submit" class="submit-btn" style="background: #3b82f6; max-width: 250px;">
+                  ✨ Submit Quality Evaluation
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <!-- Tab 4: Communication Response Tracking (Module 4.4) -->
+        <div *ngIf="activeTab === 'comm'" class="tab-panel">
+          <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 2rem;">
+            
+            <!-- Information -->
+            <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+              <h4 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.2rem; color: #1e293b;">💬 Communication Tracking Details</h4>
+              <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 1.5rem; line-height:1.4;">
+                Quick vendor responses yield better communication scores. Response duration is calculated automatically based on message timestamps.
+              </p>
+
+              <div style="background: #f8fafc; padding: 1.5rem; border-radius: 6px; border: 1px solid #e2e8f0; display:flex; flex-direction:column; gap:1.25rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:0.75rem;">
+                  <strong style="color: #1e293b;">Average Response Duration:</strong>
+                  <span style="font-weight: 800; font-size: 1.15rem; color: #3b82f6;">{{ dashboardData.avg_response_time_hours }} hours</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:0.75rem;">
+                  <strong style="color: #1e293b;">Best Response Time Target:</strong>
+                  <span style="font-weight: 700; color: #166534;">&lt; 2.0 Hours (100% Score)</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:0.5rem;">
+                  <strong style="color: #1e293b;">Overdue Response Cap:</strong>
+                  <span style="font-weight: 700; color: #991b1b;">&gt; 24.0 Hours (40% Score)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Form -->
+            <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+              <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">✍️ Record Communication Exchange</h4>
+              
+              <form (submit)="onSubmitCommLog()" style="display:flex; flex-direction:column; gap:1.25rem;">
+                <div>
+                  <label class="form-label">Purchase Order Reference *</label>
+                  <select [(ngModel)]="commForm.purchase_order_id" (change)="onPOSelected(commForm.purchase_order_id, 'comm')" name="purchase_order_id" class="form-input" required>
+                    <option value="0">-- Select PO --</option>
+                    <option *ngFor="let po of purchaseOrders" [value]="po.order_id">
+                      {{ po.order_number }} - {{ getVendorName(po.vendor_id) }}
+                    </option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="form-label">Message Sent Time *</label>
+                  <input type="datetime-local" [(ngModel)]="commForm.message_sent_time" name="message_sent_time" class="form-input" required>
+                </div>
+
+                <div>
+                  <label class="form-label">Vendor Response Time (Optional)</label>
+                  <input type="datetime-local" [(ngModel)]="commForm.vendor_response_time" name="vendor_response_time" class="form-input">
+                </div>
+
+                <div>
+                  <label class="form-label">Subject / Query Remarks</label>
+                  <input type="text" [(ngModel)]="commForm.remarks" name="remarks" class="form-input" placeholder="e.g. Quotation query, Delay shipment clarification">
+                </div>
+
+                <button type="submit" class="submit-btn" style="background: #6366f1;">
+                  💬 Log Communication & Calculate Response Time
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 5: Service Rating (Module 4.5) -->
+        <div *ngIf="activeTab === 'service'" class="tab-panel">
+          <div style="background: white; max-width: 800px; margin: 0 auto; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.25rem; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.75rem;">⭐ Submit Vendor Overall Service Rating</h4>
+            
+            <form (submit)="onSubmitServiceRating()" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+              
+              <div style="grid-column: span 2;">
+                <label class="form-label">Completed Purchase Order Reference *</label>
+                <select [(ngModel)]="serviceForm.purchase_order_id" (change)="onPOSelected(serviceForm.purchase_order_id, 'service')" name="purchase_order_id" class="form-input" required>
+                  <option value="0">-- Select PO --</option>
+                  <option *ngFor="let po of getCompletedPOs()" [value]="po.order_id">
+                    {{ po.order_number }} - {{ getVendorName(po.vendor_id) }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Star ratings -->
+              <div style="background: #f8fafc; padding: 1.25rem; border-radius: 6px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 0.85rem;">
+                <h5 style="margin: 0; color: #475569; font-weight: bold;">Business Professionalism</h5>
+                
+                <div>
+                  <label class="form-label" style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Professionalism & Conduct</span>
+                    <span style="font-weight:bold; color:#eab308;">⭐ {{ serviceForm.professionalism }} / 5</span>
+                  </label>
+                  <input type="range" [(ngModel)]="serviceForm.professionalism" name="professionalism" min="1" max="5" step="1" style="width:100%;">
+                </div>
+
+                <div>
+                  <label class="form-label" style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Customer Support Responsiveness</span>
+                    <span style="font-weight:bold; color:#eab308;">⭐ {{ serviceForm.customer_support }} / 5</span>
+                  </label>
+                  <input type="range" [(ngModel)]="serviceForm.customer_support" name="customer_support" min="1" max="5" step="1" style="width:100%;">
+                </div>
+
+                <div>
+                  <label class="form-label" style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Documentation & Invoicing Quality</span>
+                    <span style="font-weight:bold; color:#eab308;">⭐ {{ serviceForm.documentation_quality }} / 5</span>
+                  </label>
+                  <input type="range" [(ngModel)]="serviceForm.documentation_quality" name="documentation_quality" min="1" max="5" step="1" style="width:100%;">
+                </div>
+              </div>
+
+              <div style="background: #f8fafc; padding: 1.25rem; border-radius: 6px; border: 1px solid #f1f5f9; display: flex; flex-direction: column; gap: 0.85rem;">
+                <h5 style="margin: 0; color: #475569; font-weight: bold;">Adaptability & Resolution</h5>
+
+                <div>
+                  <label class="form-label" style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Flexibility in Negotiations</span>
+                    <span style="font-weight:bold; color:#eab308;">⭐ {{ serviceForm.flexibility }} / 5</span>
+                  </label>
+                  <input type="range" [(ngModel)]="serviceForm.flexibility" name="flexibility" min="1" max="5" step="1" style="width:100%;">
+                </div>
+
+                <div>
+                  <label class="form-label" style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Communication Effectiveness</span>
+                    <span style="font-weight:bold; color:#eab308;">⭐ {{ serviceForm.communication_effectiveness }} / 5</span>
+                  </label>
+                  <input type="range" [(ngModel)]="serviceForm.communication_effectiveness" name="communication_effectiveness" min="1" max="5" step="1" style="width:100%;">
+                </div>
+
+                <div>
+                  <label class="form-label" style="display:flex; justify-content:space-between; font-size:0.8rem;">
+                    <span>Issue Resolution & Claims Handling</span>
+                    <span style="font-weight:bold; color:#eab308;">⭐ {{ serviceForm.issue_resolution }} / 5</span>
+                  </label>
+                  <input type="range" [(ngModel)]="serviceForm.issue_resolution" name="issue_resolution" min="1" max="5" step="1" style="width:100%;">
+                </div>
+              </div>
+
+              <div style="grid-column: span 2;">
+                <label class="form-label">Reviewer Comments / Experience Summary</label>
+                <textarea [(ngModel)]="serviceForm.comments" name="comments" class="form-input" style="height: 80px;" placeholder="Optional review comments detailing service satisfaction."></textarea>
+              </div>
+
+              <div style="grid-column: span 2; display: flex; justify-content: flex-end;">
+                <button type="submit" class="submit-btn" style="background: #eab308; color: #1e1b4b; font-weight: 700; max-width: 250px;">
+                  ⭐ Submit Service Rating
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <!-- Tab 6: Performance History logs (Module 4.6) -->
+        <div *ngIf="activeTab === 'history'" class="tab-panel">
+          <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); min-height: 400px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 1rem;">
+              <h4 style="margin: 0; font-size: 1.25rem; color: #1e293b;">📜 Vendor Performance History Audit Log</h4>
+              
+              <div *ngIf="!isVendor" style="display:flex; align-items:center; gap:0.5rem;">
+                <label style="font-weight: 700; color: #475569; font-size: 0.9rem;">Select Vendor:</label>
+                <select (change)="loadVendorHistory($any($event.target).value)" style="padding: 0.4rem 0.8rem; border-radius: 4px; border: 1px solid #cbd5e1; font-weight: 600;">
+                  <option value="">-- Select Vendor --</option>
+                  <option *ngFor="let v of vendors" [value]="v.vendor_id">{{ v.company_name }}</option>
+                </select>
+              </div>
+              <div *ngIf="isVendor" style="font-weight: 800; color: #1e3a8a; font-size: 1rem;">
+                Showing Scorecard for: {{ getVendorName(vendorId || 0) }}
+              </div>
+            </div>
+
+            <!-- History log details -->
+            <div *ngIf="!historyVendorId" style="text-align: center; padding: 4rem; color: #94a3b8;">
+              Please select a vendor above to inspect historical performance scorecards.
+            </div>
+
+            <div *ngIf="historyVendorId">
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="border-bottom: 2px solid #e2e8f0; text-align: left; color: #475569; font-size: 0.9rem;">
+                    <th style="padding: 0.75rem 0.5rem;">Evaluation Date</th>
+                    <th style="padding: 0.75rem 0.5rem;">Period</th>
+                    <th style="padding: 0.75rem 0.5rem; text-align: center;">Delivery Score</th>
+                    <th style="padding: 0.75rem 0.5rem; text-align: center;">Quality Score</th>
+                    <th style="padding: 0.75rem 0.5rem; text-align: center;">Comm Score</th>
+                    <th style="padding: 0.75rem 0.5rem; text-align: center;">Service Score</th>
+                    <th style="padding: 0.75rem 0.5rem; text-align: right;">Overall Performance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let h of selectedVendorHistory" style="border-bottom: 1px solid #f1f5f9; color: #334155; font-size: 0.9rem;">
+                    <td style="padding: 1rem 0.5rem; font-weight: 600;">{{ h.recorded_at | date:'medium' }}</td>
+                    <td style="padding: 1rem 0.5rem; color: #64748b;">{{ h.evaluation_period }}</td>
+                    <td style="padding: 1rem 0.5rem; text-align: center; font-weight: 700; color: #166534;">{{ h.delivery_score }}%</td>
+                    <td style="padding: 1rem 0.5rem; text-align: center; font-weight: 700; color: #ca8a04;">{{ h.quality_score }}%</td>
+                    <td style="padding: 1rem 0.5rem; text-align: center; font-weight: 700; color: #1e40af;">{{ h.communication_score }}%</td>
+                    <td style="padding: 1rem 0.5rem; text-align: center; font-weight: 700; color: #0f766e;">{{ h.service_score }}%</td>
+                    <td style="padding: 1rem 0.5rem; text-align: right; font-weight: 800; color: #1e3a8a;">{{ h.overall_performance_score }}%</td>
+                  </tr>
+                  <tr *ngIf="selectedVendorHistory.length === 0">
+                    <td colspan="7" style="text-align: center; padding: 2rem; color: #94a3b8;">No historical audits found for this vendor.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>

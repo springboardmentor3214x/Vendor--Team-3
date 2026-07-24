@@ -19,6 +19,10 @@
         <p>Register and Manage Vendor Information</p>
       </div>
 
+      <div *ngIf="errorMessage" style="margin-bottom: 1.5rem; padding: 1rem; background: #fee2e2; color: #991b1b; border-left: 5px solid #ef4444; border-radius: 6px; font-weight: 600;">
+        ⚠️ {{ errorMessage }}
+      </div>
+
       <div class="add-vendor-grid">
         
         <!-- Column 1 -->
@@ -26,36 +30,36 @@
           <div class="form-section-title">Company Information</div>
           <div class="field-group">
             <label class="field-label">Company Name *</label>
-            <input type="text" placeholder="Enter company name" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.companyName" placeholder="Enter company name" class="field-input" required>
           </div>
           <div class="field-group" style="margin-bottom:1.5rem;">
             <label class="field-label">Vendor Category *</label>
-            <select class="field-select">
-              <option value="" disabled selected>Select Category</option>
-              <option *ngFor="let c of categories">{{c}}</option>
+            <select [(ngModel)]="vendorForm.vendorCategory" class="field-select" required>
+              <option value="" disabled>Select Category</option>
+              <option *ngFor="let c of categories" [value]="c">{{c}}</option>
             </select>
           </div>
 
           <div class="form-section-title">Contact Information</div>
           <div class="field-group">
             <label class="field-label">Contact Person *</label>
-            <input type="text" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.contactPerson" class="field-input" required>
           </div>
           <div class="field-group">
             <label class="field-label">Email Address *</label>
-            <input type="email" class="field-input">
+            <input type="email" [(ngModel)]="vendorForm.email" class="field-input" required>
           </div>
           <div class="field-group">
             <label class="field-label">Phone Number *</label>
-            <input type="tel" class="field-input">
+            <input type="tel" [(ngModel)]="vendorForm.phone" class="field-input" required>
           </div>
           <div class="field-group">
             <label class="field-label">Designation</label>
-            <input type="text" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.designation" class="field-input">
           </div>
           <div class="field-group">
             <label class="field-label">Alternate Phone</label>
-            <input type="tel" class="field-input">
+            <input type="tel" [(ngModel)]="vendorForm.alternatePhone" class="field-input">
           </div>
         </div>
 
@@ -64,36 +68,36 @@
           <div class="form-section-title">Business Information</div>
           <div class="field-group">
             <label class="field-label">GST Number</label>
-            <input type="text" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.gstNumber" class="field-input">
           </div>
           <div class="field-group">
             <label class="field-label">PAN Number</label>
-            <input type="text" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.panNumber" class="field-input">
           </div>
           <div class="field-group" style="margin-bottom:1.5rem;">
             <label class="field-label">Company Registration Number</label>
-            <input type="text" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.companyRegistrationNumber" class="field-input">
           </div>
 
           <div class="form-section-title">Banking Information</div>
           <div class="field-group">
             <label class="field-label">Bank Account Number</label>
-            <input type="text" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.bankAccountNumber" class="field-input">
           </div>
           <div class="field-group">
             <label class="field-label">Payment Terms ▼</label>
-            <select class="field-select">
-              <option *ngFor="let pt of paymentTerms">{{pt}}</option>
+            <select [(ngModel)]="vendorForm.paymentTerms" class="field-select">
+              <option *ngFor="let pt of paymentTerms" [value]="pt">{{pt}}</option>
             </select>
           </div>
           <div class="field-group">
             <label class="field-label">IFSC Code</label>
-            <input type="text" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.ifscCode" class="field-input">
           </div>
           <div class="field-group">
             <label class="field-label">Vendor Status ▼</label>
-            <select class="field-select">
-              <option *ngFor="let s of statusOptions">{{s}}</option>
+            <select [(ngModel)]="vendorForm.vendorStatus" class="field-select">
+              <option *ngFor="let s of statusOptions" [value]="s">{{s}}</option>
             </select>
           </div>
         </div>
@@ -103,37 +107,37 @@
           <div class="form-section-title">Address</div>
           <div class="field-group">
             <label class="field-label">Address Line 1</label>
-            <input type="text" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.addressLine1" class="field-input">
           </div>
           <div class="field-group">
             <label class="field-label">Address Line 2</label>
-            <input type="text" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.addressLine2" class="field-input">
           </div>
           <div class="address-sub-grid">
             <div class="field-group">
               <label class="field-label">City</label>
-              <input type="text" class="field-input">
+              <input type="text" [(ngModel)]="vendorForm.city" class="field-input">
             </div>
             <div class="field-group">
               <label class="field-label">State</label>
-              <input type="text" class="field-input">
+              <input type="text" [(ngModel)]="vendorForm.state" class="field-input">
             </div>
             <div class="field-group">
               <label class="field-label">Country</label>
-              <input type="text" class="field-input">
+              <input type="text" [(ngModel)]="vendorForm.country" class="field-input">
             </div>
             <div class="field-group">
               <label class="field-label">Pincode</label>
-              <input type="text" class="field-input">
+              <input type="text" [(ngModel)]="vendorForm.pincode" class="field-input">
             </div>
           </div>
           <div class="field-group">
             <label class="field-label">Website</label>
-            <input type="url" class="field-input">
+            <input type="url" [(ngModel)]="vendorForm.website" class="field-input">
           </div>
           <div class="field-group" style="margin-bottom:1.5rem;">
             <label class="field-label">Description</label>
-            <input type="text" class="field-input">
+            <input type="text" [(ngModel)]="vendorForm.description" class="field-input">
           </div>
 
           <div class="form-section-title">Upload Vendor Documents</div>
@@ -146,8 +150,8 @@
           </div>
 
           <div class="actions-row">
-            <button routerLink="/vendors" class="btn-save">Save Vendor</button>
-            <button routerLink="/vendors" class="btn-cancel">Cancel</button>
+            <button type="button" (click)="onSaveVendor()" class="btn-save">Save Vendor</button>
+            <button type="button" (click)="goBack()" class="btn-cancel">Cancel</button>
           </div>
         </div>
 

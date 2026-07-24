@@ -27,19 +27,19 @@
       <div class="stat-grid">
         <div class="stat-card blue-card">
           <div class="label">Total Bills</div>
-          <div class="value">215</div>
+          <div class="value">{{ totalBills }}</div>
         </div>
         <div class="stat-card green-card">
           <div class="label">Paid Bills</div>
-          <div class="value">182</div>
+          <div class="value">{{ paidBills }}</div>
         </div>
         <div class="stat-card yellow-card">
           <div class="label">Pending</div>
-          <div class="value">33</div>
+          <div class="value">{{ pendingBills }}</div>
         </div>
         <div class="stat-card pink-card">
-          <div class="label">Monthly Revenue</div>
-          <div class="value" style="font-size:1.9rem;">₹25.6 Lakhs</div>
+          <div class="label">Total Value</div>
+          <div class="value" style="font-size:1.6rem;">₹{{ monthlyRevenue | number }}</div>
         </div>
       </div>
 
@@ -48,18 +48,18 @@
         <div class="panel">
           <h3>Invoice Status</h3>
           <div class="list-items">
-            <p>Paid : 182</p>
-            <p>Pending : 33</p>
-            <p>Overdue : 8</p>
+            <p>Paid : {{ paidCount }}</p>
+            <p>Pending : {{ pendingCount }}</p>
+            <p>Overdue : {{ overdueCount }}</p>
           </div>
         </div>
 
         <div class="panel">
           <h3>Payment Status</h3>
           <div class="list-items">
-            <p>Completed : 170</p>
-            <p>Pending : 45</p>
-            <p>Failed : 3</p>
+            <p>Completed : {{ completedPayments }}</p>
+            <p>Pending : {{ pendingPayments }}</p>
+            <p>Failed : {{ failedPayments }}</p>
           </div>
         </div>
 
@@ -92,29 +92,16 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td style="font-weight:700;">INV101</td>
-                <td style="font-weight:700;">ABC Pvt Ltd</td>
-                <td style="font-weight:700;">₹52,000</td>
-                <td>UPI</td>
-                <td>Today</td>
-                <td style="font-weight:700;">View</td>
+              <tr *ngFor="let inv of invoicesList">
+                <td style="font-weight:700;">{{ inv.id }}</td>
+                <td style="font-weight:700;">{{ inv.vendor }}</td>
+                <td style="font-weight:700;">₹{{ inv.amount | number }}</td>
+                <td>{{ inv.payment }}</td>
+                <td>{{ inv.dueDate | date }}</td>
+                <td style="font-weight:700;cursor:pointer;color:#2563eb;">{{ inv.action }}</td>
               </tr>
-              <tr>
-                <td style="font-weight:700;">INV102</td>
-                <td style="font-weight:700;">XYZ Supplier</td>
-                <td style="font-weight:700;">₹18,000</td>
-                <td>Bank</td>
-                <td>Tomorrow</td>
-                <td style="font-weight:700;">Pay</td>
-              </tr>
-              <tr>
-                <td style="font-weight:700;">INV103</td>
-                <td style="font-weight:700;">Tech India</td>
-                <td style="font-weight:700;">₹31,000</td>
-                <td>NEFT</td>
-                <td>05-Jul</td>
-                <td style="font-weight:700;">Print</td>
+              <tr *ngIf="invoicesList.length === 0">
+                <td colspan="6" style="text-align:center;">No recent invoices found.</td>
               </tr>
             </tbody>
           </table>
@@ -124,17 +111,17 @@
           <div class="panel">
             <h3>Upcoming Payments</h3>
             <div class="delivery-list" style="text-align:center;">
-              <p style="font-size:1rem;font-weight:800;color:#000000;margin-bottom:0.25rem;">ABC Pvt Ltd</p>
-              <p style="color:#64748b;font-weight:700;margin-bottom:0.5rem;">Tomorrow</p>
-              <p style="font-size:1.35rem;font-weight:800;color:#000000;">₹52,000</p>
+              <p style="font-size:1rem;font-weight:800;color:#000000;margin-bottom:0.25rem;">{{ upcomingPaymentVendor }}</p>
+              <p style="color:#64748b;font-weight:700;margin-bottom:0.5rem;">{{ upcomingPaymentDate }}</p>
+              <p style="font-size:1.35rem;font-weight:800;color:#000000;">₹{{ upcomingPaymentAmount | number }}</p>
             </div>
           </div>
           <div class="panel">
             <h3>Payment Methods</h3>
             <div class="bullet-notifications" style="text-align:center;">
-              <p>NEFT : 120</p>
-              <p>UPI : 35</p>
-              <p>RTGS : 27</p>
+              <p>NEFT : {{ neftCount }}</p>
+              <p>UPI : {{ upiCount }}</p>
+              <p>RTGS : {{ rtgsCount }}</p>
             </div>
           </div>
         </div>
