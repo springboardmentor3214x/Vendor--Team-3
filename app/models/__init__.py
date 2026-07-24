@@ -4,3 +4,5 @@ from .communication_log import CommunicationLog
 from .service_rating import ServiceRating
 from .performance_history import PerformanceHistory
 from .vendor_ranking import VendorRanking
+from .vendor_reliability import VendorReliability
+from .recommended_vendor import RecommendedVendor
