@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
 import { PerformanceService } from '../../management/performance.service';
@@ -8,7 +9,7 @@ import { PerformanceService } from '../../management/performance.service';
 @Component({
   selector: 'app-finance-officer',
   standalone: true,
-  imports: [CommonModule, RouterLink, SidebarComponent],
+  imports: [CommonModule, RouterLink, SidebarComponent, FormsModule],
   templateUrl: './finance-officer.component.html',
   styleUrl: './finance-officer.component.scss'
 })
@@ -34,6 +35,7 @@ export class FinanceOfficerComponent implements OnInit {
   neftCount = 0;
   upiCount = 0;
   rtgsCount = 0;
+  searchTerm = '';
 
   constructor(
     public sidebarService: SidebarService,
@@ -42,6 +44,17 @@ export class FinanceOfficerComponent implements OnInit {
 
   ngOnInit() {
     this.loadDashboardData();
+  }
+
+  onSearch() {
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      this.invoicesList = this.invoicesList.filter(inv =>
+        inv.vendor.toLowerCase().includes(term) || inv.id.toLowerCase().includes(term)
+      );
+    } else {
+      this.loadDashboardData();
+    }
   }
 
   loadDashboardData() {

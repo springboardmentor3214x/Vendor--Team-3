@@ -220,7 +220,7 @@ def approve_vendor(
     vendor_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(
-        require_roles("Admin")
+        require_roles("Admin", "Procurement")
     )
 ):
 
@@ -249,7 +249,7 @@ def reject_vendor(
     vendor_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(
-        require_roles("Admin")
+        require_roles("Admin", "Procurement")
     )
 ):
 

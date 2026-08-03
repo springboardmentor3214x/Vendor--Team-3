@@ -7,7 +7,10 @@
     </div>
   </div>
   <div class="topbar-right-info">
-    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">
+      🔔 Notifications
+      <span *ngIf="(sidebarService.unreadCount$ | async) as count" class="notification-badge">{{ count }}</span>
+    </span>
     <span class="user-span">👤 {{ requestedBy }}</span>
   </div>
 </div>
@@ -30,7 +33,7 @@
         {{ errorMessage }}
       </div>
 
-      <div class="form-card-container">
+      <div class="form-card-container fade-in hover-card">
 
         <div class="form-row-item">
           <div class="row-label">Procurement Request Number</div>
@@ -166,7 +169,7 @@
       </div>
 
       <!-- Existing Procurement Requests -->
-      <div style="margin-top:2.5rem;">
+      <div style="margin-top:2.5rem;" class="fade-in">
         <h3 style="font-weight:800;color:#1e293b;margin-bottom:1rem;">📋 Submitted Procurement Requests</h3>
 
         <div *ngIf="loading" style="text-align:center;padding:2rem;color:#64748b;">Loading requests...</div>
@@ -182,7 +185,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let r of requests" style="background:white;border-bottom:1px solid #e2e8f0;">
+            <tr *ngFor="let r of requests" class="hover-scale" style="background:white;border-bottom:1px solid #e2e8f0;transition: background-color 0.2s, transform 0.2s;">
               <td style="padding:0.875rem 1rem;font-weight:700;color:#1e3a8a;">#{{ r.procurement_id }}</td>
               <td style="padding:0.875rem 1rem;font-weight:600;color:#1e293b;">{{ r.title }}</td>
               <td style="padding:0.875rem 1rem;color:#475569;">{{ r.vendor_id }}</td>

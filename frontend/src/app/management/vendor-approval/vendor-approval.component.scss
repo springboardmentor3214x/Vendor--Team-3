@@ -94,20 +94,22 @@
   }
   
   .lbl {
-    width: 38%;
+    width: auto;
+    white-space: nowrap;
+    padding-right: 1rem;
     font-weight: 700;
     color: #000000;
   }
   
   .cln {
-    width: 5%;
+    width: 1%;
     color: #000000;
-    text-align: left;
-    padding-right: 0.5rem;
+    text-align: center;
+    padding-right: 1rem;
   }
   
   .val {
-    width: 57%;
+    width: auto;
     color: #000000;
     font-weight: 700;
   }

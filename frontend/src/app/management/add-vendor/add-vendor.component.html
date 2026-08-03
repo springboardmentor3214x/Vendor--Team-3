@@ -4,7 +4,10 @@
     <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
   </div>
   <div class="topbar-right-info">
-    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">
+      🔔 Notifications
+      <span *ngIf="(sidebarService.unreadCount$ | async) as count" class="notification-badge">{{ count }}</span>
+    </span>
     <span class="user-span">👤 Administrator</span>
   </div>
 </div>
@@ -60,6 +63,22 @@
           <div class="field-group">
             <label class="field-label">Alternate Phone</label>
             <input type="tel" [(ngModel)]="vendorForm.alternatePhone" class="field-input">
+          </div>
+
+          <div class="form-section-title" style="margin-top:1rem;">Login Credentials</div>
+          <div class="field-group">
+            <label class="field-label">Login Password * <span style="font-size:0.75rem;color:#64748b;">(vendor will use this to log in)</span></label>
+            <div style="position:relative;">
+              <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="vendorForm.password" class="field-input" style="padding-right:2.5rem;" placeholder="Min. 6 characters">
+              <span (click)="showPassword=!showPassword" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1rem;">{{ showPassword ? '🙈' : '👁️' }}</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label class="field-label">Confirm Password *</label>
+            <div style="position:relative;">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" [(ngModel)]="vendorForm.confirmPassword" class="field-input" style="padding-right:2.5rem;" placeholder="Re-enter password">
+              <span (click)="showConfirmPassword=!showConfirmPassword" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);cursor:pointer;font-size:1rem;">{{ showConfirmPassword ? '🙈' : '👁️' }}</span>
+            </div>
           </div>
         </div>
 

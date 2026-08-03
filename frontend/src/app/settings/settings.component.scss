@@ -1,0 +1,247 @@
+.settings-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.settings-card-header {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.settings-section {
+  margin-bottom: 1.25rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.settings-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.settings-hint {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin-top: 0.35rem;
+  font-weight: 500;
+}
+
+.option-pills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.option-pill {
+  padding: 0.4rem 0.9rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 999px;
+  background: #f8fafc;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+  }
+
+  &.active-pill {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: white;
+    font-weight: 700;
+  }
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.theme-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.7rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 70px;
+
+  &:hover {
+    border-color: #2563eb;
+  }
+
+  &.active-theme {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  }
+}
+
+.settings-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+  background: white;
+  outline: none;
+
+  &:focus {
+    border-color: #2563eb;
+  }
+}
+
+.settings-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+  outline: none;
+
+  &:focus {
+    border-color: #2563eb;
+  }
+}
+
+.form-group {
+  margin-bottom: 0.75rem;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #f1f5f9;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.toggle-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+
+  input { opacity: 0; width: 0; height: 0; }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #cbd5e1;
+    border-radius: 999px;
+    transition: 0.3s;
+
+    &::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+  }
+
+  input:checked + .toggle-slider {
+    background: #2563eb;
+  }
+
+  input:checked + .toggle-slider::before {
+    transform: translateX(20px);
+  }
+}
+
+.btn-save-settings {
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  padding: 0.65rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover { background: #1e40af; }
+}
+
+.btn-reset-settings {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1.5px solid #cbd5e1;
+  padding: 0.65rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover { background: #e2e8f0; }
+}
+
+.btn-back-settings {
+  background: transparent;
+  color: #64748b;
+  border: 1.5px solid #cbd5e1;
+  padding: 0.65rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover { color: #1e293b; border-color: #94a3b8; }
+}
+
+.btn-change-pwd {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1.5px solid #fbbf24;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover { background: #fde68a; }
+}

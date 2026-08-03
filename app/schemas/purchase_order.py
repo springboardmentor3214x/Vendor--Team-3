@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -21,6 +21,7 @@ class PurchaseOrderUpdate(BaseModel):
     order_number: Optional[str] = None
     order_date: Optional[date] = None
     delivery_date: Optional[date] = None
+    actual_delivery_date: Optional[date] = None
     total_amount: Optional[Decimal] = None
     status: Optional[str] = None
 
@@ -32,8 +33,9 @@ class PurchaseOrderResponse(BaseModel):
     order_number: str
     order_date: date
     delivery_date: Optional[date]
+    actual_delivery_date: Optional[date] = None
     total_amount: Decimal
     status: str
-    created_at: Optional[date]
+    created_at: Optional[datetime]
 
     model_config = ConfigDict(from_attributes=True)

@@ -31,7 +31,18 @@ def require_roles(*allowed_roles):
 
         role_name = user.role.role_name
 
-        if role_name not in allowed_roles:
+        # Map full database role names to short names checked in code
+        role_mapping = {
+            "Administrator": "Admin",
+            "Procurement Manager": "Procurement",
+            "Supply Chain Manager": "Supply",
+            "Vendor": "Vendor",
+            "Finance Officer": "Finance",
+            "Auditor": "Auditor"
+        }
+        mapped_role = role_mapping.get(role_name, role_name)
+
+        if role_name not in allowed_roles and mapped_role not in allowed_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Access denied"

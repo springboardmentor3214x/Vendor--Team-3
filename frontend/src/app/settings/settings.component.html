@@ -1,0 +1,170 @@
+<div class="header-strip">
+  Vendor Reliability<br>
+  <span style="font-size:0.95rem;font-weight:700;color:#64748b;margin-top:0.25rem;display:inline-block;">Intelligence Platform</span>
+</div>
+<div class="subheader-strip">
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+    <span style="font-weight:700;font-size:1.1rem;color:#1e293b;">⚙️ Application Settings</span>
+  </div>
+  <div class="topbar-right-info">
+    <span class="user-span">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+  </div>
+</div>
+
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-content">
+
+      <div *ngIf="successMessage" style="margin-bottom:1rem;padding:0.75rem 1.25rem;background:#dcfce7;border:1px solid #bbf7d0;color:#166534;border-radius:8px;font-weight:600;">{{ successMessage }}</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+
+        <!-- ── Appearance ── -->
+        <div class="settings-card">
+          <div class="settings-card-header">🎨 Appearance</div>
+
+          <div class="settings-section">
+            <label class="settings-label">Font Size</label>
+            <div class="option-pills">
+              <button *ngFor="let fs of fontSizes"
+                      (click)="fontSize = fs.value"
+                      [class.active-pill]="fontSize === fs.value"
+                      class="option-pill">
+                {{ fs.label }}
+              </button>
+            </div>
+            <p class="settings-hint">Preview: <span [style.fontSize]="fontSizes[0].size" *ngIf="fontSize==='small'">Sample Text (Small)</span><span [style.fontSize]="fontSizes[1].size" *ngIf="fontSize==='medium'">Sample Text (Medium)</span><span [style.fontSize]="fontSizes[2].size" *ngIf="fontSize==='large'">Sample Text (Large)</span><span [style.fontSize]="fontSizes[3].size" *ngIf="fontSize==='xlarge'">Sample Text (XL)</span></p>
+          </div>
+
+          <div class="settings-section">
+            <label class="settings-label">Font Family</label>
+            <select [(ngModel)]="fontFamily" class="settings-select">
+              <option *ngFor="let ff of fontFamilies" [value]="ff.value">{{ ff.label }}</option>
+            </select>
+          </div>
+
+          <div class="settings-section">
+            <label class="settings-label">Color Theme</label>
+            <div class="theme-grid">
+              <button *ngFor="let theme of themes"
+                      (click)="colorTheme = theme.value"
+                      [class.active-theme]="colorTheme === theme.value"
+                      class="theme-btn"
+                      [style.background]="theme.preview">
+                <span style="font-size:1.25rem;">{{ theme.label.split(' ')[0] }}</span>
+                <span style="font-size:0.75rem;font-weight:700;color:#1e293b;">{{ theme.label.split(' ').slice(1).join(' ') }}</span>
+                <span *ngIf="colorTheme === theme.value" style="position:absolute;top:4px;right:6px;color:#2563eb;font-weight:800;font-size:0.8rem;">✓</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Language ── -->
+        <div class="settings-card">
+          <div class="settings-card-header">🌐 Language & Region</div>
+          <div class="settings-section">
+            <label class="settings-label">Display Language</label>
+            <div class="option-pills">
+              <button *ngFor="let lang of languages"
+                      (click)="language = lang.value"
+                      [class.active-pill]="language === lang.value"
+                      class="option-pill">
+                {{ lang.label }}
+              </button>
+            </div>
+            <p class="settings-hint">Interface language will update on next page load.</p>
+          </div>
+        </div>
+
+        <!-- ── Notifications ── -->
+        <div class="settings-card">
+          <div class="settings-card-header">🔔 Notifications</div>
+          <div class="settings-section">
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Email Notifications</div>
+                <div class="settings-hint">Receive updates via email</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="emailNotifications">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">In-App Notifications</div>
+                <div class="settings-hint">Show bell icon alerts</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="inAppNotifications">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <div>
+                <div class="toggle-label">Order Notifications</div>
+                <div class="settings-hint">Alert when PO is issued or updated</div>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="orderNotifications">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Security / Change Password ── -->
+        <div class="settings-card">
+          <div class="settings-card-header">🔒 Security</div>
+          <div class="settings-section">
+            <button (click)="togglePasswordForm()" class="btn-change-pwd">
+              {{ showPasswordForm ? '✕ Cancel' : '🔑 Change Password' }}
+            </button>
+
+            <div *ngIf="showPasswordForm" style="margin-top:1rem;">
+              <div *ngIf="passwordMessage" style="margin-bottom:0.75rem;padding:0.6rem 1rem;background:#dcfce7;border:1px solid #bbf7d0;color:#166534;border-radius:6px;font-weight:600;">{{ passwordMessage }}</div>
+              <div *ngIf="passwordError" style="margin-bottom:0.75rem;padding:0.6rem 1rem;background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:6px;font-weight:600;">{{ passwordError }}</div>
+
+              <div class="form-group">
+                <label class="settings-label">Current Password</label>
+                <div style="position:relative;">
+                  <input [type]="showCurrentPwd ? 'text' : 'password'" [(ngModel)]="currentPassword"
+                         class="settings-input" placeholder="Enter current password" style="padding-right:2.5rem;">
+                  <span (click)="showCurrentPwd=!showCurrentPwd" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);cursor:pointer;">{{ showCurrentPwd ? '🙈' : '👁️' }}</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="settings-label">New Password</label>
+                <div style="position:relative;">
+                  <input [type]="showNewPwd ? 'text' : 'password'" [(ngModel)]="newPassword"
+                         class="settings-input" placeholder="Min. 6 characters" style="padding-right:2.5rem;">
+                  <span (click)="showNewPwd=!showNewPwd" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);cursor:pointer;">{{ showNewPwd ? '🙈' : '👁️' }}</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="settings-label">Confirm New Password</label>
+                <div style="position:relative;">
+                  <input [type]="showConfirmPwd ? 'text' : 'password'" [(ngModel)]="confirmNewPassword"
+                         class="settings-input" placeholder="Re-enter new password" style="padding-right:2.5rem;">
+                  <span (click)="showConfirmPwd=!showConfirmPwd" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);cursor:pointer;">{{ showConfirmPwd ? '🙈' : '👁️' }}</span>
+                </div>
+              </div>
+              <button (click)="onChangePassword()" class="btn-save-settings" style="margin-top:0.5rem;">Update Password</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Action Buttons ── -->
+      <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+        <button (click)="saveAllSettings()" class="btn-save-settings">💾 Save All Settings</button>
+        <button (click)="resetToDefaults()" class="btn-reset-settings">🔄 Reset to Defaults</button>
+        <button (click)="goBack()" class="btn-back-settings">← Go Back</button>
+      </div>
+
+    </div>
+  </div>
+</div>

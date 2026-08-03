@@ -1,0 +1,151 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">Vendor Comparison Dashboard</span>
+      </div>
+    </div>
+    <div class="dash-content">
+      <div class="vendor-comparison-container">
+  <h2>Vendor Comparison Dashboard</h2>
+  
+  <!-- Vendor Comparison Sandbox (Magnified) -->
+  <div style="background:white; padding:2rem; border-radius:12px; border:1px solid #cbd5e1; box-shadow:0 8px 20px rgba(0,0,0,0.05); margin-bottom:3rem;">
+    <h3 style="margin-top:0; margin-bottom:0.5rem; color:#1e293b; font-weight:800; font-size:1.5rem;">⚖️ 3D Vendor Performance Sandbox</h3>
+    <p style="font-size:1rem; color:#64748b; margin-bottom:2rem; font-weight:600;">Select multiple vendors to compare their detailed metrics in a high-resolution 3D holographic projection.</p>
+    
+    <div style="display:flex; flex-wrap:wrap; gap:3rem; justify-content:center;">
+
+      <!-- Right: SVG Radar Chart (Magnified) -->
+      <div class="radar-container" style="display:flex; justify-content:center; align-items:center; background:radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); border-radius:16px; padding:3rem; position:relative; min-height:550px; flex: 2 1 500px; overflow:hidden; box-shadow:inset 0 4px 30px rgba(0,0,0,0.6), 0 15px 40px rgba(0,0,0,0.2); border: 2px solid rgba(255,255,255,0.1);">
+        
+        <!-- Holographic Grid Background -->
+        <div style="position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px); background-size:30px 30px; pointer-events:none;"></div>
+
+        <svg class="radar-svg-3d" viewBox="-30 -30 260 260" style="width:480px; height:480px; overflow:visible;">
+          <defs>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <linearGradient id="gridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#334155" stop-opacity="0.9" />
+              <stop offset="100%" stop-color="#1e293b" stop-opacity="0.9" />
+            </linearGradient>
+          </defs>
+
+          <!-- Radar Grid lines (Radius: 20, 40, 60, 80, 100) -->
+          <polygon points="100,0 195,69 159,181 41,181 5,69" style="fill:url(#gridGrad); stroke:#475569; stroke-width:1.5;" />
+          <polygon points="100,20 176,75 147,165 53,165 24,75" style="fill:none; stroke:#475569; stroke-width:0.75; stroke-dasharray:4 4;" />
+          <polygon points="100,40 157,81 135,148 65,148 43,81" style="fill:none; stroke:#475569; stroke-width:0.75; stroke-dasharray:4 4;" />
+          <polygon points="100,60 138,88 123,132 77,132 62,88" style="fill:none; stroke:#475569; stroke-width:0.75; stroke-dasharray:4 4;" />
+          <polygon points="100,80 119,94 112,116 88,116 81,94" style="fill:none; stroke:#475569; stroke-width:0.75; stroke-dasharray:4 4;" />
+          
+          <!-- Axes -->
+          <line x1="100" y1="100" x2="100" y2="0" style="stroke:#64748b; stroke-width:1.5;" />
+          <line x1="100" y1="100" x2="195" y2="69" style="stroke:#64748b; stroke-width:1.5;" />
+          <line x1="100" y1="100" x2="159" y2="181" style="stroke:#64748b; stroke-width:1.5;" />
+          <line x1="100" y1="100" x2="41" y2="181" style="stroke:#64748b; stroke-width:1.5;" />
+          <line x1="100" y1="100" x2="5" y2="69" style="stroke:#64748b; stroke-width:1.5;" />
+
+          <!-- Labels (Enlarged) -->
+          <text x="100" y="-15" text-anchor="middle" style="font-size:12px; font-weight:800; fill:#cbd5e1; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">PRICE</text>
+          <text x="208" y="70" text-anchor="start" style="font-size:12px; font-weight:800; fill:#cbd5e1; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">QUALITY</text>
+          <text x="172" y="198" text-anchor="start" style="font-size:12px; font-weight:800; fill:#cbd5e1; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">SPEED</text>
+          <text x="28" y="198" text-anchor="end" style="font-size:12px; font-weight:800; fill:#cbd5e1; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">COMM</text>
+          <text x="-8" y="70" text-anchor="end" style="font-size:12px; font-weight:800; fill:#cbd5e1; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.8));">COMPLIANCE</text>
+
+          <!-- Vendor Polygons -->
+          <ng-container *ngFor="let vendor of compareVendors; let i = index">
+            <polygon *ngIf="vendor.selected" 
+                     class="radar-polygon-3d"
+                     [attr.points]="getRadarPoints(vendor)" 
+                     [attr.fill]="vendor.color" 
+                     [attr.stroke]="vendor.strokeColor" 
+                     stroke-width="3"
+                     filter="url(#glow)"
+                     [style.animation-delay]="(i * 0.15) + 's'" />
+          </ng-container>
+        </svg>
+        
+        <!-- Legend overlay (Magnified) -->
+        <div style="position:absolute; bottom:20px; right:20px; display:flex; flex-direction:column; gap:0.5rem; background:rgba(15,23,42,0.7); padding:1rem; border-radius:12px; backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height:80%; overflow-y:auto;">
+          <div *ngFor="let vendor of compareVendors" 
+               (click)="selectVendor(vendor)"
+               (dblclick)="deselectVendor(vendor)"
+               class="legend-item" 
+               style="display:flex; align-items:center; gap:0.5rem; font-size:1rem; font-weight:700; cursor:pointer; user-select:none;"
+               [style.opacity]="vendor.selected ? '1' : '0.4'">
+            <span [style.background]="vendor.strokeColor" style="width:12px; height:12px; border-radius:50%; display:inline-block; box-shadow:0 0 8px currentColor" [style.color]="vendor.strokeColor"></span>
+            <span style="color:#f8fafc;">{{ vendor.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="comparison-matrix">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th *ngFor="let vendor of vendors">{{vendor.name}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Reliability Score</td>
+          <td *ngFor="let vendor of vendors">{{vendor.reliabilityScore}}</td>
+        </tr>
+        <tr>
+          <td>On-Time Delivery %</td>
+          <td *ngFor="let vendor of vendors">{{vendor.onTimeDelivery}}%</td>
+        </tr>
+        <tr>
+          <td>Quality Rating</td>
+          <td *ngFor="let vendor of vendors">{{vendor.qualityRating}} / 5.0</td>
+        </tr>
+        <tr>
+          <td>Risk Level</td>
+          <td *ngFor="let vendor of vendors">
+            <span [ngClass]="{'low-risk': vendor.riskLevel === 'Low', 'medium-risk': vendor.riskLevel === 'Medium', 'high-risk': vendor.riskLevel === 'High'}">
+              {{vendor.riskLevel}}
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td>Avg Response Time</td>
+          <td *ngFor="let vendor of vendors">{{vendor.avgResponseTime}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="recommendation-engine">
+    <h3>Explainable Procurement Recommendation Engine</h3>
+    
+    <div class="recommendations">
+      <div class="card recommended" *ngIf="recommendedVendor">
+        <div class="card-header">
+          <h4>🏆 Recommended: {{recommendedVendor.name}}</h4>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li *ngFor="let reason of recommendedVendor.reasons">{{reason}}</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card not-recommended" *ngIf="notRecommendedVendor">
+        <div class="card-header">
+          <h4>⚠️ Not Recommended: {{notRecommendedVendor.name}}</h4>
+        </div>
+        <div class="card-body">
+          <ul>
+            <li *ngFor="let reason of notRecommendedVendor.reasons">{{reason}}</li>
+          </ul>
+    </div>
+  </div>
+</div>

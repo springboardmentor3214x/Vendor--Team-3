@@ -1,10 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+import os
+import shutil
 
 from app.database.database import SessionLocal
 from app.models.message import Message
 from app.models.user import User
 from app.models.procurement import ProcurementRequest
+from app.routers.websocket import manager
 
 from app.schemas.message import (
     MessageCreate,
@@ -32,11 +36,11 @@ def get_db():
 # Send Message
 # ---------------------------------------
 @router.post("/", response_model=MessageResponse)
-def send_message(
+async def send_message(
     message: MessageCreate,
     db: Session = Depends(get_db),
     current_user=Depends(
-        require_roles("Admin", "Procurement", "Vendor")
+        require_roles("Admin", "Procurement", "Vendor", "Supply Chain Manager", "Finance Officer", "Auditor", "Supply", "Finance")
     )
 ):
 
@@ -76,21 +80,38 @@ def send_message(
     db.commit()
     db.refresh(new_message)
 
+    # Broadcast to receiver
+    await manager.send_personal_message({
+        "type": "new_message",
+        "message": {
+            "message_id": new_message.message_id,
+            "sender_id": new_message.sender_id,
+            "receiver_id": new_message.receiver_id,
+            "message": new_message.message,
+            "sent_at": new_message.sent_at.isoformat() if new_message.sent_at else None
+        }
+    }, message.receiver_id)
+
     return new_message
 
 
 # ---------------------------------------
-# Get All Messages
+# Get All Messages (Involving Current User)
 # ---------------------------------------
 @router.get("/", response_model=list[MessageResponse])
 def get_messages(
     db: Session = Depends(get_db),
     current_user=Depends(
-        require_roles("Admin", "Procurement", "Vendor")
+        require_roles("Admin", "Procurement", "Vendor", "Supply Chain Manager", "Finance Officer", "Auditor", "Supply", "Finance")
     )
 ):
-
-    return db.query(Message).all()
+    from sqlalchemy import or_
+    return db.query(Message).filter(
+        or_(
+            Message.sender_id == current_user.user_id,
+            Message.receiver_id == current_user.user_id
+        )
+    ).order_by(Message.sent_at.asc()).all()
 
 
 # ---------------------------------------
@@ -150,3 +171,113 @@ def update_message(
     db.refresh(message)
 
     return message
+
+
+# ---------------------------------------
+# Get My Messages (for logged-in user)
+# ---------------------------------------
+@router.get("/my/inbox", response_model=list[MessageResponse])
+def get_my_messages(
+    db: Session = Depends(get_db),
+    current_user=Depends(
+        require_roles("Admin", "Procurement", "Vendor")
+    )
+):
+    """Returns all messages where the current user is the receiver."""
+    messages = db.query(Message).filter(
+        Message.receiver_id == current_user.user_id
+    ).order_by(Message.sent_at.desc()).all()
+    return messages
+
+
+# ---------------------------------------
+# Get Unread Message Count (notification badge)
+# ---------------------------------------
+@router.get("/my/unread-count")
+def get_unread_count(
+    db: Session = Depends(get_db),
+    current_user=Depends(
+        require_roles("Admin", "Procurement", "Vendor")
+    )
+):
+    """Returns count of unread messages for the current user."""
+    count = db.query(Message).filter(
+        Message.receiver_id == current_user.user_id,
+        Message.is_read == False
+    ).count()
+    return {"unread_count": count}
+
+
+# ---------------------------------------
+# Mark All My Messages as Read
+# ---------------------------------------
+@router.put("/my/mark-read")
+async def mark_all_read(
+    db: Session = Depends(get_db),
+    current_user=Depends(
+        require_roles("Admin", "Procurement", "Vendor")
+    )
+):
+    """Marks all messages for the current user as read."""
+    db.query(Message).filter(
+        Message.receiver_id == current_user.user_id,
+        Message.is_read == False
+    ).update({"is_read": True})
+    db.commit()
+    
+    # Broadcast to self to update badge
+    await manager.send_personal_message({
+        "type": "messages_read"
+    }, current_user.user_id)
+
+    return {"message": "All messages marked as read"}
+
+
+# ---------------------------------------
+# Upload Attachment
+# ---------------------------------------
+@router.post("/{message_id}/upload")
+def upload_attachment(
+    message_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles("Admin", "Procurement", "Vendor", "Supply Chain Manager", "Finance Officer", "Auditor", "Supply", "Finance"))
+):
+    message = db.query(Message).filter(Message.message_id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+        
+    # Check if user is sender or receiver
+    if message.sender_id != current_user.user_id and message.receiver_id != current_user.user_id:
+        # PM or Admin could also upload, but let's just let anyone authorized by role
+        pass
+        
+    os.makedirs(os.path.join("uploads", "messages"), exist_ok=True)
+    file_path = os.path.join("uploads", "messages", f"{message_id}_{file.filename}")
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    message.attachment_path = file_path
+    db.commit()
+    db.refresh(message)
+    
+    return {"message": "Attachment uploaded successfully", "attachment_path": file_path}
+
+# ---------------------------------------
+# Download Attachment
+# ---------------------------------------
+@router.get("/{message_id}/download")
+def download_attachment(
+    message_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles("Admin", "Procurement", "Vendor", "Supply Chain Manager", "Finance Officer", "Auditor", "Supply", "Finance"))
+):
+    message = db.query(Message).filter(Message.message_id == message_id).first()
+    if not message or not message.attachment_path:
+        raise HTTPException(status_code=404, detail="Attachment not found")
+        
+    if not os.path.exists(message.attachment_path):
+        raise HTTPException(status_code=404, detail="File missing on server")
+        
+    return FileResponse(message.attachment_path, filename=os.path.basename(message.attachment_path))

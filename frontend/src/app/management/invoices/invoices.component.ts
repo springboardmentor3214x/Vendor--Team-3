@@ -5,14 +5,21 @@ import { Router } from '@angular/router';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
 
-interface Invoice {
+export interface InvoiceMatch {
   id: string;
-  poId: string;
   vendorName: string;
-  amount: number;
+  poNumber: string;
+  poQuantity: number;
+  poAmount: number;
+  grnNumber: string;
+  grnQuantity: number;
+  grnAmount: number;
+  invoiceNumber: string;
+  invoiceQuantity: number;
+  invoiceAmount: number;
   dueDate: string;
   paymentMode: string;
-  status: 'Paid' | 'Pending' | 'Overdue';
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Flagged' | 'Paid';
 }
 
 @Component({
@@ -23,34 +30,49 @@ interface Invoice {
   styleUrl: './invoices.component.scss'
 })
 export class InvoicesComponent {
-  invoices: Invoice[] = [];
-  vendors = ['ABC Pvt Ltd', 'XYZ Suppliers', 'Tech India', 'Delta Traders', 'Omega Industries'];
+  invoices: InvoiceMatch[] = [];
+  vendors = ['ABC Pvt Ltd', 'TechCorp Supplies', 'Global Logistics', 'Office Essentials'];
 
-  // Form Fields
-  selectedPO = 'PO101';
-  invoiceAmount = 0;
-  paymentMode = 'NEFT';
+  selectedInvoice: InvoiceMatch | null = null;
 
   constructor(public sidebarService: SidebarService, private router: Router) {
     this.loadInvoices();
   }
 
   loadInvoices() {
-    const cached = localStorage.getItem('vrp_invoices');
+    const cached = localStorage.getItem('vrp_finance_invoices');
     if (cached) {
       this.invoices = JSON.parse(cached);
     } else {
       this.invoices = [
-        { id: 'INV101', poId: 'PO101', vendorName: 'ABC Pvt Ltd', amount: 52000, dueDate: '2026-07-20', paymentMode: 'UPI', status: 'Pending' },
-        { id: 'INV102', poId: 'PO102', vendorName: 'XYZ Suppliers', amount: 18000, dueDate: '2026-07-22', paymentMode: 'Bank', status: 'Pending' },
-        { id: 'INV103', poId: 'PO103', vendorName: 'Tech India', amount: 31000, dueDate: '2026-07-05', paymentMode: 'NEFT', status: 'Paid' }
+        {
+          id: 'INV-1001', vendorName: 'TechCorp Supplies', dueDate: '2026-07-20', paymentMode: 'NEFT',
+          poNumber: 'PO-5501', poQuantity: 100, poAmount: 5000,
+          grnNumber: 'GRN-8801', grnQuantity: 100, grnAmount: 5000,
+          invoiceNumber: 'INV-1001', invoiceQuantity: 100, invoiceAmount: 5000,
+          status: 'Pending'
+        },
+        {
+          id: 'INV-1002', vendorName: 'Global Logistics', dueDate: '2026-07-22', paymentMode: 'Bank Transfer',
+          poNumber: 'PO-5502', poQuantity: 200, poAmount: 8000,
+          grnNumber: 'GRN-8802', grnQuantity: 190, grnAmount: 7600,
+          invoiceNumber: 'INV-1002', invoiceQuantity: 200, invoiceAmount: 8000,
+          status: 'Pending'
+        },
+        {
+          id: 'INV-1003', vendorName: 'Office Essentials', dueDate: '2026-07-25', paymentMode: 'UPI',
+          poNumber: 'PO-5503', poQuantity: 50, poAmount: 500,
+          grnNumber: 'GRN-8803', grnQuantity: 50, grnAmount: 500,
+          invoiceNumber: 'INV-1003', invoiceQuantity: 50, invoiceAmount: 550, // Mismatch
+          status: 'Pending'
+        }
       ];
       this.saveInvoices();
     }
   }
 
   saveInvoices() {
-    localStorage.setItem('vrp_invoices', JSON.stringify(this.invoices));
+    localStorage.setItem('vrp_finance_invoices', JSON.stringify(this.invoices));
   }
 
   goBack() {
@@ -58,31 +80,50 @@ export class InvoicesComponent {
     this.router.navigate([route]);
   }
 
-  payInvoice(invoice: Invoice) {
-    alert(`Initiating simulated payment gateway for ₹${invoice.amount.toLocaleString()} to ${invoice.vendorName}...`);
+  viewDetails(invoice: InvoiceMatch) {
+    this.selectedInvoice = invoice;
+  }
+
+  closeDetails() {
+    this.selectedInvoice = null;
+  }
+
+  hasQuantityMismatch(invoice: InvoiceMatch): boolean {
+    return invoice.poQuantity !== invoice.grnQuantity || invoice.grnQuantity !== invoice.invoiceQuantity;
+  }
+
+  hasAmountMismatch(invoice: InvoiceMatch): boolean {
+    return invoice.poAmount !== invoice.grnAmount || invoice.grnAmount !== invoice.invoiceAmount;
+  }
+
+  approveInvoice() {
+    if (this.selectedInvoice) {
+      this.selectedInvoice.status = 'Approved';
+      this.saveInvoices();
+      this.closeDetails();
+    }
+  }
+
+  rejectInvoice() {
+    if (this.selectedInvoice) {
+      this.selectedInvoice.status = 'Rejected';
+      this.saveInvoices();
+      this.closeDetails();
+    }
+  }
+
+  flagInvoice() {
+    if (this.selectedInvoice) {
+      this.selectedInvoice.status = 'Flagged';
+      this.saveInvoices();
+      this.closeDetails();
+    }
+  }
+  
+  payInvoice(invoice: InvoiceMatch) {
+    alert(`Initiating simulated payment gateway for ₹${invoice.invoiceAmount.toLocaleString()} to ${invoice.vendorName}...`);
     invoice.status = 'Paid';
     this.saveInvoices();
     alert('Payment successful!');
-  }
-
-  createInvoice() {
-    if (this.invoiceAmount <= 0) {
-      alert('Invoice amount must be greater than zero!');
-      return;
-    }
-    const newId = 'INV' + String(this.invoices.length + 101);
-    const newInv: Invoice = {
-      id: newId,
-      poId: this.selectedPO,
-      vendorName: 'ABC Pvt Ltd',
-      amount: this.invoiceAmount,
-      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      paymentMode: this.paymentMode,
-      status: 'Pending'
-    };
-    this.invoices.push(newInv);
-    this.saveInvoices();
-    this.invoiceAmount = 0;
-    alert('Invoice recorded successfully!');
   }
 }

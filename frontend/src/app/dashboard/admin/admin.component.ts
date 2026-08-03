@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
 import { PerformanceService } from '../../management/performance.service';
@@ -8,7 +9,7 @@ import { PerformanceService } from '../../management/performance.service';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, RouterLink, SidebarComponent],
+  imports: [CommonModule, RouterLink, SidebarComponent, FormsModule],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
 })
@@ -20,6 +21,7 @@ export class AdminComponent implements OnInit {
 
   topVendors: any[] = [];
   recentActivities: any[] = [];
+  searchTerm = '';
 
   constructor(
     public sidebarService: SidebarService,
@@ -28,6 +30,17 @@ export class AdminComponent implements OnInit {
 
   ngOnInit() {
     this.loadDashboardData();
+  }
+
+  onSearch() {
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      this.recentActivities = this.recentActivities.filter(a =>
+        a.action.toLowerCase().includes(term) || a.user.toLowerCase().includes(term)
+      );
+    } else {
+      this.loadDashboardData();
+    }
   }
 
   loadDashboardData() {

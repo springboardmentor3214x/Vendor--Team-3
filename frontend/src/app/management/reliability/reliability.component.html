@@ -79,7 +79,7 @@
       <div *ngIf="!isLoading">
         
         <!-- Tab 1: Reliability Overview Dashboard -->
-        <div *ngIf="activeTab === 'dashboard'" class="tab-panel">
+        <div *ngIf="activeTab === 'dashboard'" class="tab-panel fade-in">
           <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:2rem;">
             
             <!-- Top Rated Vendors -->
@@ -87,7 +87,7 @@
               <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">🏢 Top Recommended Vendors</h4>
               
               <div style="display:flex; flex-direction:column; gap:1.25rem;">
-                <div *ngFor="let v of dashboardData.top_ranked" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; border-left:5px solid;"
+                <div *ngFor="let v of dashboardData.top_ranked" class="hover-card" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:1.25rem; display:flex; justify-content:space-between; align-items:center; border-left:5px solid;"
                      [style.borderLeftColor]="v.risk_level === 'Low' ? '#10b981' : v.risk_level === 'Medium' ? '#f59e0b' : '#ef4444'">
                   <div>
                     <div style="font-weight: 700; font-size: 1.05rem; color:#1e293b;">{{ v.vendor_name }}</div>
@@ -115,7 +115,7 @@
               <h4 style="margin-top: 0; margin-bottom: 0.5rem; font-size: 1.2rem; color: #1e293b;">📊 Risk Assessment Distribution</h4>
               
               <!-- Custom circular chart mock representational -->
-              <div style="background: #f8fafc; border-radius: 8px; padding: 1.5rem; text-align: center; border: 1px solid #e2e8f0; display:flex; justify-content:space-around; align-items:center;">
+              <div class="hover-scale" style="background: #f8fafc; border-radius: 8px; padding: 1.5rem; text-align: center; border: 1px solid #e2e8f0; display:flex; justify-content:space-around; align-items:center;">
                 <div style="text-align:center;">
                   <div style="font-size: 2.25rem; font-weight: 800; color:#10b981;">{{ dashboardData.high_reliability_count }}</div>
                   <div style="font-size:0.75rem; font-weight:700; color:#64748b; margin-top:0.25rem;">Low Risk</div>
@@ -131,12 +131,24 @@
               </div>
 
               <!-- Recommendation status list -->
-              <div style="background: #fee2e2; padding: 1.25rem; border-radius: 6px; border-left: 4px solid #ef4444;" *ngIf="dashboardData.high_risk_count > 0">
+              <div style="background: #fee2e2; padding: 1.25rem; border-radius: 6px; border-left: 4px solid #ef4444; animation: pulse 2s infinite;" *ngIf="dashboardData.high_risk_count > 0">
                 <h5 style="margin:0 0 0.5rem 0; color:#991b1b; font-weight:700; font-size:0.9rem;">⚠️ Critical Procurement Alert</h5>
                 <p style="margin:0; font-size:0.8rem; color:#991b1b; line-height:1.4;">
                   There is currently {{ dashboardData.high_risk_count }} vendor classified as **High Risk**. Purchase orders issued to this vendor will trigger authorization warnings.
                 </p>
               </div>
+            </div>
+          </div>
+
+          <!-- Interactive Bar Chart -->
+          <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-top: 2rem;" class="fade-in">
+            <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">📈 Reliability Score Comparison</h4>
+            <div style="display: block; width: 100%; height: 300px;">
+              <canvas baseChart 
+                      [data]="barChartData" 
+                      [options]="barChartOptions" 
+                      [type]="barChartType">
+              </canvas>
             </div>
           </div>
         </div>
@@ -196,37 +208,54 @@
         </div>
 
         <!-- Tab 3: Reliability Score Details (Module 5.2) -->
-        <div *ngIf="activeTab === 'factors'" class="tab-panel">
-          <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:2rem;">
+        <div *ngIf="activeTab === 'factors'" class="tab-panel fade-in">
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:2rem;">
             
-            <!-- Vendor Selector -->
-            <div *ngIf="!isVendor" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content;">
-              <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">🔬 Inspect Score Factors</h4>
-              
-              <div style="display:flex; flex-direction:column; gap:0.5rem;">
-                <label style="font-weight:700; color:#475569; font-size:0.85rem;">Select Supplier:</label>
-                <select (change)="onVendorDetailsSelected($any($event.target).value)" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1; font-weight:600; background:white;">
-                  <option value="">-- Select Vendor --</option>
-                  <option *ngFor="let v of vendors" [value]="v.vendor_id">{{ v.company_name }}</option>
-                </select>
+            <div style="display:flex; flex-direction:column; gap:2rem;">
+              <!-- Vendor Selector -->
+              <div *ngIf="!isVendor" class="hover-card" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content;">
+                <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.2rem; color: #1e293b;">🔬 Inspect Score Factors</h4>
+                
+                <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                  <label style="font-weight:700; color:#475569; font-size:0.85rem;">Select Supplier:</label>
+                  <select (change)="onVendorDetailsSelected($any($event.target).value)" style="width:100%; padding:0.6rem; border-radius:6px; border:1px solid #cbd5e1; font-weight:600; background:white;">
+                    <option value="">-- Select Vendor --</option>
+                    <option *ngFor="let v of vendors" [value]="v.vendor_id">{{ v.company_name }}</option>
+                  </select>
+                </div>
               </div>
-            </div>
-            
-            <div *ngIf="isVendor" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content; text-align: center; display: flex; flex-direction: column; gap: 1rem;">
-              <div style="font-size: 2.5rem;">🔬</div>
-              <h4 style="margin: 0; color: #1e293b;">My Score Breakdown</h4>
-              <p style="color: #64748b; font-size: 0.85rem; line-height: 1.5;">
-                These factors are recalculated automatically after your deliveries are processed and inspected.
-              </p>
+              
+              <div *ngIf="isVendor" class="hover-card" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); height: fit-content; text-align: center; display: flex; flex-direction: column; gap: 1rem;">
+                <div style="font-size: 2.5rem;">🔬</div>
+                <h4 style="margin: 0; color: #1e293b;">My Score Breakdown</h4>
+                <p style="color: #64748b; font-size: 0.85rem; line-height: 1.5;">
+                  These factors are recalculated automatically after your deliveries are processed and inspected.
+                </p>
+              </div>
+
+              <!-- Radar Chart Visualization -->
+              <div class="hover-card" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px;">
+                <h4 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.1rem; color: #1e293b; align-self: flex-start;">🕸️ Performance Radar</h4>
+                <div *ngIf="!selectedVendorDetails" style="text-align: center; color: #94a3b8;">
+                  Select a vendor to view radar chart.
+                </div>
+                <div *ngIf="selectedVendorDetails" style="display: block; width: 100%; max-width: 400px;">
+                  <canvas baseChart 
+                          [data]="radarChartData" 
+                          [options]="radarChartOptions" 
+                          [type]="radarChartType">
+                  </canvas>
+                </div>
+              </div>
             </div>
 
             <!-- Score breakdown details -->
-            <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); min-height: 350px;">
+            <div class="hover-card" style="grid-column: span 2; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); min-height: 350px;">
               <div *ngIf="!selectedVendorDetails" style="text-align: center; padding: 5rem; color: #94a3b8;">
                 Select a vendor from the dropdown list to load their analytical reliability factors breakdown.
               </div>
 
-              <div *ngIf="selectedVendorDetails">
+              <div *ngIf="selectedVendorDetails" class="fade-in">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #f1f5f9; padding-bottom:1rem; margin-bottom:1.5rem;">
                   <div>
                     <h4 style="margin:0; font-size:1.35rem; color:#1e293b;">{{ selectedVendorDetails.vendor_name }}</h4>
@@ -249,7 +278,7 @@
                       <strong style="color:#166534;">{{ selectedVendorDetails.delivery_score }}%</strong>
                     </div>
                     <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
-                      <div [style.width]="selectedVendorDetails.delivery_score + '%'" style="height: 100%; background: #10b981;" ></div>
+                      <div [style.width]="selectedVendorDetails.delivery_score + '%'" style="height: 100%; background: #10b981; transition: width 1s ease-in-out;" ></div>
                     </div>
                   </div>
 
@@ -260,7 +289,7 @@
                       <strong style="color:#ca8a04;">{{ selectedVendorDetails.quality_score }}%</strong>
                     </div>
                     <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
-                      <div [style.width]="selectedVendorDetails.quality_score + '%'" style="height: 100%; background: #f59e0b;" ></div>
+                      <div [style.width]="selectedVendorDetails.quality_score + '%'" style="height: 100%; background: #f59e0b; transition: width 1s ease-in-out;" ></div>
                     </div>
                   </div>
 
@@ -271,7 +300,7 @@
                       <strong style="color:#1e40af;">{{ selectedVendorDetails.communication_score }}%</strong>
                     </div>
                     <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
-                      <div [style.width]="selectedVendorDetails.communication_score + '%'" style="height: 100%; background: #3b82f6;" ></div>
+                      <div [style.width]="selectedVendorDetails.communication_score + '%'" style="height: 100%; background: #3b82f6; transition: width 1s ease-in-out;" ></div>
                     </div>
                   </div>
 
@@ -279,18 +308,18 @@
                   <div>
                     <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:600; margin-bottom:0.25rem; color:#334155;">
                       <span>Contract Compliance & Service (Weight: 15%)</span>
-                      <strong style="color:#0f766e;">{{ selectedVendorDetails.service_score }}%</strong>
+                      <strong style="color:#0f766e;">{{ selectedVendorDetails.contract_compliance_score || selectedVendorDetails.service_score || 0 }}%</strong>
                     </div>
                     <div style="width: 100%; height: 10px; background: #e2e8f0; border-radius: 5px; overflow: hidden;">
-                      <div [style.width]="selectedVendorDetails.service_score + '%'" style="height: 100%; background: #0d9488;" ></div>
+                      <div [style.width]="(selectedVendorDetails.contract_compliance_score || selectedVendorDetails.service_score || 0) + '%'" style="height: 100%; background: #0d9488; transition: width 1s ease-in-out;" ></div>
                     </div>
                   </div>
                 </div>
 
-                <div style="margin-top: 2rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1rem; display:flex; justify-content:space-between; align-items:center;">
+                <div style="margin-top: 2rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 1rem; display:flex; justify-content:space-between; align-items:center;" class="hover-scale">
                   <div>
                     <strong style="font-size:0.85rem; color:#475569;">Procurement Status:</strong>
-                    <div style="font-weight: 700; color:#1e3a8a; margin-top:0.25rem;">{{ selectedVendorDetails.recommendation_status }}</div>
+                    <div style="font-weight: 700; color:#1e3a8a; margin-top:0.25rem;">{{ selectedVendorDetails.recommendation_status || 'Evaluating' }}</div>
                   </div>
                   <span [style.background]="selectedVendorDetails.risk_level === 'Low' ? '#dcfce7' : selectedVendorDetails.risk_level === 'Medium' ? '#fef9c3' : '#fee2e2'"
                         [style.color]="selectedVendorDetails.risk_level === 'Low' ? '#166534' : selectedVendorDetails.risk_level === 'Medium' ? '#854d0e' : '#991b1b'"

@@ -1,4 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, interval, Subscription } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
+export interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  time: string;
+  status: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -7,15 +17,60 @@ export class SidebarService {
   isSidebarVisible = true;
   isNotificationVisible = false;
 
-  notifications = [
-    { id: 1, title: 'Procurement Alert', message: 'New Requisition PR003 created by HR.', time: 'Just now' },
-    { id: 2, title: 'Contract Expiry Alert', message: 'Contract CON-2026-02 for Tech India expires in 30 days.', time: '10 mins ago' },
-    { id: 3, title: 'Delivery Delay Notification', message: 'xyz Suppliers reported a 2-day delay for order PO102.', time: '2 hours ago' },
-    { id: 4, title: 'Compliance Flag', message: 'Anti-Bribery Statement check failed for Delta Traders.', time: '1 day ago' }
-  ];
+  private notificationsSubject = new BehaviorSubject<Notification[]>([]);
+  notifications$ = this.notificationsSubject.asObservable();
+  
+  private unreadCountSubject = new BehaviorSubject<number>(0);
+  unreadCount$ = this.unreadCountSubject.asObservable();
 
-  constructor() {
+  private pollingSubscription?: Subscription;
+
+  constructor(private http: HttpClient, @Inject(PLATFORM_ID) private platformId: Object) {
     this.updateBodyClass();
+    if (isPlatformBrowser(this.platformId)) {
+      this.fetchNotifications();
+      // Poll every 30 seconds
+      this.pollingSubscription = interval(30000).subscribe(() => {
+        if (localStorage.getItem('token')) {
+          this.fetchNotifications();
+        }
+      });
+    }
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
+  fetchNotifications() {
+    if (!localStorage.getItem('token')) return;
+    
+    // Assuming backend URL is mapped or hardcoded
+    this.http.get<Notification[]>('http://127.0.0.1:8000/notifications/', { headers: this.getAuthHeaders() })
+      .subscribe({
+        next: (data) => {
+          this.notificationsSubject.next(data);
+          this.unreadCountSubject.next(data.filter(n => n.status === 'Unread').length);
+        },
+        error: (err) => console.error('Error fetching notifications', err)
+      });
+  }
+
+  markAsRead(id: number) {
+    this.http.put(`http://127.0.0.1:8000/notifications/${id}/read`, {}, { headers: this.getAuthHeaders() })
+      .subscribe({
+        next: () => {
+          // Locally update to immediately reflect the change
+          const current = this.notificationsSubject.getValue();
+          const updated = current.map(n => n.id === id ? { ...n, status: 'Read' } : n);
+          this.notificationsSubject.next(updated);
+          this.unreadCountSubject.next(updated.filter(n => n.status === 'Unread').length);
+        },
+        error: (err) => console.error('Error marking notification as read', err)
+      });
   }
 
   toggleSidebar() {
@@ -38,14 +93,11 @@ export class SidebarService {
   }
 
   getNotifications() {
-    const role = this.getCurrentRole();
-    if (role === 'auditor') {
-      // Restrict operational notifications (Procurement Alert, Delivery Delay) for Auditors.
-      return this.notifications.filter(n =>
-        n.title === 'Contract Expiry Alert' || n.title === 'Compliance Flag'
-      );
-    }
-    return this.notifications;
+    return this.notificationsSubject.getValue();
+  }
+
+  get unreadCount() {
+    return this.unreadCountSubject.getValue();
   }
 
   getCurrentRole(): string {
@@ -85,12 +137,13 @@ export class SidebarService {
 
     // LAST RESORT: substring match on email address
     // Works for descriptive emails (e.g. supply@company.com) but NOT short ones
-    if (email.includes('admin')) return 'admin';
-    if (email.includes('procurement')) return 'procurement';
-    if (email.includes('supply')) return 'supply';
-    if (email.includes('finance')) return 'finance';
-    if (email.includes('auditor')) return 'auditor';
-    if (email.includes('vendor')) return 'vendor';
+    const emailLower = email.toLowerCase();
+    if (emailLower === 'a@gmail.com' || emailLower.includes('admin')) return 'admin';
+    if (emailLower === 'p@gmail.com' || emailLower.includes('procurement')) return 'procurement';
+    if (emailLower === 's@gmail.com' || emailLower.includes('supply')) return 'supply';
+    if (emailLower === 'f@gmail.com' || emailLower.includes('finance')) return 'finance';
+    if (emailLower === 'au@gmail.com' || emailLower.includes('auditor')) return 'auditor';
+    if (emailLower === 'v@gmail.com' || emailLower.includes('vendor')) return 'vendor';
     return 'admin';
   }
 

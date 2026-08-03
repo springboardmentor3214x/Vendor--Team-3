@@ -1,0 +1,58 @@
+<div class="role-management-container">
+  <div class="header">
+    <h2>Administrator Role Management</h2>
+    <p>Manage system roles, permissions, and data scopes.</p>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary" (click)="savePermissions()">Save Changes</button>
+  </div>
+
+  <div class="matrix-section">
+    <h3>Permissions Matrix</h3>
+    <div class="table-responsive">
+      <table class="matrix-table">
+        <thead>
+          <tr>
+            <th>Permission</th>
+            <th *ngFor="let role of roles">{{ role }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let permission of permissions">
+            <td class="permission-name">{{ permission }}</td>
+            <td *ngFor="let role of roles" class="checkbox-cell">
+              <input type="checkbox" 
+                     [checked]="permissionMatrix[permission][role]"
+                     (change)="togglePermission(permission, role)" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="data-scopes-section">
+    <h3>Data Scopes Configuration</h3>
+    <div class="table-responsive">
+      <table class="scopes-table">
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Data Scope</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let role of roles">
+            <td class="role-name">{{ role }}</td>
+            <td>
+              <select [(ngModel)]="selectedDataScope[role]" class="form-select">
+                <option *ngFor="let scope of dataScopes" [value]="scope">{{ scope }}</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,81 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">RFQ & Quotation Management</span>
+      </div>
+    </div>
+    <div class="dash-content">
+      <div class="rfq-container">
+  
+  <!-- Procurement Manager View -->
+  <ng-container *ngIf="role === 'procurement'">
+    <div class="create-section">
+      <h3>Create New RFQ</h3>
+      <div class="form-group">
+        <input type="text" [(ngModel)]="newRfq.title" placeholder="RFQ Title" />
+        <input type="text" [(ngModel)]="newRfq.items" placeholder="Items (comma separated)" />
+        <input type="date" [(ngModel)]="newRfq.deadline" />
+        <button (click)="createRfq()">Create RFQ</button>
+      </div>
+    </div>
+
+    <div class="list-section">
+      <h3>Active RFQs</h3>
+      <div class="rfq-card" *ngFor="let rfq of rfqs">
+        <div class="card-header">
+          <h4>{{ rfq.id }}: {{ rfq.title }}</h4>
+          <span class="status">{{ rfq.status }}</span>
+        </div>
+        <p><strong>Deadline:</strong> {{ rfq.deadline }}</p>
+        <p><strong>Items:</strong> {{ rfq.items.join(', ') }}</p>
+        
+        <div class="quotations" *ngIf="rfq.quotations.length > 0">
+          <h5>Received Quotations</h5>
+          <ul>
+            <li *ngFor="let q of rfq.quotations">
+              {{ q.vendor_name }}: ${{ q.proposed_price }} ({{ q.delivery_time }})
+            </li>
+          </ul>
+        </div>
+        <div *ngIf="rfq.quotations.length === 0">
+          <p><em>No quotations yet.</em></p>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Vendor View -->
+  <ng-container *ngIf="role === 'vendor'">
+    <div class="list-section">
+      <h3>Available RFQs</h3>
+      <div class="rfq-card" *ngFor="let rfq of rfqs">
+        <div class="card-header">
+          <h4>{{ rfq.id }}: {{ rfq.title }}</h4>
+          <span class="status">{{ rfq.status }}</span>
+        </div>
+        <p><strong>Deadline:</strong> {{ rfq.deadline }}</p>
+        <p><strong>Items:</strong> {{ rfq.items.join(', ') }}</p>
+        
+        <button (click)="selectRfq(rfq)" *ngIf="selectedRfq !== rfq">Submit Quotation</button>
+        
+        <div class="submit-form" *ngIf="selectedRfq === rfq">
+          <h5>Your Quotation</h5>
+          <input type="number" [(ngModel)]="newQuotation.proposed_price" placeholder="Proposed Price" />
+          <input type="text" [(ngModel)]="newQuotation.delivery_time" placeholder="Delivery Time (e.g., 2 weeks)" />
+          <button (click)="submitQuotation()">Submit</button>
+          <button class="cancel" (click)="selectedRfq = null">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="role !== 'procurement' && role !== 'vendor'">
+    <p>You do not have access to this page.</p>
+  </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

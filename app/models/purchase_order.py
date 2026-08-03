@@ -43,6 +43,7 @@ class PurchaseOrder(Base):
     )
 
     delivery_date = Column(Date)
+    actual_delivery_date = Column(Date)
 
     total_amount = Column(
         DECIMAL(12, 2),

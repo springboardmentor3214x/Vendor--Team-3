@@ -1,0 +1,60 @@
+<div class="audit-dashboard">
+  <header class="dashboard-header">
+    <h1>Auditor Dashboard</h1>
+    <p>Monitor system events, track compliance, and oversee operations.</p>
+  </header>
+
+  <section class="metrics-cards">
+    <div class="card">
+      <h3>Total Audits</h3>
+      <p class="metric-value">{{ totalAudits }}</p>
+    </div>
+    <div class="card warning">
+      <h3>Flagged Transactions</h3>
+      <p class="metric-value">{{ flaggedTransactions }}</p>
+    </div>
+    <div class="card danger">
+      <h3>High-Risk Vendors</h3>
+      <p class="metric-value">{{ highRiskVendors }}</p>
+    </div>
+  </section>
+
+  <section class="logs-section">
+    <h2>Audit Logs</h2>
+    
+    <div class="filters">
+      <input type="text" placeholder="Filter by User" [(ngModel)]="filterUser" (ngModelChange)="applyFilters()">
+      <input type="text" placeholder="Filter by Action" [(ngModel)]="filterAction" (ngModelChange)="applyFilters()">
+      <input type="text" placeholder="Filter by Entity" [(ngModel)]="filterEntity" (ngModelChange)="applyFilters()">
+      <input type="date" [(ngModel)]="filterDate" (ngModelChange)="applyFilters()">
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>User</th>
+            <th>Action</th>
+            <th>Entity</th>
+            <th>Old Value</th>
+            <th>New Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of filteredLogs">
+            <td>{{ log.timestamp | date:'short' }}</td>
+            <td>{{ log.user }}</td>
+            <td><span class="badge" [ngClass]="log.action.toLowerCase()">{{ log.action }}</span></td>
+            <td>{{ log.entity }}</td>
+            <td class="value-cell">{{ log.oldValue }}</td>
+            <td class="value-cell">{{ log.newValue }}</td>
+          </tr>
+          <tr *ngIf="filteredLogs.length === 0">
+            <td colspan="6" class="no-data">No audit logs found matching the filters.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

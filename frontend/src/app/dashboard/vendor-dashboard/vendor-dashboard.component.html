@@ -2,13 +2,17 @@
 <div class="subheader-strip">
   <div style="display:flex;align-items:center;gap:1rem;">
     <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-    <div class="search-box-container">
-      <input type="text" placeholder="Search Purchase Orders..." class="search-pill">
+    <div class="search-box-container" style="display:flex;align-items:center;gap:0.25rem;">
+      <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Search Purchase Orders..." class="search-pill">
+      <button (click)="onSearch()" style="background:#7c3aed;color:white;border:none;padding:0.45rem 0.75rem;border-radius:0 20px 20px 0;font-size:0.95rem;cursor:pointer;margin-left:-4px;transition:background 0.3s;" onmouseover="this.style.background='#6d28d9'" onmouseout="this.style.background='#7c3aed'">🔍</button>
     </div>
   </div>
   <div class="topbar-right-info">
-    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
-    <span class="user-span">👤 vendor</span>
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">
+      🔔 Notifications
+      <span *ngIf="(sidebarService.unreadCount$ | async) as count" class="notification-badge">{{ count }}</span>
+    </span>
+    <span class="user-span">👤 Vendor</span>
   </div>
 </div>
 
@@ -80,7 +84,7 @@
         <div class="data-panel">
           <div class="data-panel-header">
             <h3>Messages from Procurement</h3>
-            <a href="#" class="view-all-link">View All</a>
+            <a routerLink="/messages" class="view-all-link">View All</a>
           </div>
           <table class="vrp-table">
             <thead>
@@ -131,7 +135,7 @@
   </div>
 
   <!-- Floating Chat Action Button -->
-  <button (click)="toggleChat()" style="position:fixed; bottom:20px; right:20px; width:56px; height:56px; border-radius:50%; background:#2563eb; color:white; border:none; box-shadow:0 4px 12px rgba(0,0,0,0.15); font-size:1.5rem; cursor:pointer; z-index:9998; display:flex; align-items:center; justify-content:center; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">💬</button>
+  <button (click)="toggleChat()" style="position:fixed; bottom:20px; right:20px; width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, #a855f7, #8b5cf6); color:white; border:none; box-shadow:0 4px 15px rgba(139, 92, 246, 0.4); font-size:1.5rem; cursor:pointer; z-index:9998; display:flex; align-items:center; justify-content:center; transition: all 0.3s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 6px 20px rgba(139, 92, 246, 0.6)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(139, 92, 246, 0.4)'">💬</button>
 
   <!-- Chat Drawer Overlay -->
   <div *ngIf="isChatOpen" (click)="toggleChat()" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:9999; transition:opacity 0.2s;"></div>
@@ -147,19 +151,19 @@
     <div style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:0.75rem; padding-right:0.25rem; margin-bottom:1rem;">
       <div *ngFor="let msg of chatMessages" 
            [style.alignSelf]="msg.sender === 'Vendor' ? 'flex-end' : 'flex-start'"
-           [style.background]="msg.sender === 'Vendor' ? '#2563eb' : '#f1f5f9'"
-           [style.color]="msg.sender === 'Vendor' ? 'white' : '#1e293b'"
+           [style.background]="msg.sender === 'Vendor' ? '#8b5cf6' : '#f3e8ff'"
+           [style.color]="msg.sender === 'Vendor' ? 'white' : '#4c1d95'"
            [style.borderRadius]="msg.sender === 'Vendor' ? '12px 12px 0 12px' : '12px 12px 12px 0'"
-           style="max-width:85%; padding:0.6rem 0.85rem; font-size:0.82rem; font-weight:600; line-height:1.45; word-wrap:break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+           style="max-width:85%; padding:0.6rem 0.85rem; font-size:0.85rem; font-weight:600; line-height:1.45; word-wrap:break-word; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
         {{ msg.text }}
-        <div style="font-size:0.65rem; text-align:right; margin-top:0.25rem; opacity:0.8; font-weight:500;" [style.color]="msg.sender === 'Vendor' ? '#bfdbfe' : '#64748b'">{{ msg.time }}</div>
+        <div style="font-size:0.65rem; text-align:right; margin-top:0.25rem; opacity:0.8; font-weight:500;" [style.color]="msg.sender === 'Vendor' ? '#e9d5ff' : '#6d28d9'">{{ msg.time }}</div>
       </div>
     </div>
     
     <!-- Input box -->
-    <div style="display:flex; gap:0.5rem; border-top:1.5px solid #e2e8f0; padding-top:0.75rem;">
-      <input type="text" [(ngModel)]="newChatMessage" (keyup.enter)="sendChatMessage()" placeholder="Type a message..." style="flex:1; padding:0.55rem 0.75rem; border:1px solid #cbd5e1; border-radius:4px; font-size:0.85rem; outline:none; font-weight:600;" onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#cbd5e1'">
-      <button (click)="sendChatMessage()" style="background:#2563eb; color:white; border:none; border-radius:4px; padding:0 1rem; font-size:0.85rem; font-weight:800; cursor:pointer; transition:background 0.2s;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">Send</button>
+    <div style="display:flex; gap:0.5rem; border-top:1.5px solid rgba(226, 232, 240, 0.6); padding-top:0.75rem;">
+      <input type="text" [(ngModel)]="newChatMessage" (keyup.enter)="sendChatMessage()" placeholder="Type a message..." style="flex:1; padding:0.55rem 0.75rem; border:1px solid rgba(226, 232, 240, 0.8); border-radius:6px; font-size:0.85rem; outline:none; font-weight:600; transition: border-color 0.3s;" onfocus="this.style.borderColor='#8b5cf6'" onblur="this.style.borderColor='rgba(226, 232, 240, 0.8)'">
+      <button (click)="sendChatMessage()" style="background:linear-gradient(135deg, #a855f7, #8b5cf6); color:white; border:none; border-radius:6px; padding:0 1rem; font-size:0.85rem; font-weight:800; cursor:pointer; transition:all 0.3s; box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);" onmouseover="this.style.filter='brightness(1.1)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.4)'" onmouseout="this.style.filter='brightness(1)'; this.style.boxShadow='0 2px 8px rgba(139, 92, 246, 0.3)'">Send</button>
     </div>
   </div>
 </div>

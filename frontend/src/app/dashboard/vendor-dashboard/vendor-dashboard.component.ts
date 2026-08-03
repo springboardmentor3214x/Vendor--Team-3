@@ -39,6 +39,7 @@ export class VendorDashboardComponent implements OnInit {
   procurementMessages: any[] = [];
   upcomingDeliveries: any[] = [];
   notifications: any[] = [];
+  searchTerm = '';
 
   constructor(
     public sidebarService: SidebarService,
@@ -47,6 +48,17 @@ export class VendorDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadVendorData();
+  }
+
+  onSearch() {
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      this.recentOrders = this.recentOrders.filter(o =>
+        o.id.toLowerCase().includes(term) || o.status.toLowerCase().includes(term)
+      );
+    } else {
+      this.loadVendorData();
+    }
   }
 
   loadVendorData() {

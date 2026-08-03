@@ -1,14 +1,18 @@
-<div class="header-strip">Vendor Realiability Platform</div>
+<div class="header-strip">Vendor Reliability Platform</div>
 <div class="subheader-strip">
   <div style="display:flex;align-items:center;gap:1rem;">
     <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-    <div class="search-box-container">
-      <input type="text" placeholder="Search vendors..." class="search-pill">
+    <div class="search-box-container" style="display:flex;align-items:center;gap:0.25rem;">
+      <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Search vendors..." class="search-pill">
+      <button (click)="onSearch()" style="background:linear-gradient(135deg, #ea580c, #dc2626);color:white;border:none;padding:0.45rem 0.75rem;border-radius:0 20px 20px 0;font-size:0.95rem;cursor:pointer;margin-left:-4px;box-shadow:0 2px 5px rgba(234,88,12,0.3);transition:all 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🔍</button>
     </div>
   </div>
   <div class="topbar-right-info">
-    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
-    <span class="user-span">👤 Supply chain Manager</span>
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">
+      🔔 Notifications
+      <span *ngIf="(sidebarService.unreadCount$ | async) as count" class="notification-badge">{{ count }}</span>
+    </span>
+    <span class="user-span">👤 Supply Chain Manager</span>
   </div>
 </div>
 
@@ -20,7 +24,7 @@
       <!-- Welcome Banner -->
       <div class="welcome-banner">
         <h2>Supply Chain Dashboard</h2>
-        <p>Welcome back, Supply Chain  Manager!</p>
+        <p>Welcome back, Supply Chain Manager!</p>
       </div>
 
       <!-- Stat Cards -->
@@ -71,7 +75,7 @@
               <span>{{ perf.name }}</span>
               <span>{{ perf.score }}%</span>
             </div>
-            <div *ngIf="vendorPerformanceList.length === 0" style="padding:1rem;color:#64748b;text-align:center;">
+            <div *ngIf="vendorPerformanceList.length === 0" style="padding:1rem;color:#78350f;text-align:center;">
               No evaluation data found.
             </div>
           </div>
@@ -98,12 +102,12 @@
             </thead>
             <tbody>
               <tr *ngFor="let ship of recentShipments">
-                <td style="font-weight:700;">{{ ship.id }}</td>
+                <td style="font-weight:800;color:#9a3412;">{{ ship.id }}</td>
                 <td style="font-weight:700;">{{ ship.vendor }}</td>
                 <td>{{ ship.destination }}</td>
-                <td>{{ ship.priority }}</td>
+                <td><span style="padding:0.25rem 0.6rem;background:rgba(234,88,12,0.1);border-radius:12px;color:#ea580c;font-size:0.8rem;">{{ ship.priority }}</span></td>
                 <td>{{ ship.date | date }}</td>
-                <td style="font-weight:700;">{{ ship.status }}</td>
+                <td style="font-weight:700;color:#dc2626;">{{ ship.status }}</td>
               </tr>
               <tr *ngIf="recentShipments.length === 0">
                 <td colspan="6" style="text-align:center;">No recent shipments found.</td>

@@ -22,5 +22,6 @@ class MessageResponse(BaseModel):
     message: str
     sent_at: datetime
     is_read: bool
+    attachment_path: str | None = None
 
     model_config = ConfigDict(from_attributes=True)

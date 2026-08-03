@@ -2,9 +2,16 @@
 <div class="subheader-strip">
   <div style="display:flex;align-items:center;gap:1rem;">
     <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+    <div class="search-box-container" style="display:flex;align-items:center;gap:0;">
+      <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Search vendors, orders..." class="search-pill">
+      <button (click)="onSearch()" style="background:linear-gradient(135deg, #6366f1, #4f46e5);color:white;border:none;padding:0.6rem 1rem;border-radius:0 20px 20px 0;font-size:0.95rem;cursor:pointer;transition:all 0.3s ease;box-shadow: 0 0 10px rgba(99,102,241,0.3);">🔍</button>
+    </div>
   </div>
   <div class="topbar-right-info">
-    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notification</span>
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">
+      🔔 Notifications
+      <span *ngIf="(sidebarService.unreadCount$ | async) as count" class="notification-badge">{{ count }}</span>
+    </span>
     <span class="user-span">👤 Admin ▼</span>
   </div>
 </div>
@@ -17,7 +24,7 @@
       <!-- Welcome Banner -->
       <div class="welcome-banner">
         <h2>Dashboard Overview</h2>
-        <p>Welcome back, Administrator!</p>
+        <p>Welcome back, Administrator! Here's what's happening today.</p>
       </div>
 
       <!-- Stat Cards -->
@@ -46,12 +53,12 @@
         <!-- Vendor Growth Panel -->
         <div class="panel">
           <h3>Vendor Growth 2024</h3>
-          <div class="bar-chart-container">
-            <div class="chart-row"><span class="chart-bar" style="width:20%;"></span></div>
-            <div class="chart-row"><span class="chart-bar" style="width:40%;"></span></div>
-            <div class="chart-row"><span class="chart-bar" style="width:55%;"></span></div>
-            <div class="chart-row"><span class="chart-bar" style="width:75%;"></span></div>
-            <div class="chart-row"><span class="chart-bar" style="width:90%;"></span></div>
+          <div class="bar-chart-container" style="gap:1rem; padding-top:0.5rem;">
+            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700;"><span style="width:30px; color:#cbd5e1;">Q1</span><div class="chart-row"><span class="chart-bar" style="width:20%; background: linear-gradient(90deg, #6366f1, #3b82f6);"></span></div><span style="color:#60a5fa;">+20%</span></div>
+            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700;"><span style="width:30px; color:#cbd5e1;">Q2</span><div class="chart-row"><span class="chart-bar" style="width:40%; background: linear-gradient(90deg, #6366f1, #8b5cf6);"></span></div><span style="color:#a78bfa;">+40%</span></div>
+            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700;"><span style="width:30px; color:#cbd5e1;">Q3</span><div class="chart-row"><span class="chart-bar" style="width:55%; background: linear-gradient(90deg, #6366f1, #d946ef);"></span></div><span style="color:#e879f9;">+55%</span></div>
+            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700;"><span style="width:30px; color:#cbd5e1;">Q4</span><div class="chart-row"><span class="chart-bar" style="width:75%; background: linear-gradient(90deg, #6366f1, #f43f5e);"></span></div><span style="color:#fb7185;">+75%</span></div>
+            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700;"><span style="width:30px; color:#cbd5e1;">YTD</span><div class="chart-row"><span class="chart-bar" style="width:90%; background: linear-gradient(90deg, #6366f1, #10b981);"></span></div><span style="color:#34d399;">+90%</span></div>
           </div>
         </div>
 
@@ -85,7 +92,7 @@
         <div class="panel">
           <h3>Search Vendor</h3>
           <div class="search-form-side">
-            <input type="text" placeholder="[___________]" class="search-line-input">
+            <input type="text" placeholder="Vendor Name / ID" class="search-line-input">
             <select class="search-select">
               <option>Role ▼</option>
             </select>
@@ -101,27 +108,31 @@
       <!-- Bottom Grid: Recent Activities Table -->
       <div class="bottom-grid-panel">
         <h3>Recent Activities</h3>
-        <table class="vrp-table">
-          <thead>
-            <tr>
-              <th>User</th>
-              <th>Action</th>
-              <th>Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let act of recentActivities">
-              <td>{{ act.user }}</td>
-              <td>{{ act.action }}</td>
-              <td>{{ act.date | date }}</td>
-              <td style="font-weight:700;">{{ act.status }}</td>
-            </tr>
-            <tr *ngIf="recentActivities.length === 0">
-              <td colspan="4" style="text-align:center;">No recent activities found.</td>
-            </tr>
-          </tbody>
-        </table>
+        <div style="overflow-x:auto;">
+          <table class="vrp-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Action</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let act of recentActivities">
+                <td>{{ act.user }}</td>
+                <td>{{ act.action }}</td>
+                <td>{{ act.date | date }}</td>
+                <td style="font-weight:700;" [ngStyle]="{'color': act.status === 'Completed' ? '#10b981' : (act.status === 'Pending' ? '#f59e0b' : '#6366f1')}">
+                  {{ act.status }}
+                </td>
+              </tr>
+              <tr *ngIf="recentActivities.length === 0">
+                <td colspan="4" style="text-align:center;">No recent activities found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
     </div>

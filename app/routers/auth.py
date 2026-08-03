@@ -114,12 +114,16 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
         }
     )
 
+    role_name = db_user.role.role_name if db_user.role else "Unknown"
+
     db.close()
 
     return {
         "message": "Login Successful",
         "access_token": token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "role": role_name,
+        "user_id": db_user.user_id
     }
 
    
@@ -264,6 +268,14 @@ def reset_password(request: ResetPasswordRequest):
         "message": "Password Reset Successfully"
     }
 
+
+
+@router.get("/users")
+def get_all_users():
+    db = SessionLocal()
+    users = db.query(User).all()
+    db.close()
+    return [{"user_id": u.user_id, "email": u.email, "role_id": u.role_id, "full_name": u.full_name} for u in users]
 
 
 @router.post("/profile/upload-picture")

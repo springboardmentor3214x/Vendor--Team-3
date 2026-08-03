@@ -5,6 +5,7 @@ import { RouterLink, Router } from '@angular/router';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
 import { PerformanceService } from '../performance.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-add-vendor',
@@ -17,6 +18,7 @@ export class AddVendorComponent {
   categories = ['Raw Material', 'IT Services', 'Electronics', 'Logistics', 'Manufacturing'];
   paymentTerms = ['Net 30', 'Net 60', 'Net 90', 'Immediate'];
   statusOptions = ['Active', 'Pending', 'Inactive'];
+  private apiUrl = 'http://localhost:8000';
 
   vendorForm = {
     companyName: '',
@@ -26,6 +28,8 @@ export class AddVendorComponent {
     email: '',
     phone: '',
     alternatePhone: '',
+    password: '',
+    confirmPassword: '',
     gstNumber: '',
     panNumber: '',
     companyRegistrationNumber: '',
@@ -44,11 +48,14 @@ export class AddVendorComponent {
   };
 
   errorMessage = '';
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
-    public sidebarService: SidebarService, 
+    public sidebarService: SidebarService,
     private performanceService: PerformanceService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   goBack() {
@@ -57,8 +64,21 @@ export class AddVendorComponent {
   }
 
   onSaveVendor() {
+    this.errorMessage = '';
     if (!this.vendorForm.companyName || !this.vendorForm.vendorCategory || !this.vendorForm.contactPerson || !this.vendorForm.email) {
       this.errorMessage = 'Please fill out all required fields marked with *';
+      return;
+    }
+    if (!this.vendorForm.password) {
+      this.errorMessage = 'Please enter a login password for this vendor.';
+      return;
+    }
+    if (this.vendorForm.password.length < 6) {
+      this.errorMessage = 'Password must be at least 6 characters.';
+      return;
+    }
+    if (this.vendorForm.password !== this.vendorForm.confirmPassword) {
+      this.errorMessage = 'Passwords do not match.';
       return;
     }
 
@@ -90,8 +110,35 @@ export class AddVendorComponent {
 
     this.performanceService.addVendor(payload).subscribe({
       next: () => {
-        alert('Vendor registered successfully!');
-        this.router.navigate(['/vendors']);
+        // After vendor record is created, register user account so vendor can log in
+        const userPayload = {
+          full_name: this.vendorForm.contactPerson,
+          email: this.vendorForm.email,
+          password: this.vendorForm.password,
+          phone: this.vendorForm.phone || '',
+          role_id: 4 // Vendor role
+        };
+        this.http.post(`${this.apiUrl}/register`, userPayload).subscribe({
+          next: () => {
+            // Cache vendor profile so login role detection works
+            localStorage.setItem(`profile_${this.vendorForm.email}`, JSON.stringify({
+              fullName: this.vendorForm.contactPerson,
+              email: this.vendorForm.email,
+              mobile: this.vendorForm.phone || '',
+              role: 'Vendor',
+              companyName: this.vendorForm.companyName,
+              employeeId: ''
+            }));
+            alert(`✅ Vendor "${this.vendorForm.companyName}" registered successfully!\n\nVendor login credentials:\nEmail: ${this.vendorForm.email}\nPassword: ${this.vendorForm.password}`);
+            this.router.navigate(['/vendors']);
+          },
+          error: (err) => {
+            // Vendor record created but user account failed (possibly already exists)
+            console.warn('User account creation failed (may already exist):', err);
+            alert(`✅ Vendor registered! Note: User account may already exist for ${this.vendorForm.email}.`);
+            this.router.navigate(['/vendors']);
+          }
+        });
       },
       error: (err) => {
         console.error('Error saving vendor', err);

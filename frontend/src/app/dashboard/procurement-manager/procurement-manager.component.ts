@@ -25,12 +25,9 @@ export class ProcurementManagerComponent implements OnInit {
   totalPOAmount = 0;
   budgetSpentPercent = 0;
   budgetRemaining = 1500000;
+  searchTerm = '';
 
-  compareVendors: any[] = [
-    { id: 'V1', name: 'ABC Pvt Ltd', selected: true, color: 'rgba(37, 99, 235, 0.4)', strokeColor: '#2563eb', metrics: [80, 90, 85, 75, 95] },
-    { id: 'V2', name: 'XYZ Suppliers', selected: true, color: 'rgba(16, 185, 129, 0.4)', strokeColor: '#10b981', metrics: [95, 60, 70, 80, 75] },
-    { id: 'V3', name: 'Tech India', selected: false, color: 'rgba(245, 158, 11, 0.4)', strokeColor: '#f59e0b', metrics: [60, 95, 90, 90, 85] }
-  ];
+
 
   constructor(
     public sidebarService: SidebarService,
@@ -39,6 +36,18 @@ export class ProcurementManagerComponent implements OnInit {
 
   ngOnInit() {
     this.loadDashboardData();
+  }
+
+  onSearch() {
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      this.recentPOs = this.recentPOs.filter(po =>
+        (po.vendor_name && po.vendor_name.toLowerCase().includes(term)) ||
+        String(po.order_id).includes(term)
+      );
+    } else {
+      this.loadDashboardData();
+    }
   }
 
   loadDashboardData() {
@@ -79,7 +88,7 @@ export class ProcurementManagerComponent implements OnInit {
               .slice(0, 4);
 
             // Calculate budget
-            this.totalPOAmount = pos.reduce((sum, po) => sum + (po.total_amount || 0), 0);
+            this.totalPOAmount = pos.reduce((sum, po) => sum + (Number(po.total_amount) || 0), 0);
             this.budgetSpentPercent = Math.min(100, Math.round((this.totalPOAmount / 1500000) * 100));
             this.budgetRemaining = Math.max(0, 1500000 - this.totalPOAmount);
           }
@@ -106,52 +115,8 @@ export class ProcurementManagerComponent implements OnInit {
       error: (err) => console.error('Error fetching contracts', err)
     });
 
-    // 5. Populate Compare Vendors sandbox dynamically
-    this.performanceService.getVendors().subscribe({
-      next: (vendors) => {
-        if (vendors && vendors.length > 0) {
-          const colors = [
-            { color: 'rgba(37, 99, 235, 0.4)', stroke: '#2563eb' },
-            { color: 'rgba(16, 185, 129, 0.4)', stroke: '#10b981' },
-            { color: 'rgba(245, 158, 11, 0.4)', stroke: '#f59e0b' }
-          ];
-          this.compareVendors = vendors.slice(0, 3).map((v, i) => {
-            const colorSet = colors[i % 3];
-            const metrics = i === 0 ? [85, 90, 80, 75, 90] : (i === 1 ? [90, 85, 95, 80, 85] : [75, 80, 70, 90, 80]);
-            return {
-              id: 'V' + v.vendor_id,
-              name: v.company_name,
-              selected: i < 2, // Select first two by default
-              color: colorSet.color,
-              strokeColor: colorSet.stroke,
-              metrics: metrics
-            };
-          });
-        }
-      },
-      error: (err) => console.error('Error fetching comparison vendors', err)
-    });
+
   }
 
-  getRadarPoints(vendor: any): string {
-    const center = 100;
-    const maxVal = 100;
-    const maxRadius = 60;
-    
-    // Angles for 5 dimensions in radians: Price, Quality, Delivery Speed, Communication, Compliance
-    const angles = [
-      -Math.PI / 2,         // top
-      -Math.PI / 10,        // top-right
-      Math.PI * 3 / 10,     // bottom-right
-      Math.PI * 7 / 10,     // bottom-left
-      Math.PI * 11 / 10     // top-left
-    ];
 
-    return vendor.metrics.map((val: number, i: number) => {
-      const r = (val / maxVal) * maxRadius;
-      const x = center + r * Math.cos(angles[i]);
-      const y = center + r * Math.sin(angles[i]);
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
-  }
 }

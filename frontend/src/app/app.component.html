@@ -18,9 +18,15 @@
   </div>
 
   <div style="display:flex;flex-direction:column;gap:1rem;flex:1;overflow-y:auto;">
-    <div *ngFor="let n of sidebarService.getNotifications()" 
-         style="background:#f8fafc;border:1px solid #e2e8f0;padding:1rem;border-radius:6px;display:flex;flex-direction:column;gap:0.25rem;">
-      <div style="font-weight:800;font-size:0.85rem;color:#1e293b;">{{n.title}}</div>
+    <div *ngFor="let n of (sidebarService.notifications$ | async)" 
+         (click)="n.status === 'Unread' ? sidebarService.markAsRead(n.id) : null"
+         [style.background]="n.status === 'Unread' ? '#e0f2fe' : '#f8fafc'"
+         [style.cursor]="n.status === 'Unread' ? 'pointer' : 'default'"
+         style="border:1px solid #e2e8f0;padding:1rem;border-radius:6px;display:flex;flex-direction:column;gap:0.25rem;">
+      <div style="font-weight:800;font-size:0.85rem;color:#1e293b;">
+        {{n.title || 'Notification'}}
+        <span *ngIf="n.status === 'Unread'" style="background:#ef4444;color:white;padding:2px 6px;border-radius:10px;font-size:0.6rem;margin-left:5px;">New</span>
+      </div>
       <div style="font-size:0.85rem;color:#475569;line-height:1.4;font-weight:500;">{{n.message}}</div>
       <div style="font-size:0.75rem;color:#94a3b8;align-self:flex-end;margin-top:0.25rem;font-weight:600;">{{n.time}}</div>
     </div>

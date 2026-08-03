@@ -1,0 +1,57 @@
+<div class="goods-receipt-container">
+  <h2>Goods Receipt Note (GRN)</h2>
+  
+  <div class="form-card">
+    <h3>Create New GRN</h3>
+    <form (ngSubmit)="submitGrn()">
+      <div class="form-group">
+        <label for="poNumber">Purchase Order Number *</label>
+        <input type="text" id="poNumber" [(ngModel)]="poNumber" name="poNumber" required placeholder="e.g. PO-1029" />
+      </div>
+      
+      <div class="form-group">
+        <label for="receivedQuantity">Received Quantity *</label>
+        <input type="number" id="receivedQuantity" [(ngModel)]="receivedQuantity" name="receivedQuantity" required min="1" />
+      </div>
+      
+      <div class="form-group">
+        <label for="damagedQuantity">Damaged Quantity</label>
+        <input type="number" id="damagedQuantity" [(ngModel)]="damagedQuantity" name="damagedQuantity" min="0" />
+      </div>
+      
+      <div class="form-group">
+        <label for="deliveryProof">Upload Delivery Proof</label>
+        <input type="file" id="deliveryProof" (change)="onFileChange($event)" accept="image/*,.pdf" />
+      </div>
+      
+      <button type="submit" class="submit-btn">Submit GRN</button>
+    </form>
+  </div>
+  
+  <div class="list-card">
+    <h3>Recent Goods Receipts</h3>
+    <table class="grn-table">
+      <thead>
+        <tr>
+          <th>GRN ID</th>
+          <th>PO Number</th>
+          <th>Received</th>
+          <th>Damaged</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let grn of recentGrns">
+          <td>{{ grn.id }}</td>
+          <td>{{ grn.poNumber }}</td>
+          <td>{{ grn.received }}</td>
+          <td>{{ grn.damaged }}</td>
+          <td>{{ grn.date }}</td>
+        </tr>
+        <tr *ngIf="recentGrns.length === 0">
+          <td colspan="5">No recent GRNs found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

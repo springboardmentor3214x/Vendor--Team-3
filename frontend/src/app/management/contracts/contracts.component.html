@@ -19,25 +19,50 @@
     <!-- Create Contract (Admin / PM / SCM only) -->
     <div *ngIf="sidebarService.getCurrentRole() !== 'vendor' && sidebarService.getCurrentRole() !== 'auditor' && sidebarService.getCurrentRole() !== 'finance'" style="background:#f1f5f9;padding:1.5rem 2rem;border-bottom:1px solid #cbd5e1;">
       <h3 style="margin-top:0;margin-bottom:1rem;color:#1e293b;font-weight:800;">📝 Draft New Contract</h3>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr) auto;gap:1rem;align-items:end;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:1rem;align-items:end;">
         <div>
           <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Contract Partner (Vendor)</label>
-          <select [(ngModel)]="selectedVendor" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
-            <option value="">Choose Vendor...</option>
-            <option *ngFor="let v of vendors" [value]="v">{{v}}</option>
+          <select [(ngModel)]="selectedVendorId" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option [value]="null">Choose Vendor...</option>
+            <option *ngFor="let v of vendors" [value]="v.vendor_id">{{v.company_name}}</option>
           </select>
         </div>
         <div>
-          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Contract Duration</label>
-          <select [(ngModel)]="durationYears" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
-            <option [ngValue]="1">1 Year Term</option>
-            <option [ngValue]="2">2 Year Term</option>
-            <option [ngValue]="3">3 Year Term</option>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Procurement Request</label>
+          <select [(ngModel)]="selectedProcurementId" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option [value]="null">Choose Procurement...</option>
+            <option *ngFor="let p of procurements" [value]="p.procurement_id">{{p.title}}</option>
           </select>
         </div>
         <div>
-          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Initial Compliance Score (%)</label>
-          <input type="number" [(ngModel)]="complianceScore" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Contract Title</label>
+          <input type="text" [(ngModel)]="contractTitle" placeholder="e.g. Annual IT Maintenance" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Contract Number</label>
+          <input type="text" [(ngModel)]="contractNumber" placeholder="CON-2026-XX" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr) auto;gap:1rem;align-items:end;margin-top:1rem;">
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Start Date</label>
+          <input type="date" [(ngModel)]="startDate" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">End Date</label>
+          <input type="date" [(ngModel)]="endDate" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Contract Value ($)</label>
+          <input type="number" [(ngModel)]="contractValue" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Status</label>
+          <select [(ngModel)]="status" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+            <option value="Draft">Draft</option>
+            <option value="Active">Active</option>
+            <option value="Expiring Soon">Expiring Soon</option>
+          </select>
         </div>
         <button (click)="createContract()" style="background:#0f766e;color:white;border:none;padding:0.6rem 1.2rem;border-radius:4px;font-weight:700;cursor:pointer;height:38px;">
           Draft Contract
@@ -52,25 +77,23 @@
         <thead>
           <tr style="background:#0f766e;color:white;">
             <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Contract ID</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Vendor Name</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Vendor ID</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Contract Title</th>
+            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Value</th>
             <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Start Date</th>
             <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Expiry Date</th>
-            <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Compliance Rating</th>
             <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Status</th>
             <th style="padding:1rem;font-weight:700;text-align:center;font-size:0.9rem;border:1px solid #cbd5e1;">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let c of contracts" style="background:white;border-bottom:1px solid #cbd5e1;">
-            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{c.id}}</td>
-            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{c.vendorName}}</td>
-            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{c.startDate}}</td>
-            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{c.endDate}}</td>
-            <td style="padding:1rem;text-align:center;">
-              <span [style.color]="c.complianceRating >= 95 ? '#166534' : c.complianceRating >= 90 ? '#854d0e' : '#991b1b'" style="font-weight:800;font-size:0.95rem;">
-                {{c.complianceRating}}%
-              </span>
-            </td>
+            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{c.contract_number}}</td>
+            <td style="padding:1rem;text-align:center;font-weight:700;color:#1e293b;">{{c.vendor_id}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{c.contract_title}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">${{c.contract_value}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{c.start_date}}</td>
+            <td style="padding:1rem;text-align:center;color:#475569;font-weight:500;">{{c.end_date}}</td>
             <td style="padding:1rem;text-align:center;">
               <span [style.background]="c.status === 'Active' ? '#dcfce7' : c.status === 'Expiring Soon' ? '#fef9c3' : c.status === 'Terminated' ? '#fee2e2' : '#cbd5e1'"
                     [style.color]="c.status === 'Active' ? '#166534' : c.status === 'Expiring Soon' ? '#854d0e' : c.status === 'Terminated' ? '#991b1b' : '#334155'"
@@ -79,14 +102,6 @@
               </span>
             </td>
             <td style="padding:1rem;text-align:center;display:flex;justify-content:center;gap:0.5rem;">
-              <button *ngIf="c.status !== 'Terminated' && sidebarService.getCurrentRole() !== 'vendor' && sidebarService.getCurrentRole() !== 'auditor'" 
-                      (click)="renewContract(c)" style="background:#dbeafe;color:#1e40af;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
-                Renew
-              </button>
-              <button *ngIf="c.status !== 'Terminated' && c.status !== 'Expired' && sidebarService.getCurrentRole() !== 'vendor' && sidebarService.getCurrentRole() !== 'auditor'" 
-                      (click)="terminateContract(c)" style="background:#fee2e2;color:#b91c1c;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;font-size:0.75rem;cursor:pointer;">
-                Terminate
-              </button>
               <span *ngIf="sidebarService.getCurrentRole() === 'vendor' || sidebarService.getCurrentRole() === 'auditor'" style="font-size:0.8rem;color:#64748b;font-weight:500;">
                 Read-only Access
               </span>

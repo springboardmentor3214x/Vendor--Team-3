@@ -1,17 +1,20 @@
 <div class="header-strip">
   Vendor Reliability<br>
-  <span style="font-size:0.95rem;font-weight:700;color:#64748b;margin-top:0.25rem;display:inline-block;">Intelligence platform</span>
+  <span style="font-size:0.95rem;font-weight:700;color:#64748b;margin-top:0.25rem;display:inline-block;">Intelligence Platform</span>
 </div>
 <div class="subheader-strip">
   <div style="display:flex;align-items:center;gap:1rem;">
     <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
     <div class="search-box-container">
-      <input type="text" placeholder="Search..." class="search-pill">
+      <input type="text" placeholder="Search profile..." class="search-pill">
     </div>
   </div>
   <div class="topbar-right-info">
-    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notification</span>
-    <span class="user-span">👤 User</span>
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">
+      🔔 Notifications
+      <span *ngIf="(sidebarService.unreadCount$ | async) as count" class="notification-badge">{{ count }}</span>
+    </span>
+    <span class="user-span">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
   </div>
 </div>
 
@@ -19,13 +22,22 @@
   <app-sidebar></app-sidebar>
   <div class="dash-main">
     <div class="dash-content">
-      
+
       <div class="profile-card">
         <div class="profile-header">
           <div class="profile-avatar">👤</div>
-          <h2>My Profile</h2>
+          <div>
+            <h2 style="margin:0;">My Profile</h2>
+            <p style="margin:0;color:#64748b;font-size:0.9rem;">{{ sidebarService.getCurrentRoleLabel() }}</p>
+          </div>
         </div>
 
+        <!-- Success / Error Alerts -->
+        <div *ngIf="successMessage" style="margin:1rem 0;padding:0.75rem 1rem;background:#dcfce7;border:1px solid #bbf7d0;color:#166534;border-radius:6px;font-weight:600;">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" style="margin:1rem 0;padding:0.75rem 1rem;background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:6px;font-weight:600;">{{ errorMessage }}</div>
+
+        <!-- ── Basic Profile Fields ── -->
+        <h3 style="font-size:1rem;font-weight:700;color:#1e293b;margin:1.25rem 0 0.75rem;">Personal Information</h3>
         <div class="profile-form">
           <div class="form-group">
             <label class="form-label">Full Name</label>
@@ -33,7 +45,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Email Address</label>
-            <input type="email" [(ngModel)]="email" class="form-input" readonly>
+            <input type="email" [(ngModel)]="email" class="form-input" readonly style="background:#f8fafc;color:#64748b;">
           </div>
           <div class="form-group">
             <label class="form-label">Mobile Number</label>
@@ -41,16 +53,107 @@
           </div>
           <div class="form-group">
             <label class="form-label">Role</label>
-            <input type="text" [(ngModel)]="role" class="form-input">
+            <input type="text" [(ngModel)]="role" class="form-input" readonly style="background:#f8fafc;color:#64748b;">
+          </div>
+          <div class="form-group" *ngIf="!isVendor">
+            <label class="form-label">Employee ID</label>
+            <input type="text" [(ngModel)]="employeeId" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Company Name</label>
+            <input type="text" [(ngModel)]="companyName" class="form-input">
           </div>
         </div>
 
-        <div class="profile-actions">
-          <button (click)="onSave()" class="btn-edit">Edit profile</button>
-          <button class="btn-pwd">Change Password</button>
-        </div>
-      </div>
+        <!-- ── Vendor Business Details (only for vendor role) ── -->
+        <ng-container *ngIf="isVendor">
+          <h3 style="font-size:1rem;font-weight:700;color:#1e293b;margin:1.5rem 0 0.75rem;padding-top:1rem;border-top:1px solid #e2e8f0;">Business Details</h3>
+          <p style="font-size:0.82rem;color:#64748b;margin-bottom:1rem;">These details are shared with procurement managers and used across orders and contracts.</p>
+          <div class="profile-form">
+            <div class="form-group">
+              <label class="form-label">GST Number</label>
+              <input type="text" [(ngModel)]="gstNumber" class="form-input" placeholder="Enter GST number">
+            </div>
+            <div class="form-group">
+              <label class="form-label">PAN Number</label>
+              <input type="text" [(ngModel)]="panNumber" class="form-input" placeholder="Enter PAN number">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bank Account Number</label>
+              <input type="text" [(ngModel)]="bankAccount" class="form-input" placeholder="Enter bank account">
+            </div>
+            <div class="form-group">
+              <label class="form-label">IFSC Code</label>
+              <input type="text" [(ngModel)]="ifscCode" class="form-input" placeholder="Enter IFSC code">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Address</label>
+              <input type="text" [(ngModel)]="addressLine1" class="form-input" placeholder="Street address">
+            </div>
+            <div class="form-group">
+              <label class="form-label">City</label>
+              <input type="text" [(ngModel)]="city" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">State</label>
+              <input type="text" [(ngModel)]="state" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Country</label>
+              <input type="text" [(ngModel)]="country" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pincode</label>
+              <input type="text" [(ngModel)]="pincode" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Website</label>
+              <input type="url" [(ngModel)]="website" class="form-input" placeholder="https://...">
+            </div>
+          </div>
+        </ng-container>
 
+        <!-- ── Action Buttons ── -->
+        <div class="profile-actions">
+          <button (click)="onSave()" class="btn-edit">💾 Save Profile</button>
+          <button (click)="togglePasswordForm()" class="btn-pwd">
+            {{ showPasswordForm ? '✕ Cancel' : '🔑 Change Password' }}
+          </button>
+        </div>
+
+        <!-- ── Change Password Section ── -->
+        <div *ngIf="showPasswordForm"
+             style="margin-top:1.5rem;padding:1.5rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+          <h3 style="font-size:1rem;font-weight:700;color:#1e293b;margin:0 0 1rem;">🔑 Change Password</h3>
+
+          <div *ngIf="passwordMessage" style="margin-bottom:0.75rem;padding:0.6rem 1rem;background:#dcfce7;border:1px solid #bbf7d0;color:#166534;border-radius:6px;font-weight:600;">{{ passwordMessage }}</div>
+          <div *ngIf="passwordError" style="margin-bottom:0.75rem;padding:0.6rem 1rem;background:#fee2e2;border:1px solid #fecaca;color:#991b1b;border-radius:6px;font-weight:600;">{{ passwordError }}</div>
+
+          <div class="form-group">
+            <label class="form-label">Current Password</label>
+            <div style="position:relative;">
+              <input [type]="showCurrentPwd ? 'text' : 'password'" [(ngModel)]="currentPassword" class="form-input" placeholder="Enter current password" style="padding-right:2.5rem;">
+              <span (click)="showCurrentPwd=!showCurrentPwd" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);cursor:pointer;">{{ showCurrentPwd ? '🙈' : '👁️' }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <div style="position:relative;">
+              <input [type]="showNewPwd ? 'text' : 'password'" [(ngModel)]="newPassword" class="form-input" placeholder="Min. 6 characters" style="padding-right:2.5rem;">
+              <span (click)="showNewPwd=!showNewPwd" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);cursor:pointer;">{{ showNewPwd ? '🙈' : '👁️' }}</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm New Password</label>
+            <div style="position:relative;">
+              <input [type]="showConfirmPwd ? 'text' : 'password'" [(ngModel)]="confirmNewPassword" class="form-input" placeholder="Re-enter new password" style="padding-right:2.5rem;">
+              <span (click)="showConfirmPwd=!showConfirmPwd" style="position:absolute;right:0.75rem;top:50%;transform:translateY(-50%);cursor:pointer;">{{ showConfirmPwd ? '🙈' : '👁️' }}</span>
+            </div>
+          </div>
+          <button (click)="onChangePassword()" class="btn-edit" style="width:auto;padding:0.6rem 1.5rem;">Update Password</button>
+        </div>
+
+      </div>
     </div>
   </div>
 </div>

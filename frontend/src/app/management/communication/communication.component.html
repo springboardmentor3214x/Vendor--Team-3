@@ -5,11 +5,9 @@
     <div class="dash-topbar">
       <div style="display:flex;align-items:center;gap:1rem;">
         <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;font-size:0.85rem;">
-          ← Go Back
-        </button>
+        <button (click)="goBack()" style="background:#e2e8f0;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;font-size:0.85rem;">← Go Back</button>
         <span class="dash-topbar-title">
-          💬 My Inbox
+          💬 Messages
           <span *ngIf="unreadCount > 0"
                 style="background:#ef4444;color:white;border-radius:999px;padding:0.1rem 0.5rem;font-size:0.75rem;margin-left:0.5rem;font-weight:800;">
             {{ unreadCount }} new
@@ -17,62 +15,148 @@
         </span>
       </div>
       <div class="dash-topbar-right">
-        <button *ngIf="unreadCount > 0" (click)="markAllRead()"
-                style="background:#2563eb;color:white;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;font-size:0.8rem;">
-          ✓ Mark All Read
+        <button (click)="showSystemMessages = !showSystemMessages"
+                style="background:#f1f5f9;border:1px solid #cbd5e1;padding:0.4rem 0.8rem;border-radius:4px;font-weight:600;cursor:pointer;font-size:0.8rem;">
+          🔔 System Notifications {{ unreadCount > 0 ? '(' + unreadCount + ')' : '' }}
         </button>
         <span class="dash-topbar-user">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
       </div>
     </div>
 
-    <!-- Messages Feed -->
-    <div style="padding:2rem;display:flex;flex-direction:column;gap:1rem;height:calc(100vh - 80px);overflow-y:auto;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-        <h3 style="margin:0;color:#1e293b;font-weight:800;">Notifications & System Messages</h3>
-        <button (click)="loadMessages()"
-                style="background:#f1f5f9;border:1px solid #cbd5e1;padding:0.4rem 0.8rem;border-radius:4px;font-size:0.8rem;cursor:pointer;font-weight:600;color:#475569;">
-          🔄 Refresh
-        </button>
+    <!-- System Notifications Panel (collapsible) -->
+    <div *ngIf="showSystemMessages"
+         style="background:#eff6ff;border-bottom:1px solid #bfdbfe;padding:1rem 1.5rem;max-height:300px;overflow-y:auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <h4 style="margin:0;font-weight:800;color:#1e3a8a;">🤖 System Notifications</h4>
+        <div style="display:flex;gap:0.5rem;">
+          <button *ngIf="unreadCount > 0" (click)="markAllRead()"
+                  style="background:#2563eb;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;font-weight:600;cursor:pointer;font-size:0.78rem;">✓ Mark All Read</button>
+          <button (click)="showSystemMessages=false"
+                  style="background:#e2e8f0;border:none;padding:0.3rem 0.6rem;border-radius:4px;font-weight:700;cursor:pointer;font-size:0.85rem;">✕</button>
+        </div>
       </div>
-
-      <div *ngIf="loading" style="text-align:center;padding:2rem;color:#64748b;">Loading messages...</div>
-
-      <!-- Empty State -->
-      <div *ngIf="!loading && messages.length === 0"
-           style="text-align:center;padding:3rem;color:#64748b;background:#f8fafc;border-radius:12px;border:1px dashed #cbd5e1;">
-        <div style="font-size:2.5rem;margin-bottom:0.75rem;">📭</div>
-        <div style="font-weight:700;font-size:1rem;margin-bottom:0.25rem;">No messages yet</div>
-        <div style="font-size:0.9rem;">You'll receive notifications here when Purchase Orders are issued or updated.</div>
-      </div>
-
-      <!-- Message Cards -->
-      <div *ngFor="let msg of messages"
-           [style.border-left]="isSystemMessage(msg) ? '4px solid #2563eb' : '4px solid #94a3b8'"
+      <div *ngIf="systemMessages.length === 0" style="text-align:center;color:#64748b;font-weight:600;padding:1rem;">No system notifications.</div>
+      <div *ngFor="let msg of systemMessages"
            [style.background]="msg.is_read ? '#f8fafc' : '#eff6ff'"
-           style="border-radius:8px;padding:1rem 1.25rem;box-shadow:0 1px 4px rgba(0,0,0,0.06);border:1px solid #e2e8f0;">
+           style="margin-bottom:0.5rem;padding:0.75rem 1rem;border-radius:6px;border:1px solid #e2e8f0;">
+        <div style="font-size:0.85rem;color:#1e293b;font-weight:500;">{{ msg.message }}</div>
+        <div style="font-size:0.72rem;color:#94a3b8;margin-top:0.25rem;">{{ formatTime(msg.sent_at) }}</div>
+      </div>
+    </div>
 
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;">
-          <div>
-            <span style="font-size:0.75rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.05em;">
-              {{ isSystemMessage(msg) ? '🤖 System Notification' : '📩 Message' }}
-            </span>
-            <span *ngIf="!msg.is_read"
-                  style="margin-left:0.5rem;background:#2563eb;color:white;border-radius:999px;padding:0.1rem 0.4rem;font-size:0.7rem;font-weight:700;">
-              NEW
-            </span>
+    <!-- Two-panel Chat Layout -->
+    <div style="display:flex;height:calc(100vh - 60px);overflow:hidden;">
+
+      <!-- LEFT: Contacts Panel -->
+      <div style="width:300px;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;background:white;flex-shrink:0;">
+        <div style="padding:1rem;border-bottom:1px solid #f1f5f9;">
+          <h4 style="margin:0 0 0.75rem;font-weight:800;color:#1e293b;font-size:0.95rem;">💬 Contacts</h4>
+          <input type="text" [(ngModel)]="contactSearch" (ngModelChange)="filterContacts()"
+                 placeholder="Search contacts..."
+                 style="width:100%;padding:0.4rem 0.75rem;border:1.5px solid #e2e8f0;border-radius:20px;font-size:0.82rem;outline:none;">
+        </div>
+
+        <div style="flex:1;overflow-y:auto;">
+          <div *ngIf="contactsLoading" style="text-align:center;padding:2rem;color:#94a3b8;font-size:0.85rem;">
+            Loading contacts...
           </div>
-          <span style="font-size:0.75rem;color:#94a3b8;font-weight:500;">{{ formatTime(msg.sent_at) }}</span>
-        </div>
-
-        <div style="font-size:0.95rem;color:#1e293b;font-weight:500;line-height:1.6;white-space:pre-line;">
-          {{ msg.message }}
-        </div>
-
-        <div style="margin-top:0.5rem;font-size:0.75rem;color:#64748b;">
-          Procurement Request #{{ msg.procurement_id }}
+          <div *ngIf="!contactsLoading && filteredContacts.length === 0"
+               style="text-align:center;padding:2rem;color:#94a3b8;font-size:0.85rem;">
+            No contacts found.
+          </div>
+          <div *ngFor="let contact of filteredContacts"
+               (click)="selectContact(contact)"
+               [style.background]="selectedContact?.id === contact.id ? '#eff6ff' : 'white'"
+               [style.borderLeft]="selectedContact?.id === contact.id ? '3px solid #2563eb' : '3px solid transparent'"
+               style="padding:0.85rem 1rem;cursor:pointer;border-bottom:1px solid #f8fafc;transition:all 0.15s;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <div style="width:40px;height:40px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;">{{ contact.avatar }}</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:0.88rem;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ contact.name }}</div>
+                <div style="font-size:0.75rem;color:#64748b;font-weight:500;">{{ contact.role }}</div>
+                <div *ngIf="contact.lastMessage" style="font-size:0.72rem;color:#94a3b8;margin-top:0.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ contact.lastMessage }}</div>
+              </div>
+              <div *ngIf="contact.unread && contact.unread > 0"
+                   style="background:#ef4444;color:white;border-radius:999px;padding:0.1rem 0.45rem;font-size:0.7rem;font-weight:800;flex-shrink:0;">
+                {{ contact.unread }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
+      <!-- RIGHT: Chat Thread -->
+      <div style="flex:1;display:flex;flex-direction:column;background:#f8fafc;">
+
+        <!-- No contact selected -->
+        <div *ngIf="!selectedContact"
+             style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8;">
+          <div style="font-size:3rem;margin-bottom:1rem;">💬</div>
+          <div style="font-weight:700;font-size:1rem;margin-bottom:0.25rem;color:#64748b;">Select a contact to start messaging</div>
+          <div style="font-size:0.85rem;">Messages are private and only visible to you and your contact.</div>
+        </div>
+
+        <!-- Chat Thread -->
+        <ng-container *ngIf="selectedContact">
+          <!-- Chat Header -->
+          <div style="background:white;border-bottom:1px solid #e2e8f0;padding:0.85rem 1.25rem;display:flex;align-items:center;gap:0.75rem;">
+            <div style="width:38px;height:38px;border-radius:50%;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">{{ selectedContact.avatar }}</div>
+            <div>
+              <div style="font-weight:800;font-size:0.95rem;color:#1e293b;">{{ selectedContact.name }}</div>
+              <div style="font-size:0.75rem;color:#64748b;font-weight:500;">{{ selectedContact.role }} · 🟢 Online</div>
+            </div>
+          </div>
+
+          <!-- Messages -->
+          <div #messagesContainer style="flex:1;overflow-y:auto;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:0.75rem;">
+            <div *ngIf="loading" style="text-align:center;padding:1rem;color:#94a3b8;font-size:0.85rem;">Loading messages...</div>
+
+            <div *ngFor="let group of messageGroups">
+              <!-- Date Separator -->
+              <div style="text-align: center; margin: 1rem 0;">
+                <span style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+                  {{ group.date }}
+                </span>
+              </div>
+
+              <!-- Messages in the group -->
+              <div *ngFor="let msg of group.messages"
+                   [style.alignSelf]="msg.isOwn ? 'flex-end' : 'flex-start'"
+                   style="max-width:72%; display:flex; flex-direction:column; margin-bottom: 0.75rem;">
+                <div *ngIf="!msg.isOwn" style="font-size:0.72rem;color:#94a3b8;font-weight:600;margin-bottom:0.2rem;padding-left:0.25rem;">{{ msg.senderName }}</div>
+                <div [style.background]="msg.isOwn ? '#2563eb' : 'white'"
+                     [style.color]="msg.isOwn ? 'white' : '#1e293b'"
+                     [style.borderRadius]="msg.isOwn ? '12px 12px 0 12px' : '12px 12px 12px 0'"
+                     style="padding:0.65rem 0.9rem;font-size:0.85rem;font-weight:500;line-height:1.5;word-wrap:break-word;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04);">
+                  {{ msg.text }}
+                  <div [style.color]="msg.isOwn ? 'rgba(255,255,255,0.7)' : '#94a3b8'"
+                       style="font-size:0.68rem;text-align:right;margin-top:0.25rem;font-weight:500;display:flex;justify-content:flex-end;align-items:center;gap:4px;">
+                    <span>{{ msg.time }}</span>
+                    <span *ngIf="msg.isOwn" style="color:#93c5fd;font-weight:900;letter-spacing:-2px;">✓✓</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message Input -->
+          <div style="background:white;border-top:1px solid #e2e8f0;padding:0.75rem 1.25rem;display:flex;gap:0.5rem;align-items:flex-end;">
+            <textarea [(ngModel)]="newMessage"
+                      (keydown.enter)="onKeydown($event)"
+                      placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
+                      rows="1"
+                      style="flex:1;padding:0.6rem 0.85rem;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.85rem;font-weight:500;outline:none;resize:none;font-family:inherit;line-height:1.5;"
+                      onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+            <button (click)="sendMessage()"
+                    [disabled]="!newMessage.trim() || sendingMessage"
+                    style="background:#2563eb;color:white;border:none;border-radius:8px;padding:0.6rem 1rem;font-size:0.85rem;font-weight:800;cursor:pointer;transition:background 0.2s;white-space:nowrap;"
+                    onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+              {{ sendingMessage ? '...' : '➤ Send' }}
+            </button>
+          </div>
+        </ng-container>
+      </div>
     </div>
+
   </div>
 </div>

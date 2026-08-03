@@ -4,7 +4,10 @@
     <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
   </div>
   <div class="topbar-right-info">
-    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">
+      🔔 Notifications
+      <span *ngIf="(sidebarService.unreadCount$ | async) as count" class="notification-badge">{{ count }}</span>
+    </span>
     <span class="user-span">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
   </div>
 </div>
@@ -223,7 +226,7 @@
         <!-- Action Buttons -->
         <div class="details-actions">
           <button (click)="goBack()" class="btn-back">Back</button>
-          <button (click)="goBack()" class="btn-edit-vendor">✏️ Edit Vendor</button>
+          <button [routerLink]="['/add-vendor']" [queryParams]="{id: vendor?.vendor_id}" class="btn-edit-vendor">✏️ Edit Vendor</button>
         </div>
 
       </div>

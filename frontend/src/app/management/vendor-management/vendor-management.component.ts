@@ -4,6 +4,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 
 export interface Vendor {
   id: number;
@@ -23,11 +25,26 @@ const MOCK_DATA: Vendor[] = [
 @Component({
   selector: 'app-vendor-management',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatCardModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatTableModule, MatCardModule, MatButtonModule, MatIconModule, BaseChartDirective],
   templateUrl: './vendor-management.component.html',
   styleUrl: './vendor-management.component.scss'
 })
 export class VendorManagementComponent {
   displayedColumns: string[] = ['id', 'vendor_name', 'category', 'contact_person', 'email', 'status', 'actions'];
   dataSource = MOCK_DATA;
+
+  // Chart configuration
+  public pieChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    plugins: {
+      legend: { position: 'right' }
+    }
+  };
+  public pieChartData: ChartData<'pie'> = {
+    labels: ['Approved', 'Pending', 'Rejected'],
+    datasets: [
+      { data: [65, 25, 10], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'] }
+    ]
+  };
+  public pieChartType: ChartType = 'pie';
 }

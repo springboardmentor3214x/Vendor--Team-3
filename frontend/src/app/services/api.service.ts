@@ -6,13 +6,18 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class ApiService {
-  readonly baseUrl = 'http://localhost:8080';
+  readonly baseUrl = 'http://localhost:8000';
 
   constructor(private http: HttpClient) {}
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('authToken') || '';
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
+  }
+
+  // ─── Users ──────────────────────────────────────────────────────────────────
+  getAllUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/users`);
   }
 
   // ─── Vendors ────────────────────────────────────────────────────────────────
@@ -87,6 +92,69 @@ export class ApiService {
 
   getAllMessages(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/messages/`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  // ─── Contracts ───────────────────────────────────────────────────────────────
+  getContracts(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/contracts/`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  getContract(id: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/contracts/${id}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  createContract(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/contracts/`, data, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  updateContract(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/contracts/${id}`, data, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  // ─── Vendor Documents & Compliance ───────────────────────────────────────────
+  getVendorDocuments(vendorId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/vendor-documents/${vendorId}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  uploadVendorDocument(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/vendor-documents/`, data, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  deleteVendorDocument(documentId: number): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/vendor-documents/${documentId}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  // ─── RFQs ───────────────────────────────────────────────────────────────────
+  getRfqs(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/rfqs/`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  createRfq(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/rfqs/`, data, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  submitQuotation(rfqId: number, data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/rfqs/${rfqId}/quotations`, data, {
       headers: this.getAuthHeaders()
     });
   }

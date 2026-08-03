@@ -40,6 +40,11 @@ class Message(Base):
         default=False
     )
 
+    attachment_path = Column(
+        String,
+        nullable=True
+    )
+
     # Relationships
     sender = relationship(
         "User",

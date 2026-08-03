@@ -5,6 +5,8 @@ from app.database.database import SessionLocal
 from app.models.contract import Contract
 from app.models.vendor import Vendor
 from app.models.procurement import ProcurementRequest
+from app.models.notification import Notification
+from app.models.user import User
 
 from app.schemas.contract import (
     ContractCreate,
@@ -65,6 +67,20 @@ def create_contract(
     db.add(new_contract)
     db.commit()
     db.refresh(new_contract)
+
+    # Create Notification for vendor
+    try:
+        vendor_user = db.query(User).filter(User.email == vendor.email).first()
+        if vendor_user:
+            notification = Notification(
+                user_id=vendor_user.user_id,
+                message=f"📄 New Contract '{new_contract.contract_title}' created for your review.",
+                status="Unread"
+            )
+            db.add(notification)
+            db.commit()
+    except Exception:
+        db.rollback()
 
     return new_contract
 

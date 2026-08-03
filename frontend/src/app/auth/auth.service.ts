@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080'; // FastAPI backend port
+  private apiUrl = 'http://localhost:8000'; // FastAPI backend port
   
   private userSubject = new BehaviorSubject<any>(null);
   currentUser$ = this.userSubject.asObservable();
@@ -84,6 +84,9 @@ export class AuthService {
           if (res.role) {
             localStorage.setItem('userRole', roleMap[res.role] || res.role.toLowerCase());
           }
+          if (res.user_id) {
+            localStorage.setItem('userId', res.user_id.toString());
+          }
 
           // Determine dashboard route — use backend role first (most reliable),
           // then fall back to email-pattern matching for flexibility
@@ -123,6 +126,7 @@ export class AuthService {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userRole');
+    localStorage.removeItem('userId');
     localStorage.removeItem('dashboardRoute');
     this.userSubject.next(null);
     this.router.navigate(['/login']);

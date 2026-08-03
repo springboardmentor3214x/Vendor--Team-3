@@ -1,13 +1,17 @@
-<div class="header-strip">Vendor Realiability Platform</div>
+<div class="header-strip">Vendor Reliability Platform</div>
 <div class="subheader-strip">
   <div style="display:flex;align-items:center;gap:1rem;">
     <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
-    <div class="search-box-container">
-      <input type="text" placeholder="Search Invoice....." class="search-pill">
+    <div class="search-box-container" style="display:flex;align-items:center;gap:0.25rem;">
+      <input type="text" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()" placeholder="Search Invoice....." class="search-pill">
+      <button (click)="onSearch()" style="background:linear-gradient(135deg, #047857, #064e3b);color:#d4af37;border:none;padding:0.45rem 0.75rem;border-radius:0 20px 20px 0;font-size:0.95rem;cursor:pointer;margin-left:-4px;box-shadow:0 2px 5px rgba(6,78,59,0.2);transition:all 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">🔍</button>
     </div>
   </div>
   <div class="topbar-right-info">
-    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">
+      🔔 Notifications
+      <span *ngIf="(sidebarService.unreadCount$ | async) as count" class="notification-badge">{{ count }}</span>
+    </span>
     <span class="user-span">👤 Finance Officer</span>
   </div>
 </div>
@@ -39,7 +43,7 @@
         </div>
         <div class="stat-card pink-card">
           <div class="label">Total Value</div>
-          <div class="value" style="font-size:1.6rem;">₹{{ monthlyRevenue | number }}</div>
+          <div class="value" style="font-size:1.6rem;color:#d4af37;">₹{{ monthlyRevenue | number }}</div>
         </div>
       </div>
 
@@ -48,27 +52,27 @@
         <div class="panel">
           <h3>Invoice Status</h3>
           <div class="list-items">
-            <p>Paid : {{ paidCount }}</p>
-            <p>Pending : {{ pendingCount }}</p>
-            <p>Overdue : {{ overdueCount }}</p>
+            <p><span>Paid</span> <span style="font-weight:800;color:#059669;">{{ paidCount }}</span></p>
+            <p><span>Pending</span> <span style="font-weight:800;color:#d4af37;">{{ pendingCount }}</span></p>
+            <p><span>Overdue</span> <span style="font-weight:800;color:#dc2626;">{{ overdueCount }}</span></p>
           </div>
         </div>
 
         <div class="panel">
           <h3>Payment Status</h3>
           <div class="list-items">
-            <p>Completed : {{ completedPayments }}</p>
-            <p>Pending : {{ pendingPayments }}</p>
-            <p>Failed : {{ failedPayments }}</p>
+            <p><span>Completed</span> <span style="font-weight:800;color:#059669;">{{ completedPayments }}</span></p>
+            <p><span>Pending</span> <span style="font-weight:800;color:#d4af37;">{{ pendingPayments }}</span></p>
+            <p><span>Failed</span> <span style="font-weight:800;color:#dc2626;">{{ failedPayments }}</span></p>
           </div>
         </div>
 
         <div class="panel">
           <h3>Quick Actions</h3>
           <div class="quick-actions-list">
-            <p>+ Generate Invoice</p>
-            <p>+ Record Payment</p>
-            <p>+ Export Report</p>
+            <p routerLink="/invoices">+ Generate Invoice</p>
+            <p routerLink="/invoices">+ Record Payment</p>
+            <p routerLink="/reports">+ Export Report</p>
           </div>
         </div>
       </div>
@@ -93,12 +97,12 @@
             </thead>
             <tbody>
               <tr *ngFor="let inv of invoicesList">
-                <td style="font-weight:700;">{{ inv.id }}</td>
+                <td style="font-weight:800;color:#047857;">{{ inv.id }}</td>
                 <td style="font-weight:700;">{{ inv.vendor }}</td>
-                <td style="font-weight:700;">₹{{ inv.amount | number }}</td>
-                <td>{{ inv.payment }}</td>
+                <td style="font-weight:800;color:#d4af37;">₹{{ inv.amount | number }}</td>
+                <td><span style="padding:0.25rem 0.6rem;background:rgba(4,120,87,0.1);border-radius:12px;color:#064e3b;font-size:0.8rem;">{{ inv.payment }}</span></td>
                 <td>{{ inv.dueDate | date }}</td>
-                <td style="font-weight:700;cursor:pointer;color:#2563eb;">{{ inv.action }}</td>
+                <td style="font-weight:700;cursor:pointer;color:#d4af37;text-decoration:underline;">{{ inv.action }}</td>
               </tr>
               <tr *ngIf="invoicesList.length === 0">
                 <td colspan="6" style="text-align:center;">No recent invoices found.</td>
@@ -110,18 +114,18 @@
         <div class="side-panels">
           <div class="panel">
             <h3>Upcoming Payments</h3>
-            <div class="delivery-list" style="text-align:center;">
-              <p style="font-size:1rem;font-weight:800;color:#000000;margin-bottom:0.25rem;">{{ upcomingPaymentVendor }}</p>
-              <p style="color:#64748b;font-weight:700;margin-bottom:0.5rem;">{{ upcomingPaymentDate }}</p>
-              <p style="font-size:1.35rem;font-weight:800;color:#000000;">₹{{ upcomingPaymentAmount | number }}</p>
+            <div class="delivery-list" style="text-align:center;background:linear-gradient(135deg, rgba(6,78,59,0.05), rgba(212,175,55,0.05));padding:1rem;border-radius:12px;border:1px solid rgba(212,175,55,0.2);">
+              <p style="font-size:1.1rem;font-weight:800;color:#064e3b;margin-bottom:0.25rem;padding:0;">{{ upcomingPaymentVendor }}</p>
+              <p style="color:#047857;font-weight:700;margin-bottom:0.5rem;padding:0;">{{ upcomingPaymentDate }}</p>
+              <p style="font-size:1.5rem;font-weight:900;color:#d4af37;padding:0;text-shadow:0 1px 2px rgba(0,0,0,0.1);">₹{{ upcomingPaymentAmount | number }}</p>
             </div>
           </div>
           <div class="panel">
             <h3>Payment Methods</h3>
             <div class="bullet-notifications" style="text-align:center;">
-              <p>NEFT : {{ neftCount }}</p>
-              <p>UPI : {{ upiCount }}</p>
-              <p>RTGS : {{ rtgsCount }}</p>
+              <p style="display:flex;justify-content:space-between;border-bottom:1px dashed rgba(6,78,59,0.1);"><span>NEFT</span> <span style="font-weight:800;color:#047857;">{{ neftCount }}</span></p>
+              <p style="display:flex;justify-content:space-between;border-bottom:1px dashed rgba(6,78,59,0.1);"><span>UPI</span> <span style="font-weight:800;color:#047857;">{{ upiCount }}</span></p>
+              <p style="display:flex;justify-content:space-between;"><span>RTGS</span> <span style="font-weight:800;color:#047857;">{{ rtgsCount }}</span></p>
             </div>
           </div>
         </div>

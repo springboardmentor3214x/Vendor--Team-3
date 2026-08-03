@@ -4,7 +4,10 @@
     <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
   </div>
   <div class="topbar-right-info">
-    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">
+      🔔 Notifications
+      <span *ngIf="(sidebarService.unreadCount$ | async) as count" class="notification-badge">{{ count }}</span>
+    </span>
     <span class="user-span">👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
   </div>
 </div>
@@ -127,19 +130,13 @@
             <div class="timeline-section">
               <h3>Approval Timeline</h3>
               <div class="timeline-container">
-                <div class="timeline-node">Vendor Registered</div>
-                <div class="timeline-line">│</div>
-                <div class="timeline-line">▼</div>
-                <div class="timeline-node active-node">Pending</div>
-                <div class="timeline-split">
-                  <div class="split-branch">
-                    <div>↙</div>
-                    <div style="margin-top:0.25rem;">Approve</div>
-                  </div>
-                  <div class="split-branch">
-                    <div>↘</div>
-                    <div style="margin-top:0.25rem;">Reject</div>
-                  </div>
+                <div class="timeline-node" style="color: #16a34a;">Vendor Registered ✔</div>
+                <div class="timeline-line" style="height: 20px; width: 2px; background: #cbd5e1; margin: 4px 0;"></div>
+                <div class="timeline-node active-node" style="background: #fef3c7; padding: 4px 12px; border-radius: 20px; border: 1px solid #f59e0b;">Pending Review</div>
+                <div style="width: 100px; height: 20px; border-left: 2px solid #cbd5e1; border-right: 2px solid #cbd5e1; border-top: 2px solid #cbd5e1; border-top-left-radius: 8px; border-top-right-radius: 8px; margin-top: 10px;"></div>
+                <div style="display: flex; justify-content: space-between; width: 140px; margin-top: 4px; font-weight: 700; font-size: 0.8rem; color: #475569;">
+                  <span>Approve</span>
+                  <span>Reject</span>
                 </div>
               </div>
             </div>

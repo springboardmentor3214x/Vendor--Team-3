@@ -1,4 +1,4 @@
-<div class="header-strip">Vendor Realiability Platform</div>
+<div class="header-strip">Vendor Reliability Platform</div>
 <div class="subheader-strip">
   <div style="display:flex;align-items:center;gap:1rem;">
     <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
@@ -7,7 +7,10 @@
     </div>
   </div>
   <div class="topbar-right-info">
-    <span class="bell-span" (click)="sidebarService.toggleNotifications()">🔔 Notifications</span>
+    <span class="bell-span" (click)="sidebarService.toggleNotifications()">
+      🔔 Notifications
+      <span *ngIf="(sidebarService.unreadCount$ | async) as count" class="notification-badge">{{ count }}</span>
+    </span>
     <span class="user-span">👤 Auditor</span>
   </div>
 </div>
@@ -20,50 +23,50 @@
       <!-- Welcome Banner -->
       <div class="welcome-banner">
         <h2>Auditor Dashboard</h2>
-        <p>Welcome back, Auditor!</p>
+        <p>Overview of compliance, risk assessments, and recent audits.</p>
       </div>
 
       <!-- Stat Cards -->
       <div class="stat-grid">
-        <div class="stat-card blue-card">
-          <div class="label">Audits</div>
+        <div class="stat-card">
+          <div class="label">Total Audits</div>
           <div class="value">{{ totalAudits }}</div>
         </div>
-        <div class="stat-card green-card">
-          <div class="label">Compliance</div>
+        <div class="stat-card">
+          <div class="label">Compliance Score</div>
           <div class="value">{{ complianceScore }}%</div>
         </div>
-        <div class="stat-card yellow-card">
+        <div class="stat-card">
           <div class="label">Open Issues</div>
           <div class="value">{{ openIssues }}</div>
         </div>
-        <div class="stat-card pink-card">
-          <div class="label">Risk Score</div>
-          <div class="value" style="font-size:1.9rem;">{{ riskLevel }}</div>
+        <div class="stat-card">
+          <div class="label">Overall Risk Level</div>
+          <div class="value" style="font-size:1.8rem; padding-top:0.25rem;">{{ riskLevel }}</div>
         </div>
       </div>
 
       <!-- Middle Row: 3 Panels -->
       <div class="panel-grid">
-        <div class="panel pink-bg">
+        <div class="panel">
           <h3>Compliance Status</h3>
           <div class="list-items">
-            <p>✓ Vendor Checks Completed</p>
-            <p>✓ Invoices Audit Completed</p>
-            <p>✓ Ledger Audits Active</p>
+            <p><span style="color:#10b981;">✓</span> Vendor Checks Completed</p>
+            <p><span style="color:#10b981;">✓</span> Invoices Audit Completed</p>
+            <p><span style="color:#3b82f6;">⟳</span> Ledger Audits Active</p>
           </div>
         </div>
 
-        <div class="panel purple-bg">
+        <div class="panel">
           <h3>Audit Summary</h3>
           <div class="list-items">
-            <p>Total Audits : {{ totalAudits }}</p>
-            <p>Passed : {{ passedAudits }}</p>
-            <p>Failed : {{ failedAudits }}</p>
+            <p>Total Audits <span style="margin-left:auto; font-weight:700;">{{ totalAudits }}</span></p>
+            <p>Passed <span style="margin-left:auto; font-weight:700; color:#10b981;">{{ passedAudits }}</span></p>
+            <p>Failed <span style="margin-left:auto; font-weight:700; color:#ef4444;">{{ failedAudits }}</span></p>
           </div>
         </div>
 
-        <div class="panel green-bg">
+        <div class="panel">
           <h3>Quick Actions</h3>
           <div class="quick-actions-list">
             <p>📄 Export Report</p>
@@ -77,30 +80,25 @@
       <div class="bottom-grid">
         <div class="data-panel">
           <div class="data-panel-header">
-            <h3 style="color:#000000; font-weight:800; margin:0;">📋 Compliance Audit Trail</h3>
+            <h3>📋 Compliance Audit Trail</h3>
           </div>
           
-          <div class="timeline-container" style="position:relative; padding-left:2.5rem; margin-top:1.5rem;">
-            <!-- Vertical Timeline Line -->
-            <div style="position:absolute; top:8px; bottom:8px; left:12px; width:2px; background:#cbd5e1;"></div>
+          <div class="timeline-container">
+            <div class="timeline-line"></div>
             
-            <!-- Timeline Loop -->
-            <div *ngFor="let log of auditLogs" class="timeline-item" style="position:relative; margin-bottom:1.5rem; transition: transform 0.2s;">
-              <!-- Circle Node -->
-              <div style="position:absolute; left:-36px; top:4px; width:16px; height:16px; border-radius:50%; border:3px solid white; z-index:2;"
-                   [style.background]="log.class === 'green' ? '#10b981' : (log.class === 'blue' ? '#2563eb' : '#f59e0b')"
-                   [style.boxShadow]="log.class === 'green' ? '0 0 0 2px #10b981' : (log.class === 'blue' ? '0 0 0 2px #2563eb' : '0 0 0 2px #f59e0b')"></div>
-              <!-- Content -->
+            <div *ngFor="let log of auditLogs" class="timeline-item">
+              <div class="timeline-node"
+                   [style.borderColor]="log.class === 'green' ? '#10b981' : (log.class === 'blue' ? '#3b82f6' : (log.class === 'yellow' ? '#f59e0b' : '#64748b'))"></div>
               <div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
-                  <span style="font-weight:800; color:#1e293b; font-size:0.95rem;">{{ log.title }}</span>
-                  <span style="font-size:0.75rem; font-weight:700; color:#94a3b8;">{{ log.date }}</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                  <span style="font-weight:700; color:#0f172a; font-size:1rem;">{{ log.title }}</span>
+                  <span style="font-size:0.8rem; font-weight:600; color:#64748b;">{{ log.date }}</span>
                 </div>
-                <div style="font-size:0.85rem; color:#475569; font-weight:600; line-height:1.4;">{{ log.desc }}</div>
-                <div style="font-size:0.75rem; color:#64748b; margin-top:0.35rem; font-weight:700; background:#f1f5f9; padding:0.15rem 0.5rem; border-radius:3px; display:inline-block;">Module: {{ log.module }}</div>
+                <div style="font-size:0.9rem; color:#475569; font-weight:500; line-height:1.5;">{{ log.desc }}</div>
+                <div style="font-size:0.75rem; color:#475569; margin-top:0.5rem; font-weight:600; background:#f1f5f9; padding:0.25rem 0.75rem; border-radius:4px; display:inline-block; border: 1px solid #e2e8f0;">Module: {{ log.module }}</div>
               </div>
             </div>
-            <div *ngIf="auditLogs.length === 0" style="text-align:center;padding:2rem;color:#64748b;font-weight:600;">
+            <div *ngIf="auditLogs.length === 0" style="text-align:center;padding:2rem;color:#64748b;font-weight:500;">
               No compliance logs found in trail.
             </div>
           </div>
@@ -110,19 +108,19 @@
           <div class="panel">
             <h3>Risk Analysis</h3>
             <div class="risk-list">
-              <p>High Risk : {{ highRiskCount }}</p>
-              <p>Medium Risk : {{ mediumRiskCount }}</p>
-              <p>Low Risk : {{ lowRiskCount }}</p>
+              <p>High Risk <span style="color:#ef4444;">{{ highRiskCount }}</span></p>
+              <p>Medium Risk <span style="color:#f59e0b;">{{ mediumRiskCount }}</span></p>
+              <p>Low Risk <span style="color:#10b981;">{{ lowRiskCount }}</span></p>
             </div>
           </div>
           <div class="panel">
             <h3>Compliance Summary</h3>
             <div class="compliance-summary-block">
-              <p style="font-weight:700;margin-bottom:0.5rem;color:#1e293b;">Compliance Score</p>
+              <p style="font-weight:600; color:#475569; font-size:0.9rem;">Overall Score</p>
               <div class="progress-bar-container">
                 <div class="progress-bar-fill" [style.width.%]="complianceScore"></div>
               </div>
-              <p style="font-weight:800;color:#000000;margin-top:0.5rem;text-align:center;">{{ complianceScore }}%</p>
+              <p style="font-weight:800; color:#0f172a; font-size:1.5rem; text-align:right; margin:0;">{{ complianceScore }}%</p>
             </div>
           </div>
         </div>
