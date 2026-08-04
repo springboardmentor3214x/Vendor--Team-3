@@ -67,17 +67,6 @@ CREATE TABLE Vendor_Performance (
     REFERENCES Vendors(vendor_id)
 );
 
-CREATE TABLE Contracts (
-    contract_id SERIAL PRIMARY KEY,
-    vendor_id INT,
-    start_date DATE,
-    end_date DATE,
-    status VARCHAR(20),
-
-    CONSTRAINT fk_contract_vendor
-    FOREIGN KEY (vendor_id)
-    REFERENCES Vendors(vendor_id)
-);
 
 CREATE TABLE Notifications (
     notification_id SERIAL PRIMARY KEY,
