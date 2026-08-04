@@ -54,6 +54,7 @@ CREATE TABLE Purchase_Orders (
     REFERENCES Vendors(vendor_id)
 );
 
+
 CREATE TABLE Vendor_Performance (
     performance_id SERIAL PRIMARY KEY,
     vendor_id INT,
