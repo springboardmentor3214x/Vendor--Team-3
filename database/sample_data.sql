@@ -198,3 +198,84 @@ VALUES
 (1,4.8,2,'2026-07-20','Excellent'),
 
 (2,4.2,3,'2026-07-20','Needs Improvement');
+-- ==========================
+-- MODULE 6 SAMPLE DATA
+-- ==========================
+
+INSERT INTO Contracts (
+    vendor_id,
+    procurement_id,
+    contract_number,
+    contract_title,
+    contract_type,
+    procurement_category,
+    start_date,
+    end_date,
+    contract_value,
+    payment_terms,
+    service_level_agreement,
+    warranty_details,
+    responsible_manager,
+    contract_status,
+    document_path
+)
+VALUES
+(1,1,'CTR-2026-001','Office Laptop Supply','Annual','IT Equipment','2026-08-01','2027-07-31',500000.00,'Net 30 Days','99.9% Service','3 Years Warranty','Rahul Sharma','Active','/contracts/contract1.pdf'),
+
+(2,2,'CTR-2026-002','Office Furniture Supply','Annual','Furniture','2026-08-05','2027-08-04',250000.00,'Net 15 Days','95% Delivery','2 Years Warranty','Priya Menon','Active','/contracts/contract2.pdf');
+
+INSERT INTO Contract_Renewals (
+    contract_id,
+    renewal_date,
+    new_expiry_date,
+    renewal_status,
+    remarks,
+    renewed_by
+)
+VALUES
+(1,'2027-07-25','2028-07-31','Approved','Contract renewed successfully',1),
+
+(2,'2027-08-01','2028-08-04','Pending','Waiting for management approval',2);
+
+INSERT INTO Certifications (
+    vendor_id,
+    certification_name,
+    certificate_number,
+    issuing_authority,
+    issue_date,
+    expiry_date,
+    certificate_path,
+    certification_status
+)
+VALUES
+(1,'ISO 9001','ISO9001-001','ISO Authority','2025-01-10','2028-01-09','/certificates/vendor1.pdf','Active'),
+
+(2,'GST Registration','GST-45896','Government of India','2024-06-15','2030-06-15','/certificates/vendor2.pdf','Active');
+
+INSERT INTO Compliance_Records (
+    vendor_id,
+    compliance_type,
+    compliance_status,
+    verification_date,
+    verified_by,
+    remarks
+)
+VALUES
+(1,'GST Compliance','Compliant','2026-08-02',1,'Verified successfully'),
+
+(2,'Tax Compliance','Pending Verification','2026-08-03',2,'Documents under review');
+
+INSERT INTO Vendor_Documents (
+    vendor_id,
+    document_type,
+    document_name,
+    file_path,
+    uploaded_by,
+    document_status
+)
+VALUES
+(1,'GST Certificate','GST_Certificate.pdf','/documents/vendor1_gst.pdf',1,'Active'),
+
+(2,'PAN Card','PAN_Card.pdf','/documents/vendor2_pan.pdf',2,'Active');
+
+
