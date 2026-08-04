@@ -114,7 +114,7 @@ CREATE TABLE Delivery_Performance (
 
     CONSTRAINT fk_delivery_vendor
         FOREIGN KEY (vendor_id)
-        REFERENCES Vendors(vendor_id)
+        REFERENCES Vendors(vendor_id),
 
     CONSTRAINT fk_delivery_order
     FOREIGN KEY (purchase_order_id)
@@ -136,7 +136,7 @@ CREATE TABLE Product_Quality_Evaluations (
 
     CONSTRAINT fk_quality_vendor
         FOREIGN KEY (vendor_id)
-        REFERENCES Vendors(vendor_id)
+        REFERENCES Vendors(vendor_id),
 
     CONSTRAINT fk_quality_order
     FOREIGN KEY (purchase_order_id)
@@ -271,10 +271,10 @@ CREATE TABLE Contracts (
         REFERENCES Vendors(vendor_id)
         ON DELETE CASCADE,
 
-   CONSTRAINT fk_contract_procurement
-    FOREIGN KEY (procurement_id)
-    REFERENCES Purchase_Orders(order_id)
-    ON DELETE SET NULL
+  CONSTRAINT fk_contract_procurement
+FOREIGN KEY (procurement_id)
+REFERENCES Procurement_Requests(procurement_id)
+ON DELETE SET NULL
 );
 
 /* Contract Renewals Table */
