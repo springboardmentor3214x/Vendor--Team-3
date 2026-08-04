@@ -246,6 +246,128 @@ CREATE TABLE Vendor_Reliability (
         REFERENCES Vendors(vendor_id)
 );
 
+/* ==========================================================
+   MODULE 6 - CONTRACT & COMPLIANCE MANAGEMENT
+   ========================================================== */
+
+/* Contracts Table */
+CREATE TABLE Contracts (
+    contract_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    procurement_id INT,
+    contract_number VARCHAR(50) NOT NULL UNIQUE,
+    contract_title VARCHAR(150) NOT NULL,
+    contract_type VARCHAR(50),
+    procurement_category VARCHAR(100),
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    contract_value DECIMAL(12,2),
+    payment_terms TEXT,
+    service_level_agreement TEXT,
+    warranty_details TEXT,
+    responsible_manager VARCHAR(100),
+    contract_status VARCHAR(30) DEFAULT 'Draft',
+    document_path TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_contract_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_contract_procurement
+        FOREIGN KEY (procurement_id)
+        REFERENCES Purchase_Orders(po_id)
+        ON DELETE SET NULL
+);
+
+/* Contract Renewals Table */
+CREATE TABLE Contract_Renewals (
+    renewal_id SERIAL PRIMARY KEY,
+    contract_id INT NOT NULL,
+    renewal_date DATE NOT NULL,
+    new_expiry_date DATE NOT NULL,
+    renewal_status VARCHAR(30),
+    remarks TEXT,
+    renewed_by INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_renewal_contract
+        FOREIGN KEY (contract_id)
+        REFERENCES Contracts(contract_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_renewed_by
+        FOREIGN KEY (renewed_by)
+        REFERENCES Users(user_id)
+        ON DELETE SET NULL
+);
+
+/* Certifications Table */
+CREATE TABLE Certifications (
+    certification_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    certification_name VARCHAR(100) NOT NULL,
+    certificate_number VARCHAR(100) UNIQUE,
+    issuing_authority VARCHAR(100),
+    issue_date DATE,
+    expiry_date DATE,
+    certificate_path TEXT,
+    certification_status VARCHAR(30) DEFAULT 'Active',
+
+    CONSTRAINT fk_cert_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id)
+        ON DELETE CASCADE
+);
+
+/* Compliance Records Table */
+CREATE TABLE Compliance_Records (
+    compliance_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    compliance_type VARCHAR(100) NOT NULL,
+    compliance_status VARCHAR(30)
+        CHECK (compliance_status IN
+        ('Compliant',
+         'Pending Verification',
+         'Non-Compliant',
+         'Expired')),
+    verification_date DATE,
+    verified_by INT,
+    remarks TEXT,
+
+    CONSTRAINT fk_compliance_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_verified_by
+        FOREIGN KEY (verified_by)
+        REFERENCES Users(user_id)
+        ON DELETE SET NULL
+);
+
+/* Vendor Documents Table */
+CREATE TABLE Vendor_Documents (
+    document_id SERIAL PRIMARY KEY,
+    vendor_id INT NOT NULL,
+    document_type VARCHAR(100) NOT NULL,
+    document_name VARCHAR(150),
+    file_path TEXT,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    uploaded_by INT,
+    document_status VARCHAR(30) DEFAULT 'Active',
+
+    CONSTRAINT fk_document_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_uploaded_by
+        FOREIGN KEY (uploaded_by)
+        REFERENCES Users(user_id)
+        ON DELETE SET NULL
+);
 -- Verify all tables
 SELECT table_name
 FROM information_schema.tables
