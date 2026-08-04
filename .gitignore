@@ -1,4 +1,8 @@
 venv/
+<<<<<<< HEAD
 _pycache_/
+=======
+__pycache__/
+>>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)
 *.pyc
 .env

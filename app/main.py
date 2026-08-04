@@ -29,7 +29,18 @@ from app.routers import procurement_risk
 from app.routers import performance_trend
 from app.routers import procurement_recommendation
 from app.routers import vendor_dashboard
+<<<<<<< HEAD
 
+=======
+from app.routers import (
+    contract_document,
+    contract_milestone,
+    contract_renewal,
+    contract_amendment
+)
+from app.routers import contract_dashboard
+from app.routers import contract_dashboard
+>>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)
 # Create Tables
 Base.metadata.create_all(bind=engine)
 
@@ -53,8 +64,18 @@ app.include_router(procurement_risk.router)
 app.include_router(performance_trend.router)
 app.include_router(procurement_recommendation.router)
 app.include_router(vendor_dashboard.router)
+<<<<<<< HEAD
 
 
+=======
+app.include_router(contract_document.router)
+app.include_router(contract_milestone.router)
+app.include_router(contract_renewal.router)
+app.include_router(contract_amendment.router)
+app.include_router(
+    contract_dashboard.router
+)
+>>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)
 @app.get("/")
 def home():
     return {

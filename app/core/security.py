@@ -10,10 +10,26 @@ pwd_context = CryptContext(
 )
 
 def hash_password(password: str):
+<<<<<<< HEAD
     return pwd_context.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
+=======
+    password = password[:72]
+    return pwd_context.hash(password)
+
+def verify_password(
+    plain_password,
+    hashed_password
+):
+    plain_password = plain_password[:72]
+
+    return pwd_context.verify(
+        plain_password,
+        hashed_password
+    )
+>>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)
 
 
 
