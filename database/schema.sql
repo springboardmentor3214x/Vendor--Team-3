@@ -562,7 +562,55 @@ CREATE TABLE Activity_Logs (
         REFERENCES Users(user_id)
         ON DELETE CASCADE
 );
+
+CREATE VIEW Procurement_Dashboard AS
+SELECT
+    COUNT(*) AS total_requests,
+    COUNT(CASE WHEN status='Pending' THEN 1 END) AS pending_requests,
+    COUNT(CASE WHEN status='Approved' THEN 1 END) AS approved_requests,
+    COUNT(CASE WHEN status='Rejected' THEN 1 END) AS rejected_requests
+FROM Procurement_Requests;
+
+CREATE VIEW Purchase_Order_Dashboard AS
+SELECT
+    COUNT(*) AS total_orders,
+    COUNT(CASE WHEN status='Pending' THEN 1 END) AS pending_orders,
+    COUNT(CASE WHEN status='Completed' THEN 1 END) AS completed_orders,
+    COUNT(CASE WHEN status='Cancelled' THEN 1 END) AS cancelled_orders
+FROM Purchase_Orders;
+
+CREATE VIEW Vendor_Dashboard AS
+SELECT
+    COUNT(*) AS total_vendors,
+    AVG(overall_score) AS average_vendor_score
+FROM Vendor_Performance;
+
+CREATE VIEW Contract_Dashboard AS
+SELECT
+    COUNT(*) AS total_contracts,
+    COUNT(CASE WHEN contract_status='Active' THEN 1 END) AS active_contracts,
+    COUNT(CASE WHEN contract_status='Expired' THEN 1 END) AS expired_contracts
+FROM Contracts;
+
+CREATE VIEW Delivery_Dashboard AS
+SELECT
+    COUNT(*) AS total_deliveries,
+    COUNT(CASE WHEN delivery_status='Delivered' THEN 1 END) AS delivered,
+    COUNT(CASE WHEN delivery_status='Delayed' THEN 1 END) AS delayed
+FROM Delivery_Performance;
+
+
+CREATE VIEW Communication_Dashboard AS
+SELECT
+    COUNT(*) AS total_messages,
+    COUNT(CASE WHEN read_status='Unread' THEN 1 END) AS unread_messages
+FROM Messages;
+
 -- Verify all tables
 SELECT table_name
 FROM information_schema.tables
 WHERE table_schema = 'public';
+
+SELECT table_name
+FROM information_schema.views
+WHERE table_schema='public';
