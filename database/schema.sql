@@ -364,6 +364,56 @@ CREATE TABLE Vendor_Documents (
         REFERENCES Users(user_id)
         ON DELETE SET NULL
 );
+
+/* ==========================================================
+   MODULE 7 - COMMUNICATION MANAGEMENT
+   ========================================================== */
+
+CREATE TABLE Messages (
+    message_id SERIAL PRIMARY KEY,
+
+    sender_id INT NOT NULL,
+
+    receiver_id INT NOT NULL,
+
+    vendor_id INT,
+
+    procurement_id INT,
+
+    purchase_order_id INT,
+
+    contract_id INT,
+
+    message_content TEXT NOT NULL,
+
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    read_status VARCHAR(20) DEFAULT 'Unread',
+
+    CONSTRAINT fk_message_sender
+        FOREIGN KEY (sender_id)
+        REFERENCES Users(user_id),
+
+    CONSTRAINT fk_message_receiver
+        FOREIGN KEY (receiver_id)
+        REFERENCES Users(user_id),
+
+    CONSTRAINT fk_message_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id),
+
+    CONSTRAINT fk_message_procurement
+        FOREIGN KEY (procurement_id)
+        REFERENCES Procurement_Requests(procurement_id),
+
+    CONSTRAINT fk_message_order
+        FOREIGN KEY (purchase_order_id)
+        REFERENCES Purchase_Orders(order_id),
+
+    CONSTRAINT fk_message_contract
+        FOREIGN KEY (contract_id)
+        REFERENCES Contracts(contract_id)
+);
 -- Verify all tables
 SELECT table_name
 FROM information_schema.tables
