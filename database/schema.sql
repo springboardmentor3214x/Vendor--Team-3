@@ -414,6 +414,154 @@ CREATE TABLE Messages (
         FOREIGN KEY (contract_id)
         REFERENCES Contracts(contract_id)
 );
+
+/* ==========================================================
+   DISCUSSIONS TABLE
+   ========================================================== */
+
+CREATE TABLE Discussions (
+    discussion_id SERIAL PRIMARY KEY,
+
+    title VARCHAR(150) NOT NULL,
+
+    vendor_id INT,
+
+    procurement_id INT,
+
+    purchase_order_id INT,
+
+    contract_id INT,
+
+    created_by INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    discussion_status VARCHAR(30) DEFAULT 'Open',
+
+    CONSTRAINT fk_discussion_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id),
+
+    CONSTRAINT fk_discussion_procurement
+        FOREIGN KEY (procurement_id)
+        REFERENCES Procurement_Requests(procurement_id),
+
+    CONSTRAINT fk_discussion_order
+        FOREIGN KEY (purchase_order_id)
+        REFERENCES Purchase_Orders(order_id),
+
+    CONSTRAINT fk_discussion_contract
+        FOREIGN KEY (contract_id)
+        REFERENCES Contracts(contract_id),
+
+    CONSTRAINT fk_discussion_user
+        FOREIGN KEY (created_by)
+        REFERENCES Users(user_id)
+);
+
+/* ==========================================================
+   DISCUSSION PARTICIPANTS TABLE
+   ========================================================== */
+
+CREATE TABLE Discussion_Participants (
+    participant_id SERIAL PRIMARY KEY,
+
+    discussion_id INT NOT NULL,
+
+    user_id INT NOT NULL,
+
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    participant_role VARCHAR(50),
+
+    CONSTRAINT fk_participant_discussion
+        FOREIGN KEY (discussion_id)
+        REFERENCES Discussions(discussion_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_participant_user
+        FOREIGN KEY (user_id)
+        REFERENCES Users(user_id)
+        ON DELETE CASCADE
+);
+
+/* ==========================================================
+   SHARED FILES TABLE
+   ========================================================== */
+
+CREATE TABLE Shared_Files (
+    file_id SERIAL PRIMARY KEY,
+
+    discussion_id INT,
+
+    vendor_id INT,
+
+    procurement_id INT,
+
+    purchase_order_id INT,
+
+    contract_id INT,
+
+    uploaded_by INT NOT NULL,
+
+    file_name VARCHAR(255) NOT NULL,
+
+    file_type VARCHAR(50),
+
+    file_path TEXT NOT NULL,
+
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_file_discussion
+        FOREIGN KEY (discussion_id)
+        REFERENCES Discussions(discussion_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_file_vendor
+        FOREIGN KEY (vendor_id)
+        REFERENCES Vendors(vendor_id),
+
+    CONSTRAINT fk_file_procurement
+        FOREIGN KEY (procurement_id)
+        REFERENCES Procurement_Requests(procurement_id),
+
+    CONSTRAINT fk_file_order
+        FOREIGN KEY (purchase_order_id)
+        REFERENCES Purchase_Orders(order_id),
+
+    CONSTRAINT fk_file_contract
+        FOREIGN KEY (contract_id)
+        REFERENCES Contracts(contract_id),
+
+    CONSTRAINT fk_file_user
+        FOREIGN KEY (uploaded_by)
+        REFERENCES Users(user_id)
+);
+
+/* ==========================================================
+   ACTIVITY LOGS TABLE
+   ========================================================== */
+
+CREATE TABLE Activity_Logs (
+    activity_id SERIAL PRIMARY KEY,
+
+    user_id INT NOT NULL,
+
+    module_name VARCHAR(100) NOT NULL,
+
+    action_performed VARCHAR(100) NOT NULL,
+
+    related_record_id INT,
+
+    ip_address VARCHAR(50),
+
+    activity_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_activity_user
+        FOREIGN KEY (user_id)
+        REFERENCES Users(user_id)
+        ON DELETE CASCADE
+);
 -- Verify all tables
 SELECT table_name
 FROM information_schema.tables
