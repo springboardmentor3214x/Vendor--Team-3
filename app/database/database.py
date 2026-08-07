@@ -9,17 +9,7 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 
-<<<<<<< HEAD
 engine = create_engine(DATABASE_URL)
-=======
-engine = create_engine(
-    DATABASE_URL,
-    pool_size=5,
-    max_overflow=10,
-    pool_timeout=30,
-    pool_recycle=1800
-)
->>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)
 print(DATABASE_URL)
 print(engine)
 

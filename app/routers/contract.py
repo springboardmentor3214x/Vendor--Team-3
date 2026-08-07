@@ -28,12 +28,9 @@ def get_db():
         db.close()
 
 
-<<<<<<< HEAD
 # ---------------------------------------
 # Create Contract
 # ---------------------------------------
-=======
->>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)
 @router.post("/", response_model=ContractResponse)
 def create_contract(
     contract: ContractCreate,
@@ -72,13 +69,9 @@ def create_contract(
     return new_contract
 
 
-<<<<<<< HEAD
 # ---------------------------------------
 # Get All Contracts
 # ---------------------------------------
-=======
-
->>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)
 @router.get("/", response_model=list[ContractResponse])
 def get_contracts(
     db: Session = Depends(get_db),
@@ -90,13 +83,9 @@ def get_contracts(
     return db.query(Contract).all()
 
 
-<<<<<<< HEAD
 # ---------------------------------------
 # Get Contract By ID
 # ---------------------------------------
-=======
-
->>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)
 @router.get("/{contract_id}", response_model=ContractResponse)
 def get_contract(
     contract_id: int,
@@ -119,12 +108,9 @@ def get_contract(
     return contract
 
 
-<<<<<<< HEAD
 # ---------------------------------------
 # Update Contract
 # ---------------------------------------
-=======
->>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)
 @router.put("/{contract_id}", response_model=ContractResponse)
 def update_contract(
     contract_id: int,
@@ -153,34 +139,4 @@ def update_contract(
     db.commit()
     db.refresh(contract)
 
-<<<<<<< HEAD
     return contract
-=======
-    return contract
-
-@router.delete("/{contract_id}")
-def delete_contract(
-    contract_id: int,
-    db: Session = Depends(get_db),
-    current_user=Depends(
-        require_roles("Admin")
-    )
-):
-
-    contract = db.query(Contract).filter(
-        Contract.contract_id == contract_id
-    ).first()
-
-    if not contract:
-        raise HTTPException(
-            status_code=404,
-            detail="Contract not found"
-        )
-
-    db.delete(contract)
-    db.commit()
-
-    return {
-        "message": "Contract deleted successfully"
-    }
->>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)

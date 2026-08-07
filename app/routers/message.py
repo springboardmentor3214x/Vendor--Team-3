@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from app.database.database import SessionLocal
 from app.models.message import Message
 from app.models.user import User
-from app.models.procurement import ProcurementRequest
 
 from app.schemas.message import (
     MessageCreate,
@@ -31,6 +31,7 @@ def get_db():
 # ---------------------------------------
 # Send Message
 # ---------------------------------------
+
 @router.post("/", response_model=MessageResponse)
 def send_message(
     message: MessageCreate,
@@ -39,16 +40,6 @@ def send_message(
         require_roles("Admin", "Procurement", "Vendor")
     )
 ):
-
-    sender = db.query(User).filter(
-        User.user_id == message.sender_id
-    ).first()
-
-    if not sender:
-        raise HTTPException(
-            status_code=404,
-            detail="Sender not found"
-        )
 
     receiver = db.query(User).filter(
         User.user_id == message.receiver_id
@@ -60,17 +51,15 @@ def send_message(
             detail="Receiver not found"
         )
 
-    procurement = db.query(ProcurementRequest).filter(
-        ProcurementRequest.procurement_id == message.procurement_id
-    ).first()
-
-    if not procurement:
-        raise HTTPException(
-            status_code=404,
-            detail="Procurement Request not found"
-        )
-
-    new_message = Message(**message.model_dump())
+    new_message = Message(
+        sender_id=current_user.user_id,
+        receiver_id=message.receiver_id,
+        message_type=message.message_type,
+        related_entity_type=message.related_entity_type,
+        related_entity_id=message.related_entity_id,
+        subject=message.subject,
+        content=message.content
+    )
 
     db.add(new_message)
     db.commit()
@@ -82,6 +71,7 @@ def send_message(
 # ---------------------------------------
 # Get All Messages
 # ---------------------------------------
+
 @router.get("/", response_model=list[MessageResponse])
 def get_messages(
     db: Session = Depends(get_db),
@@ -96,6 +86,7 @@ def get_messages(
 # ---------------------------------------
 # Get Message By ID
 # ---------------------------------------
+
 @router.get("/{message_id}", response_model=MessageResponse)
 def get_message(
     message_id: int,
@@ -119,8 +110,9 @@ def get_message(
 
 
 # ---------------------------------------
-# Update Message
+# Mark Message as Read
 # ---------------------------------------
+
 @router.put("/{message_id}", response_model=MessageResponse)
 def update_message(
     message_id: int,
@@ -141,10 +133,10 @@ def update_message(
             detail="Message not found"
         )
 
-    update_fields = updated_message.model_dump(exclude_unset=True)
+    message.is_read = updated_message.is_read
 
-    for key, value in update_fields.items():
-        setattr(message, key, value)
+    if updated_message.is_read:
+        message.read_at = datetime.utcnow()
 
     db.commit()
     db.refresh(message)

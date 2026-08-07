@@ -22,22 +22,45 @@ class Message(Base):
         nullable=False
     )
 
-    procurement_id = Column(
-        Integer,
-        ForeignKey("procurement_requests.procurement_id"),
+    message_type = Column(
+        String,
+        nullable=False,
+        default="text"
+    )
+
+    related_entity_type = Column(
+        String,
         nullable=False
     )
 
-    message = Column(String, nullable=False)
+    related_entity_id = Column(
+        Integer,
+        nullable=False
+    )
 
-    sent_at = Column(
-        DateTime,
-        default=datetime.utcnow
+    subject = Column(
+        String,
+        nullable=True
+    )
+
+    content = Column(
+        String,
+        nullable=False
     )
 
     is_read = Column(
         Boolean,
         default=False
+    )
+
+    read_at = Column(
+        DateTime,
+        nullable=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
     )
 
     # Relationships
@@ -51,9 +74,4 @@ class Message(Base):
         "User",
         foreign_keys=[receiver_id],
         back_populates="received_messages"
-    )
-
-    procurement = relationship(
-        "ProcurementRequest",
-        back_populates="messages"
     )

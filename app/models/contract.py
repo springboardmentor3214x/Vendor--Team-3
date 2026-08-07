@@ -19,35 +19,4 @@ class Contract(Base):
     status = Column(String, default="Active")
 
     vendor = relationship("Vendor", back_populates="contracts")
-<<<<<<< HEAD
     procurement = relationship("ProcurementRequest", back_populates="contracts")
-=======
-    procurement = relationship("ProcurementRequest", back_populates="contracts")
-
-    documents = relationship(
-    "ContractDocument",
-    back_populates="contract",
-    cascade="all, delete"
-)
-
-
-    milestones = relationship(
-    "ContractMilestone",
-    back_populates="contract",
-    cascade="all, delete"
-)
-
-
-    renewals = relationship(
-    "ContractRenewal",
-    back_populates="contract",
-    cascade="all, delete"
-)
-
-
-    amendments = relationship(
-    "ContractAmendment",
-    back_populates="contract",
-    cascade="all, delete"
-)
->>>>>>> 84a41fe (Added contract management module with amendments documents milestones renewal and dashboard)
