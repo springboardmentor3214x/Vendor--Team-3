@@ -87,12 +87,15 @@ CREATE TABLE Reports (
     generated_by INT,
     generated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     report_type VARCHAR(50),
+    report_description TEXT,
+    file_path TEXT,
+    file_format VARCHAR(20),
+    status VARCHAR(20) DEFAULT 'Generated',
 
     CONSTRAINT fk_report_user
     FOREIGN KEY (generated_by)
     REFERENCES Users(user_id)
 );
-
 
 
 -- =====================================================
@@ -636,6 +639,198 @@ CREATE TABLE Notifications (
     CONSTRAINT chk_delivery_method
         CHECK (delivery_method IN ('In-App', 'Email', 'SMS'))
 );
+
+/* ==========================================================
+   MODULE 10 - REPORTS & EXPORT
+   ========================================================== */
+
+/* Update Reports table for Module 10 */
+
+CREATE TABLE IF NOT EXISTS Reports (
+    report_id SERIAL PRIMARY KEY,
+    report_name VARCHAR(100),
+    generated_by INT,
+    generated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    report_type VARCHAR(50),
+    report_description TEXT,
+    file_path TEXT,
+    file_format VARCHAR(20),
+    status VARCHAR(20) DEFAULT 'Generated',
+
+    CONSTRAINT fk_report_user
+        FOREIGN KEY (generated_by)
+        REFERENCES Users(user_id)
+);
+
+
+/* ==========================================================
+   Vendor Performance Report
+   ========================================================== */
+
+CREATE OR REPLACE VIEW Vendor_Performance_Report AS
+SELECT
+    v.vendor_id,
+    v.vendor_name,
+    v.category,
+    COUNT(DISTINCT po.order_id) AS total_purchase_orders,
+
+    COUNT(DISTINCT CASE
+        WHEN dp.delivery_status = 'On Time'
+        THEN dp.delivery_id
+    END) AS on_time_deliveries,
+
+    COUNT(DISTINCT CASE
+        WHEN dp.delivery_status = 'Delayed'
+        THEN dp.delivery_id
+    END) AS delayed_deliveries,
+
+    AVG(pq.quality_score) AS average_quality_score,
+    AVG(sr.rating) AS average_service_rating,
+
+    vr.reliability_score,
+    vr.risk_level
+
+FROM Vendors v
+
+LEFT JOIN Purchase_Orders po
+    ON v.vendor_id = po.vendor_id
+
+LEFT JOIN Delivery_Performance dp
+    ON v.vendor_id = dp.vendor_id
+
+LEFT JOIN Product_Quality_Evaluations pq
+    ON v.vendor_id = pq.vendor_id
+
+LEFT JOIN Service_Ratings sr
+    ON v.vendor_id = sr.vendor_id
+
+LEFT JOIN Vendor_Reliability vr
+    ON v.vendor_id = vr.vendor_id
+
+GROUP BY
+    v.vendor_id,
+    v.vendor_name,
+    v.category,
+    vr.reliability_score,
+    vr.risk_level;
+
+
+/* ==========================================================
+   Procurement Report
+   ========================================================== */
+
+CREATE OR REPLACE VIEW Procurement_Report AS
+SELECT
+    COUNT(DISTINCT pr.procurement_id) AS total_procurement_requests,
+
+    COUNT(DISTINCT CASE
+        WHEN pr.status = 'Approved'
+        THEN pr.procurement_id
+    END) AS approved_requests,
+
+    COUNT(DISTINCT po.order_id) AS total_purchase_orders,
+
+    COUNT(DISTINCT CASE
+        WHEN po.status = 'Completed'
+        THEN po.order_id
+    END) AS completed_purchase_orders,
+
+    COALESCE(SUM(po.amount), 0) AS total_procurement_expenditure
+
+FROM Procurement_Requests pr
+
+FULL OUTER JOIN Purchase_Orders po
+    ON pr.vendor_id = po.vendor_id;
+
+
+/* ==========================================================
+   Contract & Compliance Report
+   ========================================================== */
+
+CREATE OR REPLACE VIEW Contract_Compliance_Report AS
+SELECT
+    c.contract_id,
+    c.contract_number,
+    c.contract_title,
+    v.vendor_id,
+    v.vendor_name,
+    c.contract_type,
+    c.contract_value,
+    c.start_date,
+    c.end_date,
+    c.contract_status,
+    cr.renewal_status,
+    comp.compliance_type,
+    comp.compliance_status,
+    comp.verification_date
+
+FROM Contracts c
+
+JOIN Vendors v
+    ON c.vendor_id = v.vendor_id
+
+LEFT JOIN Contract_Renewals cr
+    ON c.contract_id = cr.contract_id
+
+LEFT JOIN Compliance_Records comp
+    ON c.vendor_id = comp.vendor_id;
+
+
+/* ==========================================================
+   Purchase Order Report
+   ========================================================== */
+
+CREATE OR REPLACE VIEW Purchase_Order_Report AS
+SELECT
+    po.order_id,
+    v.vendor_id,
+    v.vendor_name,
+    v.category AS vendor_category,
+    po.order_date AS purchase_date,
+    po.delivery_date,
+    po.amount AS order_value,
+    po.status AS order_status
+
+FROM Purchase_Orders po
+
+JOIN Vendors v
+    ON po.vendor_id = v.vendor_id;
+
+
+/* ==========================================================
+   Executive Summary Report
+   ========================================================== */
+
+CREATE OR REPLACE VIEW Executive_Summary_Report AS
+SELECT
+    (SELECT COUNT(*)
+     FROM Vendors) AS total_registered_vendors,
+
+    (SELECT COUNT(*)
+     FROM Vendors
+     WHERE status = 'Active') AS active_vendors,
+
+    (SELECT COALESCE(SUM(amount), 0)
+     FROM Purchase_Orders) AS total_procurement_spending,
+
+    (SELECT COUNT(*)
+     FROM Delivery_Performance
+     WHERE delivery_status = 'Delayed') AS delayed_deliveries,
+
+    (SELECT COUNT(*)
+     FROM Contracts
+     WHERE end_date BETWEEN CURRENT_DATE
+                        AND CURRENT_DATE + INTERVAL '90 days')
+        AS contracts_expiring_90_days,
+
+    (SELECT COUNT(*)
+     FROM Compliance_Records
+     WHERE compliance_status = 'Compliant')
+        AS compliant_records,
+
+    (SELECT COUNT(*)
+     FROM Compliance_Records)
+        AS total_compliance_records;
 -- Verify all tables
 SELECT table_name
 FROM information_schema.tables
