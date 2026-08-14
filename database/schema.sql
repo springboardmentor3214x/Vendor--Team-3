@@ -606,11 +606,38 @@ SELECT
     COUNT(CASE WHEN read_status='Unread' THEN 1 END) AS unread_messages
 FROM Messages;
 
+
+/* ==========================================================
+   MODULE 9 - NOTIFICATION MANAGEMENT
+   ========================================================== */
+
+CREATE TABLE Notifications (
+    notification_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    notification_type VARCHAR(50) NOT NULL,
+    notification_title VARCHAR(150) NOT NULL,
+    description TEXT,
+    related_module VARCHAR(100),
+    related_record_id INT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    priority VARCHAR(20) DEFAULT 'Medium',
+    delivery_method VARCHAR(30) DEFAULT 'In-App',
+    is_read BOOLEAN DEFAULT FALSE,
+
+    CONSTRAINT fk_notification_user
+        FOREIGN KEY (user_id)
+        REFERENCES Users(user_id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT chk_notification_priority
+        CHECK (priority IN ('High', 'Medium', 'Low')),
+
+    CONSTRAINT chk_delivery_method
+        CHECK (delivery_method IN ('In-App', 'Email', 'SMS'))
+);
 -- Verify all tables
 SELECT table_name
 FROM information_schema.tables
 WHERE table_schema = 'public';
 
-SELECT table_name
-FROM information_schema.views
-WHERE table_schema='public';
+
