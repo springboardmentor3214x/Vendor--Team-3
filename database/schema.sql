@@ -606,7 +606,6 @@ SELECT
     COUNT(CASE WHEN read_status='Unread' THEN 1 END) AS unread_messages
 FROM Messages;
 
-
 /* ==========================================================
    MODULE 9 - NOTIFICATION MANAGEMENT
    ========================================================== */
@@ -614,8 +613,10 @@ FROM Messages;
 CREATE TABLE Notifications (
     notification_id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
-    notification_type VARCHAR(50) NOT NULL,
-    notification_title VARCHAR(150) NOT NULL,
+    message TEXT,
+    status VARCHAR(20),
+    notification_type VARCHAR(50),
+    notification_title VARCHAR(150),
     description TEXT,
     related_module VARCHAR(100),
     related_record_id INT,
