@@ -17,6 +17,8 @@ class Contract(Base):
     end_date = Column(Date, nullable=False)
     contract_value = Column(Float, nullable=False)
     status = Column(String, default="Active")
+    document_path = Column(String, nullable=True)
 
     vendor = relationship("Vendor", back_populates="contracts")
     procurement = relationship("ProcurementRequest", back_populates="contracts")
+    renewals = relationship("ContractRenewal", back_populates="contract", cascade="all, delete-orphan")

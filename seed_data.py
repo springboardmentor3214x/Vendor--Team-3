@@ -139,7 +139,7 @@ def seed_db():
         db.add(msg2)
         db.commit()
 
-    print(f"PM User: {pm_email} / password123")
+    print(f"PM User: pm@example.com / password123")
     print(f"Vendor User: {vendor_email} / password123")
     print("Seeded successfully!")
 

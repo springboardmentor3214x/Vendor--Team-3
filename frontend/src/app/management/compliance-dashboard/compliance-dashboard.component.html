@@ -1,0 +1,114 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">✅ Compliance Dashboard</span>
+      </div>
+      <div class="dash-topbar-right">
+        <span>👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+
+    <!-- Stats Overview -->
+    <div style="padding:2rem 2rem 1rem;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:1.5rem;">
+        
+        <div style="background:white;padding:1.5rem;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 4px 6px rgba(0,0,0,0.02);display:flex;align-items:center;gap:1.5rem;">
+          <div style="width:60px;height:60px;border-radius:50%;background:#dcfce7;color:#16a34a;display:flex;justify-content:center;align-items:center;font-size:1.5rem;font-weight:bold;">
+            100%
+          </div>
+          <div>
+            <div style="font-size:0.85rem;font-weight:700;color:#64748b;text-transform:uppercase;">Overall Compliance</div>
+            <div style="font-size:1.8rem;font-weight:800;color:#1e293b;">Excellent</div>
+          </div>
+        </div>
+        
+        <div style="background:white;padding:1.5rem;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 4px 6px rgba(0,0,0,0.02);display:flex;align-items:center;gap:1.5rem;">
+          <div style="width:60px;height:60px;border-radius:50%;background:#fee2e2;color:#dc2626;display:flex;justify-content:center;align-items:center;font-size:1.5rem;font-weight:bold;">
+            {{ nonCompliantCount }}
+          </div>
+          <div>
+            <div style="font-size:0.85rem;font-weight:700;color:#64748b;text-transform:uppercase;">Non-Compliant Records</div>
+            <div style="font-size:1.8rem;font-weight:800;color:#1e293b;">Action Needed</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Compliance Data Table -->
+    <div style="padding:1rem 2rem 2rem;">
+      <div style="background:white;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 4px 6px rgba(0,0,0,0.02);overflow:hidden;">
+        <div style="padding:1.25rem 1.5rem;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;background:#f8fafc;">
+          <h3 style="margin:0;font-size:1.1rem;color:#1e293b;font-weight:800;">Compliance Records</h3>
+          <button *ngIf="sidebarService.getCurrentRole() !== 'vendor' && sidebarService.getCurrentRole() !== 'auditor'" (click)="showAddForm = !showAddForm" style="background:#2563eb;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;font-weight:700;cursor:pointer;">
+            + Verify New Record
+          </button>
+        </div>
+
+        <div *ngIf="showAddForm" style="padding:1.5rem;background:#eff6ff;border-bottom:1px solid #e2e8f0;">
+          <div style="display:grid;grid-template-columns:repeat(4, 1fr) auto;gap:1rem;align-items:end;">
+            <div>
+              <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Vendor ID</label>
+              <input type="number" [(ngModel)]="newRecord.vendor_id" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+            </div>
+            <div>
+              <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Requirement Type</label>
+              <input type="text" [(ngModel)]="newRecord.requirement_type" placeholder="e.g. Safety Regulations" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+            </div>
+            <div>
+              <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Status</label>
+              <select [(ngModel)]="newRecord.status" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+                <option value="Compliant">Compliant</option>
+                <option value="Pending Verification">Pending Verification</option>
+                <option value="Non-Compliant">Non-Compliant</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Notes</label>
+              <input type="text" [(ngModel)]="newRecord.notes" style="width:100%;padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;">
+            </div>
+            <button (click)="submitRecord()" style="background:#10b981;color:white;border:none;padding:0.6rem 1rem;border-radius:4px;font-weight:700;cursor:pointer;">Save</button>
+          </div>
+        </div>
+
+        <table style="width:100%;border-collapse:collapse;text-align:left;">
+          <thead>
+            <tr style="background:#f8fafc;color:#64748b;font-size:0.85rem;text-transform:uppercase;">
+              <th style="padding:1rem 1.5rem;border-bottom:1px solid #e2e8f0;">ID</th>
+              <th style="padding:1rem 1.5rem;border-bottom:1px solid #e2e8f0;">Vendor</th>
+              <th style="padding:1rem 1.5rem;border-bottom:1px solid #e2e8f0;">Requirement</th>
+              <th style="padding:1rem 1.5rem;border-bottom:1px solid #e2e8f0;">Status</th>
+              <th style="padding:1rem 1.5rem;border-bottom:1px solid #e2e8f0;">Last Verified</th>
+              <th style="padding:1rem 1.5rem;border-bottom:1px solid #e2e8f0;" *ngIf="sidebarService.getCurrentRole() !== 'vendor'">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of records" style="border-bottom:1px solid #e2e8f0;transition:background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+              <td style="padding:1rem 1.5rem;font-weight:600;color:#1e293b;">#{{record.compliance_id}}</td>
+              <td style="padding:1rem 1.5rem;font-weight:600;color:#1e293b;">{{record.vendor_id}}</td>
+              <td style="padding:1rem 1.5rem;color:#475569;">{{record.requirement_type}}</td>
+              <td style="padding:1rem 1.5rem;">
+                <span [style.background]="record.status === 'Compliant' ? '#dcfce7' : record.status === 'Non-Compliant' ? '#fee2e2' : '#fef9c3'"
+                      [style.color]="record.status === 'Compliant' ? '#166534' : record.status === 'Non-Compliant' ? '#991b1b' : '#854d0e'"
+                      style="padding:0.25rem 0.6rem;border-radius:20px;font-size:0.75rem;font-weight:800;">
+                  {{record.status}}
+                </span>
+              </td>
+              <td style="padding:1rem 1.5rem;color:#64748b;font-size:0.9rem;">{{record.last_verified ? (record.last_verified | date) : 'Never'}}</td>
+              <td style="padding:1rem 1.5rem;" *ngIf="sidebarService.getCurrentRole() !== 'vendor'">
+                <button (click)="updateStatus(record.compliance_id, 'Compliant')" *ngIf="record.status !== 'Compliant'" style="background:#10b981;color:white;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;margin-right:0.5rem;">Mark Compliant</button>
+                <button (click)="updateStatus(record.compliance_id, 'Non-Compliant')" *ngIf="record.status !== 'Non-Compliant'" style="background:#ef4444;color:white;border:none;padding:0.4rem 0.8rem;border-radius:4px;font-size:0.75rem;font-weight:700;cursor:pointer;">Mark Non-Compliant</button>
+              </td>
+            </tr>
+            <tr *ngIf="records.length === 0">
+              <td colspan="6" style="padding:2rem;text-align:center;color:#94a3b8;font-weight:600;">No compliance records found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

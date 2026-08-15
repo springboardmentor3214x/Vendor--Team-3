@@ -15,6 +15,8 @@ from app.models.vendor_reliability import VendorReliability
 from app.models.performance_trend import PerformanceTrend
 from app.models.supplier_ranking import SupplierRanking
 from app.models.procurement_recommendation import ProcurementRecommendation
+from app.models.activity_log import ActivityLog
+from app.models.discussion import Discussion, DiscussionMessage
 
 from app.routers import auth
 from app.routers import vendor
@@ -34,13 +36,30 @@ from app.routers import procurement_recommendation
 from app.routers import vendor_dashboard
 from app.routers import vendor_reliability
 from app.routers import websocket
+from app.routers import activity_log
+from app.routers import discussion
+from app.routers import admin_dashboard
+from app.routers import performance
+from app.routers import shared_file
+from app.routers import reliability
+
+from contextlib import asynccontextmanager
+from app.core.background_tasks import start_scheduler
 
 # Create Tables
 Base.metadata.create_all(bind=engine)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    start_scheduler()
+    yield
+    # Shutdown logic if needed
+
 app = FastAPI(
     title="Vendor Reliability Intelligence Platform",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS Middleware
@@ -71,6 +90,17 @@ app.include_router(procurement_recommendation.router)
 app.include_router(vendor_dashboard.router)
 app.include_router(vendor_reliability.router)
 app.include_router(websocket.router)
+app.include_router(activity_log.router)
+app.include_router(discussion.router)
+app.include_router(admin_dashboard.router)
+app.include_router(performance.router)
+app.include_router(shared_file.router)
+app.include_router(reliability.router)
+
+from app.routers import certification
+from app.routers import compliance
+app.include_router(certification.router)
+app.include_router(compliance.router)
 
 @app.get("/")
 def home():

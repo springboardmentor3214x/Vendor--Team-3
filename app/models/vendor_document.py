@@ -27,4 +27,6 @@ class VendorDocument(Base):
         server_default=func.now()
     )
 
+    status = Column(String, default="Pending")
+
     vendor = relationship("Vendor")

@@ -78,3 +78,47 @@ def delete_document(
     return {
         "message": "Document deleted successfully"
     }
+
+
+# Approve Vendor Document
+@router.put("/{document_id}/approve")
+def approve_document(
+    document_id: int,
+    db: Session = Depends(get_db)
+):
+    document = db.query(VendorDocument).filter(
+        VendorDocument.document_id == document_id
+    ).first()
+
+    if not document:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found"
+        )
+
+    document.status = "Approved"
+    db.commit()
+
+    return {"message": "Document approved"}
+
+
+# Reject Vendor Document
+@router.put("/{document_id}/reject")
+def reject_document(
+    document_id: int,
+    db: Session = Depends(get_db)
+):
+    document = db.query(VendorDocument).filter(
+        VendorDocument.document_id == document_id
+    ).first()
+
+    if not document:
+        raise HTTPException(
+            status_code=404,
+            detail="Document not found"
+        )
+
+    document.status = "Rejected"
+    db.commit()
+
+    return {"message": "Document rejected"}

@@ -5,15 +5,44 @@ import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
 import { PerformanceService } from '../../management/performance.service';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
 
 @Component({
   selector: 'app-vendor-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, SidebarComponent, FormsModule],
+  imports: [CommonModule, RouterLink, SidebarComponent, FormsModule, BaseChartDirective],
   templateUrl: './vendor-dashboard.component.html',
   styleUrl: './vendor-dashboard.component.scss'
 })
 export class VendorDashboardComponent implements OnInit {
+  vendorScore = 0;
+  vendorCategory = '';
+  activeOrdersCount = 0;
+  contractsStatus = '';
+  unreadMessagesCount = 0;
+  
+  recentOrders: any[] = [];
+  contractsList: any[] = [];
+  performanceMetrics: any = {};
+
+  totalOrders = 0;
+  totalContracts = 0;
+
+  // Chart data
+  public scoreChartType: ChartType = 'doughnut';
+  public scoreChartData: any = {
+    labels: ['Reliability Score', 'Remaining'],
+    datasets: [{ data: [0, 100], backgroundColor: ['#10b981', '#e2e8f0'] }]
+  };
+  public scoreChartOptions: ChartOptions = { responsive: true, maintainAspectRatio: false };
+
+  public contractChartData: any = {
+    labels: ['Active', 'Pending', 'Expired'],
+    datasets: [{ data: [0, 0, 0], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'] }]
+  };
+  public contractChartOptions: ChartOptions = { responsive: true, maintainAspectRatio: false };
+
   isChatOpen = false;
   newChatMessage = '';
   chatMessages = [
@@ -22,13 +51,10 @@ export class VendorDashboardComponent implements OnInit {
     { sender: 'Auditor', text: 'Thanks, please re-upload in the compliance section.', time: 'Today, 10:00 AM' }
   ];
 
-  totalOrders = 0;
-  totalContracts = 0;
   totalPaymentsStr = '₹0.00';
   ratingStars = '⭐⭐⭐⭐☆';
   ratingPercent = '—';
 
-  recentOrders: any[] = [];
   pendingContracts: any[] = [];
   
   paidAmount = 0;
@@ -153,6 +179,15 @@ export class VendorDashboardComponent implements OnInit {
               const vendorContracts = contracts.filter(c => c.vendor_id === vId);
               this.totalContracts = vendorContracts.length;
 
+              const active = vendorContracts.filter(c => c.status === 'Active').length;
+              const pending = vendorContracts.filter(c => c.status === 'Pending').length;
+              const expired = vendorContracts.filter(c => c.status === 'Expired' || c.status === 'Terminated').length;
+
+              this.contractChartData = {
+                labels: ['Active', 'Pending', 'Expired/Terminated'],
+                datasets: [{ data: [active, pending, expired], backgroundColor: ['#10b981', '#f59e0b', '#ef4444'] }]
+              };
+
               this.pendingContracts = vendorContracts.filter(c => c.status === 'Pending').map((c, index) => ({
                 name: c.contract_name || `Contract Agreement ${index + 1}`
               }));
@@ -163,6 +198,39 @@ export class VendorDashboardComponent implements OnInit {
             },
             error: (err) => console.error('Error fetching vendor contracts', err)
           });
+          
+          this.performanceService.getVendorPerformanceView().subscribe({
+            next: (perf) => {
+              if(perf.overall_score !== undefined) {
+                const score = perf.overall_score || 0;
+                this.ratingPercent = `${score.toFixed(1)}/100`;
+                this.ratingStars = score >= 90 ? '⭐⭐⭐⭐⭐' : (score >= 75 ? '⭐⭐⭐⭐☆' : '⭐⭐⭐☆☆');
+                this.scoreChartData = {
+                  labels: ['Reliability Score', 'Remaining'],
+                  datasets: [{ data: [score, 100 - score], backgroundColor: ['#10b981', '#e2e8f0'] }]
+                };
+              }
+            }
+          });
+
+          this.performanceService.getVendorCommunicationSummary().subscribe({
+            next: (summary) => {
+              this.unreadMessagesCount = summary.unread_messages || 0;
+              if (this.unreadMessagesCount > 0) {
+                 this.notifications.push(`• You have ${this.unreadMessagesCount} unread messages.`);
+              }
+            }
+          });
+
+          this.performanceService.getVendorPendingDeliveries().subscribe({
+            next: (deliveries) => {
+              this.upcomingDeliveries = deliveries.map((d: any) => ({
+                 title: d.order_number,
+                 date: d.expected_delivery_date ? new Date(d.expected_delivery_date).toLocaleDateString() : 'Scheduled'
+              }));
+            }
+          });
+
         }
       },
       error: (err) => console.error('Error identifying logged-in vendor', err)

@@ -1,0 +1,105 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">🛡️ Certification Management</span>
+      </div>
+      <div class="dash-topbar-right">
+        <span>👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+
+    <!-- Add Certification -->
+    <div *ngIf="sidebarService.getCurrentRole() !== 'auditor' && sidebarService.getCurrentRole() !== 'finance'" style="padding:2rem;background:white;border-bottom:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+      <h3 style="margin:0 0 1rem;color:#1e293b;font-weight:800;">Upload New Certification</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:1rem;align-items:end;">
+        <div *ngIf="sidebarService.getCurrentRole() !== 'vendor'">
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Vendor</label>
+          <select [(ngModel)]="newCert.vendor_id" style="width:100%;padding:0.6rem;border:1px solid #cbd5e1;border-radius:4px;">
+            <option [value]="null">Select Vendor...</option>
+            <option *ngFor="let v of vendors" [value]="v.vendor_id">{{v.company_name}}</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Certification Name</label>
+          <input type="text" [(ngModel)]="newCert.name" placeholder="e.g. ISO 9001" style="width:100%;padding:0.6rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Cert Number</label>
+          <input type="text" [(ngModel)]="newCert.cert_number" placeholder="CERT-12345" style="width:100%;padding:0.6rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Issuing Authority</label>
+          <input type="text" [(ngModel)]="newCert.issuing_authority" placeholder="e.g. BSI Group" style="width:100%;padding:0.6rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Issue Date</label>
+          <input type="date" [(ngModel)]="newCert.issue_date" style="width:100%;padding:0.6rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Expiry Date</label>
+          <input type="date" [(ngModel)]="newCert.expiry_date" style="width:100%;padding:0.6rem;border:1px solid #cbd5e1;border-radius:4px;">
+        </div>
+      </div>
+      <div style="margin-top: 1rem; display:flex; gap: 1rem; align-items:center;">
+        <input type="file" (change)="onFileSelected($event)" accept=".pdf,image/*" style="font-size:0.9rem;">
+        <button (click)="submitCertification()" style="background:#2563eb;color:white;border:none;padding:0.6rem 1.5rem;border-radius:4px;font-weight:700;cursor:pointer;margin-left:auto;">Submit Certification</button>
+      </div>
+    </div>
+
+    <!-- Active Certifications -->
+    <div style="padding:2rem;">
+      <h3 style="margin:0 0 1.5rem;color:#1e293b;font-weight:800;">Vendor Certifications Dashboard</h3>
+      
+      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(350px, 1fr));gap:1.5rem;">
+        <div *ngFor="let cert of certifications" 
+             style="background:white;border:1px solid #e2e8f0;border-radius:12px;padding:1.5rem;box-shadow:0 4px 6px rgba(0,0,0,0.02);transition:transform 0.2s, box-shadow 0.2s;"
+             onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 10px 15px rgba(0,0,0,0.05)'"
+             onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 6px rgba(0,0,0,0.02)'">
+          
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div style="font-weight:800;font-size:1.15rem;color:#1e293b;">{{cert.name}}</div>
+            <span [style.background]="cert.status === 'Active' ? '#dcfce7' : cert.status === 'Expired' ? '#fee2e2' : '#fef9c3'"
+                  [style.color]="cert.status === 'Active' ? '#166534' : cert.status === 'Expired' ? '#991b1b' : '#854d0e'"
+                  style="padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:800;text-transform:uppercase;">
+              {{cert.status}}
+            </span>
+          </div>
+          
+          <div style="font-size:0.85rem;color:#64748b;margin-top:0.25rem;">
+            <strong>Vendor ID:</strong> {{cert.vendor_id}}
+          </div>
+          <div style="font-size:0.85rem;color:#64748b;">
+            <strong>Authority:</strong> {{cert.issuing_authority}}
+          </div>
+          <div style="font-size:0.85rem;color:#64748b;">
+            <strong>Cert #:</strong> {{cert.cert_number}}
+          </div>
+          
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;background:#f8fafc;padding:0.75rem;border-radius:8px;">
+            <div>
+              <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;text-transform:uppercase;">Issue Date</div>
+              <div style="font-weight:600;color:#334155;">{{cert.issue_date}}</div>
+            </div>
+            <div>
+              <div style="font-size:0.7rem;font-weight:700;color:#94a3b8;text-transform:uppercase;">Expiry Date</div>
+              <div style="font-weight:600;" [style.color]="cert.status === 'Expired' ? '#ef4444' : '#334155'">{{cert.expiry_date}}</div>
+            </div>
+          </div>
+          
+          <div style="margin-top:1.5rem;display:flex;gap:0.5rem;">
+            <button *ngIf="cert.document_path" (click)="downloadCert(cert.certification_id)" style="flex:1;background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:0.5rem;border-radius:6px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+              📎 Download PDF
+            </button>
+            <button *ngIf="!cert.document_path" disabled style="flex:1;background:#f8fafc;color:#94a3b8;border:1px dashed #cbd5e1;padding:0.5rem;border-radius:6px;font-weight:700;cursor:not-allowed;">
+              No Document
+            </button>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

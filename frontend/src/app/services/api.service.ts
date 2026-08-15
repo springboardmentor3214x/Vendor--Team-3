@@ -15,6 +15,30 @@ export class ApiService {
     return new HttpHeaders({ Authorization: `Bearer ${token}` });
   }
 
+  // ─── Generic Methods ─────────────────────────────────────────────────────────
+  get(url: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}${url}`, { headers: this.getAuthHeaders() });
+  }
+
+  getBlob(url: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}${url}`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+
+  post(url: string, data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}${url}`, data, { headers: this.getAuthHeaders() });
+  }
+
+  put(url: string, data: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}${url}`, data, { headers: this.getAuthHeaders() });
+  }
+
+  delete(url: string): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}${url}`, { headers: this.getAuthHeaders() });
+  }
+
   // ─── Users ──────────────────────────────────────────────────────────────────
   getAllUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/users`);
@@ -155,6 +179,118 @@ export class ApiService {
 
   submitQuotation(rfqId: number, data: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/rfqs/${rfqId}/quotations`, data, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  // ─── File Uploads & Downloads ────────────────────────────────────────────────
+  uploadContractDocument(contractId: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${this.baseUrl}/contracts/${contractId}/upload`, formData, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  downloadContractDocument(contractId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/contracts/${contractId}/download`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+
+  uploadVendorRegistrationDocument(vendorId: number, docType: string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${this.baseUrl}/vendors/${vendorId}/upload-document?doc_type=${docType}`, formData, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  downloadVendorRegistrationDocument(vendorId: number, docType: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/vendors/${vendorId}/download-document?doc_type=${docType}`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+
+  uploadMessageAttachment(messageId: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${this.baseUrl}/messages/${messageId}/upload`, formData, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  downloadMessageAttachment(messageId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/messages/${messageId}/download`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+
+  // ─── Renewals ────────────────────────────────────────────────────────────────
+  renewContract(contractId: number, data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/contracts/${contractId}/renew`, data, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  // ─── Certifications ───────────────────────────────────────────────────────────
+  getCertifications(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/certifications/`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+  
+  getVendorCertifications(vendorId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/certifications/vendor/${vendorId}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  addCertification(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/certifications/`, data, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  uploadCertificateDocument(certificationId: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<any>(`${this.baseUrl}/certifications/${certificationId}/upload`, formData, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  downloadCertificateDocument(certificationId: number): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/certifications/${certificationId}/download`, {
+      headers: this.getAuthHeaders(),
+      responseType: 'blob'
+    });
+  }
+
+  // ─── Compliance ─────────────────────────────────────────────────────────────
+  getComplianceRecords(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/compliance/`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  getVendorCompliance(vendorId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/compliance/vendor/${vendorId}`, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  addComplianceRecord(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/compliance/`, data, {
+      headers: this.getAuthHeaders()
+    });
+  }
+
+  updateComplianceRecord(id: number, data: any): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/compliance/${id}`, data, {
       headers: this.getAuthHeaders()
     });
   }

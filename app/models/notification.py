@@ -16,7 +16,15 @@ class Notification(Base):
         nullable=False
     )
 
+    notification_type = Column(String(100), nullable=False)
+    title = Column(String(255), nullable=False)
     message = Column(Text, nullable=False)
+    
+    related_module = Column(String(100), nullable=True)
+    related_record_id = Column(Integer, nullable=True)
+    
+    priority = Column(String(20), default="Low") # High, Medium, Low
+    delivery_method = Column(String(50), default="In-App") # In-App, Email, SMS, Multiple
 
     status = Column(String(20), default="Unread")
 

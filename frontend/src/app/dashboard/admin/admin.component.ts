@@ -5,11 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
 import { PerformanceService } from '../../management/performance.service';
+import { BaseChartDirective } from 'ng2-charts';
+import { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, RouterLink, SidebarComponent, FormsModule],
+  imports: [CommonModule, RouterLink, SidebarComponent, FormsModule, BaseChartDirective],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
 })
@@ -22,6 +24,30 @@ export class AdminComponent implements OnInit {
   topVendors: any[] = [];
   recentActivities: any[] = [];
   searchTerm = '';
+  activeUsersCount = 0;
+
+  // Chart data
+  public vendorChartType: ChartType = 'doughnut';
+  public vendorChartData: any = {
+    labels: [],
+    datasets: [{ data: [] }]
+  };
+  public vendorChartOptions: ChartOptions = { responsive: true, maintainAspectRatio: false };
+
+  public costTrendData: any = {
+    labels: [],
+    datasets: [{ data: [] }]
+  };
+  public costTrendOptions: ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    elements: {
+      line: { tension: 0.4 } // Smooth curve
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  };
 
   constructor(
     public sidebarService: SidebarService,
@@ -44,22 +70,44 @@ export class AdminComponent implements OnInit {
   }
 
   loadDashboardData() {
-    // 1. Fetch Users Count from LocalStorage
-    const cachedUsers = localStorage.getItem('vrp_users');
-    if (cachedUsers) {
-      try {
-        this.usersCount = JSON.parse(cachedUsers).length;
-      } catch (e) {
-        this.usersCount = 6;
-      }
-    }
-
-    // 2. Fetch Vendor Summary
-    this.performanceService.getVendorSummary().subscribe({
-      next: (summary) => {
-        this.totalVendors = summary.total_vendors || 0;
+    // 1. Fetch Admin Overview
+    this.performanceService.getAdminOverview().subscribe({
+      next: (overview) => {
+        this.usersCount = overview.total_users || 0;
+        this.activeUsersCount = overview.active_users || 0;
+        this.totalVendors = overview.total_vendors || 0;
+        
+        if (overview.vendor_distribution) {
+          const labels = overview.vendor_distribution.map((d: any) => d.status);
+          const data = overview.vendor_distribution.map((d: any) => d.count);
+          this.vendorChartData = {
+            labels: labels,
+            datasets: [{ data: data, backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'] }]
+          };
+        }
       },
-      error: (err) => console.error('Error fetching admin vendor summary', err)
+      error: (err) => console.error('Error fetching admin overview', err)
+    });
+
+    // 2. Fetch Cost Analysis for Trend
+    this.performanceService.getCostAnalysis().subscribe({
+      next: (cost) => {
+        if (cost.monthly_expenses) {
+          const labels = cost.monthly_expenses.map((m: any) => m.month);
+          const data = cost.monthly_expenses.map((m: any) => m.total);
+          this.costTrendData = {
+            labels: labels,
+            datasets: [{
+              label: 'Procurement Spend',
+              data: data,
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99, 102, 241, 0.2)', // Area fill
+              fill: true,
+            }]
+          };
+        }
+      },
+      error: (err) => console.error('Error fetching cost analysis', err)
     });
 
     // 3. Fetch Purchase Orders

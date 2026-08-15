@@ -5,10 +5,14 @@
     <div class="auth-subtitle">Create Account</div>
     
     <div class="auth-form">
-      <div *ngIf="errorMessage" class="error-alert">
+      <div *ngIf="successMessage" class="success-alert" style="color: green; background-color: #e6ffed; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        ✅ {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" class="error-alert" style="color: red; background-color: #ffe6e6; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
         ⚠️ {{ errorMessage }}
       </div>
       
+      <div *ngIf="step === 1">
       <div class="field-group">
         <label class="field-label">Full Name</label>
         <input class="field-input" type="text" [(ngModel)]="fullName" placeholder="Enter your Name">
@@ -52,7 +56,17 @@
         </select>
       </div>
 
-      <button class="btn-primary" (click)="onRegister()">Register</button>
+        <button class="btn-primary" (click)="onRegister()">Register</button>
+      </div>
+
+      <div *ngIf="step === 2">
+        <div class="field-group">
+          <label class="field-label">Verification Code (OTP)</label>
+          <input class="field-input" type="text" [(ngModel)]="otp" placeholder="Enter 6-digit OTP sent to email">
+        </div>
+        <button class="btn-primary" (click)="onVerifyOtp()">Verify OTP</button>
+      </div>
+
       <p class="login-link">Already have an account? <a routerLink="/login" class="link-blue">Login</a></p>
     </div>
   </div>

@@ -40,6 +40,10 @@ class Vendor(Base):
     vendor_status = Column(String, default="Pending")
     approval_status = Column(String, default="Pending")
 
+    gst_certificate_path = Column(String, nullable=True)
+    pan_card_path = Column(String, nullable=True)
+    registration_certificate_path = Column(String, nullable=True)
+
     # Relationships
     procurement_requests = relationship(
         "ProcurementRequest",

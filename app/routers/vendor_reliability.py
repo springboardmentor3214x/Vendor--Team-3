@@ -8,10 +8,11 @@ from app.models.vendor_reliability import VendorReliability
 
 from app.schemas.vendor_reliability import (
     VendorReliabilityCreate,
-    VendorReliabilityResponse
+    VendorReliabilityResponse,
+    VendorReliabilityRecalculate
 )
 
-from app.services.vendor_reliability import calculate_reliability_score
+from app.services.vendor_reliability import recalculate_vendor_reliability
 
 router = APIRouter(
     prefix="/vendor-reliability",
@@ -24,7 +25,7 @@ router = APIRouter(
     response_model=VendorReliabilityResponse
 )
 def calculate_vendor_reliability(
-    reliability: VendorReliabilityCreate,
+    reliability: VendorReliabilityRecalculate,
     db: Session = Depends(get_db)
 ):
 
@@ -38,17 +39,11 @@ def calculate_vendor_reliability(
             detail="Vendor not found"
         )
 
-    vendor_reliability = VendorReliability(
-        **reliability.model_dump()
+    # Use the dynamic recalculation service which fetches actual DB records
+    vendor_reliability = recalculate_vendor_reliability(
+        vendor_id=reliability.vendor_id,
+        db=db
     )
-
-    vendor_reliability = calculate_reliability_score(
-        vendor_reliability
-    )
-
-    db.add(vendor_reliability)
-    db.commit()
-    db.refresh(vendor_reliability)
 
     return vendor_reliability
 

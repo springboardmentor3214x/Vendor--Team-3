@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -7,6 +7,8 @@ import { SidebarService } from '../../layout/sidebar.service';
 import { PerformanceService } from '../performance.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
+import * as THREE from 'three';
+import { LucideAngularModule, TrendingUp, TrendingDown, Minus, ShieldAlert, ShieldCheck, AlertTriangle } from 'lucide-angular';
 
 interface ReliabilityMetric {
   reliability_id: number;
@@ -23,11 +25,28 @@ interface ReliabilityMetric {
 @Component({
   selector: 'app-reliability',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent, BaseChartDirective],
+  imports: [CommonModule, FormsModule, SidebarComponent, BaseChartDirective, LucideAngularModule],
   templateUrl: './reliability.component.html',
   styleUrl: './reliability.component.scss'
 })
-export class ReliabilityComponent implements OnInit {
+export class ReliabilityComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('threeCanvasContainer', { static: false }) threeCanvasContainer!: ElementRef;
+  
+  // Three.js instances
+  private scene!: THREE.Scene;
+  private camera!: THREE.PerspectiveCamera;
+  private renderer!: THREE.WebGLRenderer;
+  private mesh!: THREE.Mesh;
+  private animationId: number = 0;
+  
+  // Icons
+  readonly TrendingUp = TrendingUp;
+  readonly TrendingDown = TrendingDown;
+  readonly Minus = Minus;
+  readonly ShieldAlert = ShieldAlert;
+  readonly ShieldCheck = ShieldCheck;
+  readonly AlertTriangle = AlertTriangle;
+
   activeTab: string = 'dashboard';
   
   // Charts configuration
@@ -96,6 +115,71 @@ export class ReliabilityComponent implements OnInit {
     this.loadAllData();
   }
 
+  ngAfterViewInit() {
+    // Need to wait for DOM to render the tab before initializing 3D
+    setTimeout(() => {
+      this.initThreeJs();
+    }, 100);
+  }
+
+  ngOnDestroy() {
+    if (this.animationId) cancelAnimationFrame(this.animationId);
+    if (this.renderer) this.renderer.dispose();
+  }
+
+  initThreeJs() {
+    if (!this.threeCanvasContainer) return;
+    
+    const container = this.threeCanvasContainer.nativeElement;
+    const width = container.clientWidth || 300;
+    const height = container.clientHeight || 300;
+
+    this.scene = new THREE.Scene();
+    
+    this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    this.camera.position.z = 5;
+
+    this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    this.renderer.setSize(width, height);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    
+    // Clear container
+    while(container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+    container.appendChild(this.renderer.domElement);
+
+    // Create a cool icosahedron wireframe
+    const geometry = new THREE.IcosahedronGeometry(1.5, 1);
+    const material = new THREE.MeshBasicMaterial({ 
+      color: 0x6366f1, 
+      wireframe: true,
+      transparent: true,
+      opacity: 0.5
+    });
+    
+    this.mesh = new THREE.Mesh(geometry, material);
+    this.scene.add(this.mesh);
+
+    const animate = () => {
+      this.animationId = requestAnimationFrame(animate);
+      this.mesh.rotation.x += 0.005;
+      this.mesh.rotation.y += 0.008;
+      this.renderer.render(this.scene, this.camera);
+    };
+    animate();
+    
+    // Handle resize
+    window.addEventListener('resize', () => {
+      if (!this.threeCanvasContainer) return;
+      const newWidth = this.threeCanvasContainer.nativeElement.clientWidth;
+      const newHeight = this.threeCanvasContainer.nativeElement.clientHeight;
+      this.renderer.setSize(newWidth, newHeight);
+      this.camera.aspect = newWidth / newHeight;
+      this.camera.updateProjectionMatrix();
+    });
+  }
+
   loadAllData() {
     this.isLoading = true;
     this.successMessage = '';
@@ -151,39 +235,16 @@ export class ReliabilityComponent implements OnInit {
           }
         } else {
           // Procurement / Admin path: load all
-          this.performanceService.getSupplierRankings().subscribe({
-            next: (data: any[]) => {
-              const enrichedData = data.map(r => {
-                const v = this.vendors.find(vend => vend.vendor_id === r.vendor_id);
-                return {
-                  ...r,
-                  vendor_name: v ? v.company_name : `Vendor #${r.vendor_id}`,
-                  vendor_category: v ? v.vendor_category : 'General',
-                  trend: 'Stable'
-                };
-              });
-
-              this.rankingsList = enrichedData;
+          this.performanceService.getReliabilityDashboard().subscribe({
+            next: (data: any) => {
+              this.dashboardData = data;
+              this.rankingsList = data.top_ranked;
               
               // Update Bar Chart
-              this.barChartData.labels = enrichedData.map(r => r.vendor_name);
-              this.barChartData.datasets[0].data = enrichedData.map(r => r.reliability_score);
+              this.barChartData.labels = data.top_ranked.map((r: any) => r.vendor_name);
+              this.barChartData.datasets[0].data = data.top_ranked.map((r: any) => r.reliability_score);
               this.barChartData = {...this.barChartData};
 
-              const total = enrichedData.length;
-              const highCount = enrichedData.filter(r => r.risk_level === 'Low').length; // Low risk = high reliability
-              const mediumCount = enrichedData.filter(r => r.risk_level === 'Medium').length;
-              const highRiskCount = enrichedData.filter(r => r.risk_level === 'High').length;
-              const avgScore = total > 0 ? enrichedData.reduce((acc, curr) => acc + curr.reliability_score, 0) / total : 0;
-
-              this.dashboardData = {
-                  total_vendors_evaluated: total,
-                  avg_reliability_score: avgScore,
-                  high_reliability_count: highCount,
-                  medium_reliability_count: mediumCount,
-                  high_risk_count: highRiskCount,
-                  top_ranked: enrichedData.slice(0, 5)
-              };
               this.isLoading = false;
             },
             error: (err) => {
@@ -207,6 +268,11 @@ export class ReliabilityComponent implements OnInit {
     this.activeTab = tabId;
     this.successMessage = '';
     this.errorMessage = '';
+    
+    // Re-initialize threejs if switching to dashboard
+    if (tabId === 'dashboard') {
+      setTimeout(() => this.initThreeJs(), 100);
+    }
   }
 
   goBack() {

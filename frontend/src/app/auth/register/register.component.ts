@@ -22,11 +22,16 @@ export class RegisterComponent {
   role = '';
   roles = ['Administrator', 'Procurement Manager', 'Supply Chain Manager', 'Vendor', 'Finance Officer', 'Auditor'];
   errorMessage = '';
+  successMessage = '';
+
+  step = 1; // 1 = Details, 2 = OTP
+  otp = '';
 
   constructor(private router: Router, private authService: AuthService) {}
 
   onRegister() {
     this.errorMessage = '';
+    this.successMessage = '';
 
     if (!this.fullName || !this.email || !this.password || !this.confirmPassword || !this.role) {
       this.errorMessage = 'Please fill in all required fields (Name, Email, Password, and Role).';
@@ -39,19 +44,19 @@ export class RegisterComponent {
     }
 
     const payload = {
-      fullName: this.fullName,
+      full_name: this.fullName,
       email: this.email,
       password: this.password,
-      role: this.role,
-      mobile: this.mobile,
-      companyName: this.companyName,
+      role_id: this.getRoleId(this.role),
+      phone: this.mobile,
+      company: this.companyName,
       employeeId: this.employeeId
     };
 
     this.authService.register(payload).subscribe({
       next: (res) => {
-        alert('Registration Successful! Redirecting to login.');
-        this.router.navigate(['/login']);
+        this.successMessage = 'OTP sent to your email. Please verify.';
+        this.step = 2;
       },
       error: (err) => {
         console.error('Registration error:', err);
@@ -64,5 +69,35 @@ export class RegisterComponent {
         }
       }
     });
+  }
+
+  onVerifyOtp() {
+    this.errorMessage = '';
+    if (!this.otp || this.otp.length !== 6) {
+      this.errorMessage = 'Please enter a valid 6-digit OTP.';
+      return;
+    }
+
+    this.authService.verifyOtp({ email: this.email, otp: this.otp }).subscribe({
+      next: () => {
+        alert('Registration Successful! Redirecting to login.');
+        this.router.navigate(['/login']);
+      },
+      error: (err) => {
+        this.errorMessage = err?.error?.detail || 'Invalid or expired OTP.';
+      }
+    });
+  }
+
+  getRoleId(roleName: string): number {
+    const map: any = {
+      'Administrator': 1,
+      'Procurement Manager': 2,
+      'Supply Chain Manager': 3,
+      'Vendor': 4,
+      'Finance Officer': 5,
+      'Auditor': 6
+    };
+    return map[roleName] || 4;
   }
 }

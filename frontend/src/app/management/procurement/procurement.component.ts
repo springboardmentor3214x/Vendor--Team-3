@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
-import { ApiService } from '../../services/api.service';
+import { VendorService } from '../../services/vendor.service';
+import { ProcurementService } from '../../services/procurement.service';
 
 @Component({
   selector: 'app-procurement',
@@ -39,7 +40,8 @@ export class ProcurementComponent implements OnInit {
   constructor(
     public sidebarService: SidebarService,
     private router: Router,
-    private api: ApiService
+    private procurementService: ProcurementService,
+    private vendorService: VendorService
   ) {}
 
   ngOnInit() {
@@ -50,7 +52,7 @@ export class ProcurementComponent implements OnInit {
   }
 
   loadVendors() {
-    this.api.getVendors().subscribe({
+    this.vendorService.getVendors().subscribe({
       next: (data) => { this.vendors = data; },
       error: () => { this.vendors = []; }
     });
@@ -58,7 +60,7 @@ export class ProcurementComponent implements OnInit {
 
   loadRequests() {
     this.loading = true;
-    this.api.getProcurements().subscribe({
+    this.procurementService.getProcurements().subscribe({
       next: (data) => {
         this.requests = data;
         this.loading = false;
@@ -92,14 +94,22 @@ export class ProcurementComponent implements OnInit {
 
     const payload = {
       title: this.newTitle,
-      description: `${this.itemName} | ${this.itemCategory} | Qty: ${this.quantity} ${this.unit} | Budget: ₹${this.newBudget} | Priority: ${this.priority} | ${this.justification}`,
+      description: this.remarks || '',
+      department: this.newDepartment,
+      item_name: this.itemName,
+      category: this.itemCategory,
+      quantity: this.quantity,
+      unit: this.unit,
+      budget: this.newBudget,
+      priority: this.priority,
+      justification: this.justification,
       vendor_id: this.selectedVendorId,
       status: 'Pending',
       created_date: today
     };
 
     this.submitting = true;
-    this.api.createProcurement(payload).subscribe({
+    this.procurementService.createProcurement(payload).subscribe({
       next: (created) => {
         this.requests.unshift(created);
         this.successMessage = `✅ Procurement Request #${created.procurement_id} created successfully!`;

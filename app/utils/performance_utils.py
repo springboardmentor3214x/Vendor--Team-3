@@ -4,14 +4,14 @@ from datetime import date, datetime
 from decimal import Decimal
 from app.models.purchase_order import PurchaseOrder
 from app.models.performance_reliability import (
+    PerformanceHistory,
+    VendorRanking,
     DeliveryPerformance,
     ProductQualityEvaluation,
     CommunicationLog,
     ServiceRating,
-    PerformanceHistory,
-    VendorRanking,
-    VendorReliability,
 )
+from app.models.vendor_reliability import VendorReliability
 from app.models.vendor import Vendor
 
 def recalculate_vendor_metrics(vendor_id: int, db: Session):
@@ -141,32 +141,9 @@ def recalculate_vendor_metrics(vendor_id: int, db: Session):
     db.add(new_history)
     db.commit()
 
-    # 9. Update/Insert Vendor Reliability (Module 5)
-    # Score calculation logic for reliability (considers similar weights but can be customized)
-    reliability_score = overall_performance_score
-    
-    # Procurement Risk Levels
-    if reliability_score >= 90.0:
-        risk_level = "Low"
-        rec_status = "Highly Recommended"
-    elif reliability_score >= 75.0:
-        risk_level = "Medium"
-        rec_status = "Recommended"
-    else:
-        risk_level = "High"
-        rec_status = "Not Recommended"
-
-    reliability = db.query(VendorReliability).filter(VendorReliability.vendor_id == vendor_id).first()
-    if not reliability:
-        reliability = VendorReliability(vendor_id=vendor_id)
-        db.add(reliability)
-        
-    reliability.reliability_score = Decimal(str(round(reliability_score, 2)))
-    reliability.risk_level = risk_level
-    reliability.trend = trend
-    reliability.recommendation_status = rec_status
-    reliability.last_calculated = datetime.now()
-    db.commit()
+    # 9. Update/Insert Vendor Reliability (Module 5) using the dedicated engine
+    from app.services.vendor_reliability import recalculate_vendor_reliability
+    recalculate_vendor_reliability(vendor_id, db)
 
     # 10. Regenerate Rankings for all vendors
     regenerate_rankings(db)

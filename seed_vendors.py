@@ -14,7 +14,6 @@ from app.models.purchase_order import PurchaseOrder
 from app.models.contract import Contract
 from app.models.message import Message
 from app.core.security import hash_password
-from app.utils.performance_utils import recalculate_vendor_metrics
 
 def seed_vendors():
     db = SessionLocal()
@@ -32,7 +31,7 @@ def seed_vendors():
 
     pwd = hash_password("password123")
     
-    vendor_emails = ["a@gmail.com", "b2gmail.com", "c@gmail.com", "d2gmail.com", "e@gmail.com"]
+    vendor_emails = ["seed1@gmail.com", "seed2@gmail.com", "seed3@gmail.com", "seed4@gmail.com", "seed5@gmail.com"]
     
     # Mock PDF
     os.makedirs("uploads/messages", exist_ok=True)
@@ -40,7 +39,7 @@ def seed_vendors():
     with open(mock_pdf_path, "w") as f:
         f.write("%PDF-1.4\nMock Contract Document Content")
 
-    for i, v_email in enumerate(vendor_emails, start=1):
+    for i, v_email in enumerate(vendor_emails, start=101):
         # 1. Create User
         user = db.query(User).filter(User.email == v_email).first()
         company_name = f"Vendor Corp {v_email.split('@')[0].upper()}"
@@ -148,7 +147,54 @@ def seed_vendors():
             order.status = "Completed"
             order.actual_delivery_date = date.today()
             db.commit()
-            recalculate_vendor_metrics(vendor.vendor_id, db)
+            
+        # Seed Mock Reliability Data for all vendors directly
+        from app.models.vendor_reliability import VendorReliability
+        from app.models.supplier_ranking import SupplierRanking
+        from app.models.performance_trend import PerformanceTrend
+        from decimal import Decimal
+        
+        rel = db.query(VendorReliability).filter(VendorReliability.vendor_id == vendor.vendor_id).first()
+        score = 80.0 + (i * 2.5) # Example: 82.5, 85.0, etc.
+        if not rel:
+            rel = VendorReliability(
+                vendor_id=vendor.vendor_id,
+                reliability_score=float(score),
+                risk_level="Low" if score > 85 else "Medium",
+                delivery_score=float(score + 2),
+                quality_score=float(score - 1),
+                communication_score=float(score + 1)
+            )
+            db.add(rel)
+        
+        trend = db.query(PerformanceTrend).filter(PerformanceTrend.vendor_id == vendor.vendor_id).first()
+        if not trend:
+            trend = PerformanceTrend(
+                vendor_id=vendor.vendor_id,
+                month="August",
+                year=2026,
+                delivery_score=score + 2,
+                quality_score=score - 1,
+                communication_score=score + 1,
+                contract_compliance_score=score,
+                issue_resolution_score=score,
+                reliability_score=score
+            )
+            db.add(trend)
+            
+        rank = db.query(SupplierRanking).filter(SupplierRanking.vendor_id == vendor.vendor_id).first()
+        if not rank:
+            rank = SupplierRanking(
+                vendor_id=vendor.vendor_id,
+                vendor_name=vendor.company_name,
+                vendor_category=vendor.vendor_category,
+                reliability_score=score,
+                procurement_risk="Low" if score > 85 else "Medium",
+                vendor_rank=6-i
+            )
+            db.add(rank)
+            
+        db.commit()
 
     print("Successfully seeded 5 vendors with purchase orders, contracts, and messages with PDF attachments.")
     

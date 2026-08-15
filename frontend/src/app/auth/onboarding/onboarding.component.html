@@ -1,0 +1,63 @@
+<div class="auth-bg">
+  <div class="auth-card" style="max-width: 600px; width: 100%;">
+    <div class="auth-title">Complete Your Onboarding</div>
+    <div class="auth-subtitle">Please provide your business documents to proceed.</div>
+    
+    <div class="auth-form">
+      <div *ngIf="successMessage" class="success-alert" style="color: green; background-color: #e6ffed; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        ✅ {{ successMessage }}
+      </div>
+      <div *ngIf="errorMessage" class="error-alert" style="color: red; background-color: #ffe6e6; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
+        ⚠️ {{ errorMessage }}
+      </div>
+      
+      <div class="grid-layout" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div class="field-group">
+          <label class="field-label">Company Name *</label>
+          <input class="field-input" type="text" [(ngModel)]="companyName" placeholder="Business Name">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Contact Person *</label>
+          <input class="field-input" type="text" [(ngModel)]="contactPerson" placeholder="Full Name">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">GST Number *</label>
+          <input class="field-input" type="text" [(ngModel)]="gstNumber" placeholder="GSTIN">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">PAN Number *</label>
+          <input class="field-input" type="text" [(ngModel)]="panNumber" placeholder="PAN">
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-top: 15px;">
+        <label class="field-label">Address Line 1 *</label>
+        <input class="field-input" type="text" [(ngModel)]="addressLine1" placeholder="Registered Business Address">
+      </div>
+
+      <div class="grid-layout" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 20px;">
+        <div class="field-group">
+          <label class="field-label">GST Certificate *</label>
+          <input class="field-input" type="file" (change)="onFileSelected($event, 'gst')">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">PAN Card *</label>
+          <input class="field-input" type="file" (change)="onFileSelected($event, 'pan')">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Address Proof *</label>
+          <input class="field-input" type="file" (change)="onFileSelected($event, 'address')">
+        </div>
+      </div>
+
+      <button class="btn-primary" style="margin-top: 25px;" (click)="onSubmit()" [disabled]="submitting">
+        {{ submitting ? 'Uploading...' : 'Complete Onboarding' }}
+      </button>
+    </div>
+  </div>
+</div>

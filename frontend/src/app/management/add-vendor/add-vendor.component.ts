@@ -7,6 +7,8 @@ import { SidebarService } from '../../layout/sidebar.service';
 import { PerformanceService } from '../performance.service';
 import { HttpClient } from '@angular/common/http';
 
+import { ApiService } from '../../services/api.service';
+
 @Component({
   selector: 'app-add-vendor',
   standalone: true,
@@ -47,6 +49,10 @@ export class AddVendorComponent {
     description: ''
   };
 
+  selectedGstFile: File | null = null;
+  selectedPanFile: File | null = null;
+  selectedRegFile: File | null = null;
+
   errorMessage = '';
   showPassword = false;
   showConfirmPassword = false;
@@ -55,12 +61,22 @@ export class AddVendorComponent {
     public sidebarService: SidebarService,
     private performanceService: PerformanceService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private apiService: ApiService
   ) {}
 
   goBack() {
     const route = localStorage.getItem('dashboardRoute') || '/admin-dashboard';
     this.router.navigate([route]);
+  }
+
+  onFileSelected(event: any, docType: string) {
+    const file = event.target.files[0];
+    if (file) {
+      if (docType === 'gst') this.selectedGstFile = file;
+      else if (docType === 'pan') this.selectedPanFile = file;
+      else if (docType === 'registration') this.selectedRegFile = file;
+    }
   }
 
   onSaveVendor() {
@@ -109,7 +125,18 @@ export class AddVendorComponent {
     };
 
     this.performanceService.addVendor(payload).subscribe({
-      next: () => {
+      next: (newVendor: any) => {
+        // Upload documents if selected
+        if (this.selectedGstFile) {
+          this.apiService.uploadVendorRegistrationDocument(newVendor.vendor_id, 'gst', this.selectedGstFile).subscribe();
+        }
+        if (this.selectedPanFile) {
+          this.apiService.uploadVendorRegistrationDocument(newVendor.vendor_id, 'pan', this.selectedPanFile).subscribe();
+        }
+        if (this.selectedRegFile) {
+          this.apiService.uploadVendorRegistrationDocument(newVendor.vendor_id, 'registration', this.selectedRegFile).subscribe();
+        }
+
         // After vendor record is created, register user account so vendor can log in
         const userPayload = {
           full_name: this.vendorForm.contactPerson,

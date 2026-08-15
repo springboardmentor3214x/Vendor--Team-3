@@ -112,17 +112,20 @@
                 <div class="doc-row">
                   <span class="doc-indicator">📄</span>
                   <span class="doc-title">GST Certificate</span>
-                  <span class="view-btn">{{ selectedVendor.gst_number ? '✓ Uploaded' : '—' }}</span>
+                  <span *ngIf="selectedVendor.gst_certificate_path" class="view-btn" (click)="downloadDoc('gst')" style="cursor: pointer; color: #2563eb; font-weight: bold;">Download</span>
+                  <span *ngIf="!selectedVendor.gst_certificate_path" class="view-btn">—</span>
                 </div>
                 <div class="doc-row">
                   <span class="doc-indicator">📄</span>
                   <span class="doc-title">PAN Card</span>
-                  <span class="view-btn">{{ selectedVendor.pan_number ? '✓ Uploaded' : '—' }}</span>
+                  <span *ngIf="selectedVendor.pan_card_path" class="view-btn" (click)="downloadDoc('pan')" style="cursor: pointer; color: #2563eb; font-weight: bold;">Download</span>
+                  <span *ngIf="!selectedVendor.pan_card_path" class="view-btn">—</span>
                 </div>
                 <div class="doc-row">
                   <span class="doc-indicator">📄</span>
                   <span class="doc-title">Registration Certificate</span>
-                  <span class="view-btn">{{ selectedVendor.company_registration_number ? '✓ Uploaded' : '—' }}</span>
+                  <span *ngIf="selectedVendor.registration_certificate_path" class="view-btn" (click)="downloadDoc('registration')" style="cursor: pointer; color: #2563eb; font-weight: bold;">Download</span>
+                  <span *ngIf="!selectedVendor.registration_certificate_path" class="view-btn">—</span>
                 </div>
               </div>
             </div>

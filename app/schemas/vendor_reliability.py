@@ -15,6 +15,10 @@ class VendorReliabilityCreate(VendorReliabilityBase):
     vendor_id: int
 
 
+class VendorReliabilityRecalculate(BaseModel):
+    vendor_id: int
+
+
 class VendorReliabilityResponse(VendorReliabilityBase):
     reliability_id: int
     vendor_id: int

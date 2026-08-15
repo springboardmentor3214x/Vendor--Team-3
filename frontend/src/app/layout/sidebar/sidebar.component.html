@@ -16,6 +16,9 @@
       <a routerLink="/performance" routerLinkActive="active">⭐ Vendor Performance</a>
       <a routerLink="/reliability" routerLinkActive="active">📈 Vendor Reliability</a>
       <a routerLink="/reports" routerLinkActive="active">📊 Reports</a>
+      <a routerLink="/discussions" routerLinkActive="active">🧵 Discussions</a>
+      <a routerLink="/shared-files" routerLinkActive="active">📁 File Sharing</a>
+      <a routerLink="/communication-history" routerLinkActive="active">📜 Comm. History</a>
     </ng-container>
 
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'procurement'">
@@ -30,6 +33,21 @@
       <a routerLink="/reliability" routerLinkActive="active">📈 Vendor Reliability</a>
       <a routerLink="/messages" routerLinkActive="active">💬 Messages</a>
       <a routerLink="/rfq" routerLinkActive="active">📄 RFQs</a>
+      <div class="sidebar-category">Legal & Compliance</div>
+      <a routerLink="/contracts" routerLinkActive="active" class="sidebar-link">
+        <span>📝</span> Contracts & Renewals
+      </a>
+      <a routerLink="/certifications" routerLinkActive="active" class="sidebar-link">
+        <span>🛡️</span> Certifications
+      </a>
+      <a *ngIf="sidebarService.getCurrentRole() !== 'vendor'" routerLink="/compliance-dashboard" routerLinkActive="active" class="sidebar-link">
+        <span>✅</span> Compliance Hub
+      </a>
+      <a routerLink="/vendor-documentation" routerLinkActive="active" class="sidebar-link">
+        <span>📄</span> Documents Library
+      </a>
+      <a routerLink="/discussions" routerLinkActive="active">🧵 Discussions</a>
+      <a routerLink="/shared-files" routerLinkActive="active">📁 File Sharing</a>
     </ng-container>
 
     <!-- Supply Chain Links -->
@@ -40,6 +58,8 @@
       <a routerLink="/orders" routerLinkActive="active">🚚 Procurement Tracking</a>
       <a routerLink="/goods-receipt" routerLinkActive="active" *appHasPermission="'delivery.receipt'">📝 Goods Receipt</a>
       <a routerLink="/reports" routerLinkActive="active">📄 Reports</a>
+      <a routerLink="/discussions" routerLinkActive="active">🧵 Discussions</a>
+      <a routerLink="/shared-files" routerLinkActive="active">📁 File Sharing</a>
     </ng-container>
 
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'finance'">
@@ -50,6 +70,8 @@
       <a routerLink="/reports" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Reports</a>
       <a [routerLink]="['/reports']" [queryParams]="{type: 'financial'}" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📈 Financial Reports</a>
       <a routerLink="/messages" routerLinkActive="active">💬 Messages</a>
+      <a routerLink="/discussions" routerLinkActive="active">🧵 Discussions</a>
+      <a routerLink="/shared-files" routerLinkActive="active">📁 File Sharing</a>
     </ng-container>
 
     <!-- Auditor Links -->
@@ -58,6 +80,8 @@
       <a routerLink="/audit-logs" routerLinkActive="active" *appHasPermission="'audit.view'">🗂 Universal Audit Logs</a>
       <a routerLink="/reports" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📄 Reports</a>
       <a style="cursor:pointer;">🔔 Notifications</a>
+      <a routerLink="/communication-history" routerLinkActive="active">📜 Comm. History</a>
+      <a routerLink="/shared-files" routerLinkActive="active">📁 File Sharing</a>
     </ng-container>
 
     <!-- Vendor Links -->
@@ -71,6 +95,8 @@
       <a routerLink="/performance" routerLinkActive="active">⭐ My Performance</a>
       <a routerLink="/reliability" routerLinkActive="active">📈 My Reliability</a>
       <a routerLink="/rfq" routerLinkActive="active">📄 RFQs</a>
+      <a routerLink="/discussions" routerLinkActive="active">🧵 Discussions</a>
+      <a routerLink="/shared-files" routerLinkActive="active">📁 File Sharing</a>
     </ng-container>
   </div>
 

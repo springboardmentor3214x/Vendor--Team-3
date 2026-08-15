@@ -61,10 +61,13 @@
         </div>
 
         <div class="panel">
-          <h3>Pending Contracts</h3>
-          <div class="list-items">
-            <p *ngFor="let c of pendingContracts">{{ c.name }}</p>
-            <p *ngIf="pendingContracts.length === 0">No pending contracts.</p>
+          <h3>Contract Status</h3>
+          <div style="height: 180px; width: 100%;">
+            <canvas baseChart
+              [data]="contractChartData"
+              [options]="contractChartOptions"
+              [type]="'pie'">
+            </canvas>
           </div>
         </div>
 

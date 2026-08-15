@@ -141,6 +141,16 @@ export class AuthService {
     );
   }
 
+  // ---------------------------------------------------------
+  // Verify OTP
+  // ---------------------------------------------------------
+  verifyOtp(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/verify-otp`, payload);
+  }
+
+  // ---------------------------------------------------------
+  // Password Reset Methods
+  // ---------------------------------------------------------
   resetPassword(token: string, newPassword: string): Observable<any> {
     // Mock backend POST request
     return this.http.post(`${this.apiUrl}/reset-password`, { token, password: newPassword }).pipe(

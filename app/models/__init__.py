@@ -11,3 +11,9 @@ from .vendor_reliability import VendorReliability
 from .performance_trend import PerformanceTrend
 from .supplier_ranking import SupplierRanking
 from .procurement_recommendation import ProcurementRecommendation
+from .activity_log import ActivityLog
+from .discussion import Discussion, DiscussionMessage
+from .certification import Certification
+from .compliance import ComplianceRecord
+from .contract_renewal import ContractRenewal
+from .shared_file import SharedFile

@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
 import { PerformanceService } from '../performance.service';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-vendor-approval',
@@ -22,7 +23,8 @@ export class VendorApprovalComponent implements OnInit {
   constructor(
     public sidebarService: SidebarService, 
     private performanceService: PerformanceService,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService
   ) {}
 
   ngOnInit() {
@@ -96,6 +98,26 @@ export class VendorApprovalComponent implements OnInit {
         console.error('Error rejecting vendor', err);
         alert(err.error?.detail || 'Failed to reject vendor.');
         this.isLoading = false;
+      }
+    });
+  }
+
+  downloadDoc(docType: string) {
+    if (!this.selectedVendor) return;
+    this.apiService.downloadVendorRegistrationDocument(this.selectedVendor.vendor_id, docType).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${this.selectedVendor.company_name}_${docType}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+      },
+      error: (err) => {
+        console.error('Error downloading document', err);
+        alert('Could not download the document. It might not exist.');
       }
     });
   }

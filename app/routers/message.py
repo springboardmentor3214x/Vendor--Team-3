@@ -92,6 +92,20 @@ async def send_message(
         }
     }, message.receiver_id)
 
+    from app.services.notification_service import NotificationService
+    # DB & Email Notification for offline users
+    await NotificationService.create_and_send_notification(
+        db=db,
+        user_id=message.receiver_id,
+        notification_type="Direct Message",
+        title=f"New Message from {sender.username}",
+        message=f"{sender.username} sent you a message regarding Procurement Request #{message.procurement_id}.",
+        related_module="Communication",
+        related_record_id=new_message.message_id,
+        priority="Normal",
+        delivery_method="In-App,Email"
+    )
+
     return new_message
 
 

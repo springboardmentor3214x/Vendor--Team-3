@@ -55,7 +55,7 @@ Navigate to the root directory where the python backend is housed.
 
 4. **Run the backend server:**
    ```bash
-   uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+   python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
    ```
    *The API will be available at [http://127.0.0.1:8000](http://127.0.0.1:8000).*
    *View the Swagger UI documentation at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).*
@@ -68,8 +68,9 @@ Navigate to the root directory where the python backend is housed.
    ```
 
 2. **Install dependencies:**
+   *(Note: Due to recent Chart.js and Angular CDK version conflicts, you MUST use the --legacy-peer-deps flag)*
    ```bash
-   npm install
+   npm install --legacy-peer-deps
    ```
 
 3. **Start the development server:**

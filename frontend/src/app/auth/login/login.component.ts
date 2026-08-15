@@ -28,7 +28,21 @@ export class LoginComponent {
     }
 
     this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next: (res) => {
+      next: (res: any) => {
+        localStorage.setItem('authToken', res.access_token);
+        localStorage.setItem('userRole', res.role);
+        localStorage.setItem('userEmail', this.email);
+        localStorage.setItem('userId', res.user_id.toString());
+        
+        if (res.is_onboarded !== undefined) {
+          localStorage.setItem('isOnboarded', res.is_onboarded.toString());
+        }
+
+        if (res.role === 'Vendor' && res.is_onboarded === false) {
+           this.router.navigate(['/onboarding']);
+           return;
+        }
+
         const route = localStorage.getItem('dashboardRoute') || '/admin-dashboard';
         this.router.navigate([route]);
       },

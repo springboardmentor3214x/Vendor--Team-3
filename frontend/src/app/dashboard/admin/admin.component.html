@@ -47,18 +47,30 @@
         </div>
       </div>
 
+      <!-- Main Area Chart -->
+      <div class="panel" style="margin-bottom: 2rem;">
+        <h3>Procurement Spend Trend</h3>
+        <div style="height: 250px; width: 100%;">
+          <canvas baseChart
+            [data]="costTrendData"
+            [options]="costTrendOptions"
+            [type]="'line'">
+          </canvas>
+        </div>
+      </div>
+
       <!-- Middle Grid: 4 Panels -->
       <div class="middle-grid">
         
-        <!-- Vendor Growth Panel -->
+        <!-- Vendor Status Distribution Panel -->
         <div class="panel">
-          <h3>Vendor Growth 2024</h3>
-          <div class="bar-chart-container" style="gap:1rem; padding-top:0.5rem;">
-            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700;"><span style="width:30px; color:#cbd5e1;">Q1</span><div class="chart-row"><span class="chart-bar" style="width:20%; background: linear-gradient(90deg, #6366f1, #3b82f6);"></span></div><span style="color:#60a5fa;">+20%</span></div>
-            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700;"><span style="width:30px; color:#cbd5e1;">Q2</span><div class="chart-row"><span class="chart-bar" style="width:40%; background: linear-gradient(90deg, #6366f1, #8b5cf6);"></span></div><span style="color:#a78bfa;">+40%</span></div>
-            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700;"><span style="width:30px; color:#cbd5e1;">Q3</span><div class="chart-row"><span class="chart-bar" style="width:55%; background: linear-gradient(90deg, #6366f1, #d946ef);"></span></div><span style="color:#e879f9;">+55%</span></div>
-            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700;"><span style="width:30px; color:#cbd5e1;">Q4</span><div class="chart-row"><span class="chart-bar" style="width:75%; background: linear-gradient(90deg, #6366f1, #f43f5e);"></span></div><span style="color:#fb7185;">+75%</span></div>
-            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:700;"><span style="width:30px; color:#cbd5e1;">YTD</span><div class="chart-row"><span class="chart-bar" style="width:90%; background: linear-gradient(90deg, #6366f1, #10b981);"></span></div><span style="color:#34d399;">+90%</span></div>
+          <h3>Vendor Status Distribution</h3>
+          <div style="height: 200px; width: 100%;">
+            <canvas baseChart
+              [data]="vendorChartData"
+              [options]="vendorChartOptions"
+              [type]="vendorChartType">
+            </canvas>
           </div>
         </div>
 

@@ -129,6 +129,11 @@
                      [style.borderRadius]="msg.isOwn ? '12px 12px 0 12px' : '12px 12px 12px 0'"
                      style="padding:0.65rem 0.9rem;font-size:0.85rem;font-weight:500;line-height:1.5;word-wrap:break-word;box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.04);">
                   {{ msg.text }}
+                  <div *ngIf="msg.attachment_path" style="margin-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.3); padding-top: 0.5rem;">
+                    <button (click)="downloadAttachment(msg.id)" [style.color]="msg.isOwn ? 'white' : '#2563eb'" style="background:none;border:none;font-weight:bold;cursor:pointer;text-decoration:underline;padding:0;">
+                      📎 Download Attachment
+                    </button>
+                  </div>
                   <div [style.color]="msg.isOwn ? 'rgba(255,255,255,0.7)' : '#94a3b8'"
                        style="font-size:0.68rem;text-align:right;margin-top:0.25rem;font-weight:500;display:flex;justify-content:flex-end;align-items:center;gap:4px;">
                     <span>{{ msg.time }}</span>
@@ -141,6 +146,7 @@
 
           <!-- Message Input -->
           <div style="background:white;border-top:1px solid #e2e8f0;padding:0.75rem 1.25rem;display:flex;gap:0.5rem;align-items:flex-end;">
+            <input type="file" (change)="onFileSelected($event)" style="font-size: 0.8rem; width: 160px; margin-bottom: 0.5rem;" accept="image/*,.pdf,.xlsx,.xls,.doc,.docx">
             <textarea [(ngModel)]="newMessage"
                       (keydown.enter)="onKeydown($event)"
                       placeholder="Type a message... (Enter to send, Shift+Enter for new line)"
@@ -148,7 +154,7 @@
                       style="flex:1;padding:0.6rem 0.85rem;border:1.5px solid #e2e8f0;border-radius:8px;font-size:0.85rem;font-weight:500;outline:none;resize:none;font-family:inherit;line-height:1.5;"
                       onfocus="this.style.borderColor='#2563eb'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
             <button (click)="sendMessage()"
-                    [disabled]="!newMessage.trim() || sendingMessage"
+                    [disabled]="(!newMessage.trim() && !selectedMessageFile) || sendingMessage"
                     style="background:#2563eb;color:white;border:none;border-radius:8px;padding:0.6rem 1rem;font-size:0.85rem;font-weight:800;cursor:pointer;transition:background 0.2s;white-space:nowrap;"
                     onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
               {{ sendingMessage ? '...' : '➤ Send' }}

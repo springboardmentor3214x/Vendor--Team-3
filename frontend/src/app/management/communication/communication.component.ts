@@ -26,6 +26,7 @@ interface ChatMessage {
   time: string;
   isOwn: boolean;
   procurement_id?: number;
+  attachment_path?: string;
 }
 
 interface MessageGroup {
@@ -57,6 +58,7 @@ export class CommunicationComponent implements OnInit, OnDestroy, AfterViewCheck
   // Messages in the current thread
   messageGroups: MessageGroup[] = [];
   newMessage = '';
+  selectedMessageFile: File | null = null;
   loading = false;
   sendingMessage = false;
   contactsLoading = true;
@@ -262,6 +264,11 @@ export class CommunicationComponent implements OnInit, OnDestroy, AfterViewCheck
     this.loadThread(contact);
   }
 
+  getSafeDate(dt: string): Date {
+    if (!dt) return new Date();
+    return new Date(dt.endsWith('Z') ? dt : dt + 'Z');
+  }
+
   loadThread(contact: Contact) {
     this.loading = true;
     const myIdStr = localStorage.getItem('userId') || '1';
@@ -275,19 +282,21 @@ export class CommunicationComponent implements OnInit, OnDestroy, AfterViewCheck
         );
 
         // Sort by time
-        threadMsgs.sort((a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime());
+        threadMsgs.sort((a, b) => this.getSafeDate(a.sent_at).getTime() - this.getSafeDate(b.sent_at).getTime());
 
         const groups: { [date: string]: ChatMessage[] } = {};
         
         threadMsgs.forEach(m => {
-          const dateStr = new Date(m.sent_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+          const mDate = this.getSafeDate(m.sent_at);
+          const dateStr = mDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
           const msg: ChatMessage = {
             id: m.message_id,
             senderId: m.sender_id.toString(),
             senderName: m.sender_id.toString() === contact.id.toString() ? contact.name : 'You',
             text: m.message,
-            time: new Date(m.sent_at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
-            isOwn: m.sender_id.toString() === myIdStr
+            time: mDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+            isOwn: m.sender_id.toString() === myIdStr,
+            attachment_path: m.attachment_path
           };
           if (!groups[dateStr]) groups[dateStr] = [];
           groups[dateStr].push(msg);
@@ -308,8 +317,12 @@ export class CommunicationComponent implements OnInit, OnDestroy, AfterViewCheck
     });
   }
 
+  onFileSelected(event: any) {
+    this.selectedMessageFile = event.target.files[0] || null;
+  }
+
   sendMessage() {
-    if (!this.newMessage.trim() || !this.selectedContact) return;
+    if ((!this.newMessage.trim() && !this.selectedMessageFile) || !this.selectedContact) return;
     this.sendingMessage = true;
 
     // Use current user's actual ID if possible, otherwise default to a number
@@ -320,19 +333,55 @@ export class CommunicationComponent implements OnInit, OnDestroy, AfterViewCheck
       sender_id: parseInt(myIdStr, 10),
       receiver_id: parseInt(this.selectedContact.id.replace('vendor_', ''), 10),
       procurement_id: 1, // Default fallback
-      message: this.newMessage.trim()
+      message: this.newMessage.trim() || 'Attached a file'
     };
 
     this.api.sendMessage(payload).subscribe({
-      next: (res) => {
-        const sent = this.newMessage.trim();
-        this.newMessage = '';
-        this.sendingMessage = false;
-        this.loadThread(this.selectedContact!);
+      next: (res: any) => {
+        if (this.selectedMessageFile && res.message_id) {
+          this.api.uploadMessageAttachment(res.message_id, this.selectedMessageFile).subscribe({
+            next: () => {
+              this.finishSendMessage();
+            },
+            error: () => {
+              console.error('File upload failed');
+              this.finishSendMessage();
+            }
+          });
+        } else {
+          this.finishSendMessage();
+        }
       },
       error: (err) => {
         console.error('Error sending message:', err);
         this.sendingMessage = false;
+      }
+    });
+  }
+
+  finishSendMessage() {
+    this.newMessage = '';
+    this.selectedMessageFile = null;
+    this.sendingMessage = false;
+    this.loadThread(this.selectedContact!);
+  }
+
+  downloadAttachment(messageId: number | undefined) {
+    if (!messageId) return;
+    this.api.downloadMessageAttachment(messageId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `attachment_${messageId}`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+      },
+      error: (err) => {
+        console.error('Download failed', err);
+        alert('Could not download attachment.');
       }
     });
   }
@@ -371,7 +420,7 @@ export class CommunicationComponent implements OnInit, OnDestroy, AfterViewCheck
   getRelativeTime(dateStr: string): string {
     if (!dateStr) return '';
     const now = new Date();
-    const then = new Date(dateStr);
+    const then = this.getSafeDate(dateStr);
     const diff = Math.floor((now.getTime() - then.getTime()) / 60000);
     if (diff < 1) return 'Just now';
     if (diff < 60) return `${diff}m ago`;
@@ -381,7 +430,7 @@ export class CommunicationComponent implements OnInit, OnDestroy, AfterViewCheck
 
   formatTime(sentAt: string): string {
     if (!sentAt) return '';
-    return new Date(sentAt).toLocaleString('en-IN', {
+    return this.getSafeDate(sentAt).toLocaleString('en-IN', {
       day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
     });
   }

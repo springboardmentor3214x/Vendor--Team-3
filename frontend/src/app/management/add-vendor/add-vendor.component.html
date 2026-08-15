@@ -160,12 +160,17 @@
           </div>
 
           <div class="form-section-title">Upload Vendor Documents</div>
-          <div class="docs-upload-grid">
-            <button class="btn-upload">GST Cert. Upload ⬆️</button>
-            <button class="btn-upload">ISO Cert Upload ⬆️</button>
-            <button class="btn-upload">PAN Card Upload ⬆️</button>
-            <button class="btn-upload">Company Reg Upload ⬆️</button>
-            <button class="btn-upload" style="grid-column: span 2;">Other Docs Upload ⬆️</button>
+          <div class="field-group">
+            <label class="field-label">GST Certificate</label>
+            <input type="file" (change)="onFileSelected($event, 'gst')" class="field-input" accept="image/*,.pdf,.xlsx,.xls">
+          </div>
+          <div class="field-group">
+            <label class="field-label">PAN Card</label>
+            <input type="file" (change)="onFileSelected($event, 'pan')" class="field-input" accept="image/*,.pdf,.xlsx,.xls">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Company Registration Certificate</label>
+            <input type="file" (change)="onFileSelected($event, 'registration')" class="field-input" accept="image/*,.pdf,.xlsx,.xls">
           </div>
 
           <div class="actions-row">

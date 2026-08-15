@@ -1,6 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
+import os
+import shutil
 
 from app.core.role import require_roles
 from app.database.database import SessionLocal
@@ -212,11 +215,13 @@ def delete_vendor(
     }
 
 
+from app.services.notification_service import NotificationService
+
 # -----------------------------
 # Approve Vendor
 # -----------------------------
 @router.put("/{vendor_id}/approve")
-def approve_vendor(
+async def approve_vendor(
     vendor_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(
@@ -235,6 +240,19 @@ def approve_vendor(
     vendor.vendor_status = "Active"
 
     db.commit()
+
+    if vendor.user_id:
+        await NotificationService.create_and_send_notification(
+            db=db,
+            user_id=vendor.user_id,
+            notification_type="Vendor Approved",
+            title="Your Vendor Account is Approved",
+            message="Your vendor registration has been approved. You can now participate in procurement activities.",
+            related_module="Vendor",
+            related_record_id=vendor.vendor_id,
+            priority="Medium",
+            delivery_method="In-App,Email,SMS"
+        )
 
     return {
         "message": "Vendor Approved Successfully"
@@ -268,3 +286,140 @@ def reject_vendor(
     return {
         "message": "Vendor Rejected Successfully"
     }
+
+# -----------------------------
+# Upload Vendor Document
+# -----------------------------
+@router.post("/{vendor_id}/upload-document")
+def upload_vendor_document(
+    vendor_id: int,
+    doc_type: str = Query(..., description="gst, pan, or registration"),
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles("Admin", "Procurement", "Vendor"))
+):
+    vendor = db.query(Vendor).filter(Vendor.vendor_id == vendor_id).first()
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+        
+    os.makedirs(os.path.join("uploads", "vendors"), exist_ok=True)
+    file_path = os.path.join("uploads", "vendors", f"{vendor_id}_{doc_type}_{file.filename}")
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    if doc_type == "gst":
+        vendor.gst_certificate_path = file_path
+    elif doc_type == "pan":
+        vendor.pan_card_path = file_path
+    elif doc_type == "registration":
+        vendor.registration_certificate_path = file_path
+    else:
+        raise HTTPException(status_code=400, detail="Invalid doc_type")
+        
+    db.commit()
+    db.refresh(vendor)
+    
+    return {"message": "Document uploaded successfully", "document_path": file_path}
+
+# -----------------------------
+# Download Vendor Document
+# -----------------------------
+@router.get("/{vendor_id}/download-document")
+def download_vendor_document(
+    vendor_id: int,
+    doc_type: str = Query(..., description="gst, pan, or registration"),
+    db: Session = Depends(get_db),
+    current_user=Depends(require_roles("Admin", "Procurement", "Vendor"))
+):
+    vendor = db.query(Vendor).filter(Vendor.vendor_id == vendor_id).first()
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+        
+    file_path = None
+    if doc_type == "gst":
+        file_path = vendor.gst_certificate_path
+    elif doc_type == "pan":
+        file_path = vendor.pan_card_path
+    elif doc_type == "registration":
+        file_path = vendor.registration_certificate_path
+    else:
+        raise HTTPException(status_code=400, detail="Invalid doc_type")
+        
+    if not file_path:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File missing on server")
+        
+    return FileResponse(file_path, filename=os.path.basename(file_path))
+
+
+from fastapi import Form
+from app.core.oauth2 import get_current_user
+
+# -----------------------------
+# Vendor Onboarding
+# -----------------------------
+@router.post("/onboarding")
+def vendor_onboarding(
+    company_name: str = Form(...),
+    contact_person: str = Form(...),
+    vendor_category: str = Form(...),
+    gst_number: str = Form(...),
+    pan_number: str = Form(...),
+    address_line1: str = Form(...),
+    gst_file: UploadFile = File(...),
+    pan_file: UploadFile = File(...),
+    address_file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    from app.models.user import User
+    user = db.query(User).filter(User.email == current_user["sub"]).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    existing_vendor = db.query(Vendor).filter(Vendor.email == user.email).first()
+    if existing_vendor:
+        raise HTTPException(status_code=400, detail="Vendor already onboarded")
+        
+    new_vendor = Vendor(
+        company_name=company_name,
+        contact_person=contact_person,
+        vendor_category=vendor_category,
+        gst_number=gst_number,
+        pan_number=pan_number,
+        address_line1=address_line1,
+        email=user.email,
+        phone=user.phone,
+        vendor_status="Pending",
+        approval_status="Pending"
+    )
+    
+    db.add(new_vendor)
+    db.flush() # Get vendor_id
+    
+    # Save files
+    os.makedirs(os.path.join("uploads", "vendors"), exist_ok=True)
+    
+    gst_path = os.path.join("uploads", "vendors", f"{new_vendor.vendor_id}_gst_{gst_file.filename}")
+    with open(gst_path, "wb") as buffer:
+        shutil.copyfileobj(gst_file.file, buffer)
+        
+    pan_path = os.path.join("uploads", "vendors", f"{new_vendor.vendor_id}_pan_{pan_file.filename}")
+    with open(pan_path, "wb") as buffer:
+        shutil.copyfileobj(pan_file.file, buffer)
+        
+    reg_path = os.path.join("uploads", "vendors", f"{new_vendor.vendor_id}_registration_{address_file.filename}")
+    with open(reg_path, "wb") as buffer:
+        shutil.copyfileobj(address_file.file, buffer)
+        
+    new_vendor.gst_certificate_path = gst_path
+    new_vendor.pan_card_path = pan_path
+    new_vendor.registration_certificate_path = reg_path
+    
+    db.commit()
+    db.refresh(new_vendor)
+    
+    return {"message": "Onboarding successful", "vendor_id": new_vendor.vendor_id}

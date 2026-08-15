@@ -11,6 +11,14 @@ class ProcurementRequest(Base):
 
     title = Column(String, nullable=False)
     description = Column(String)
+    department = Column(String)
+    item_name = Column(String)
+    category = Column(String)
+    quantity = Column(Integer)
+    unit = Column(String)
+    budget = Column(Integer)
+    priority = Column(String)
+    justification = Column(String)
 
     vendor_id = Column(
         Integer,

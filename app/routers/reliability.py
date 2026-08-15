@@ -7,10 +7,8 @@ from typing import List
 
 from app.database.database import get_db
 from app.models.vendor import Vendor
-from app.models.performance_reliability import (
-    VendorReliability,
-    PerformanceHistory,
-)
+from app.models.vendor_reliability import VendorReliability
+from app.models.performance_reliability import PerformanceHistory
 from app.schemas.performance_reliability import (
     VendorReliabilityResponse,
     ReliabilityDashboardResponse,

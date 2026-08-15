@@ -3,6 +3,7 @@ import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
+import { OnboardingComponent } from './auth/onboarding/onboarding.component';
 import { AdminComponent } from './dashboard/admin/admin.component';
 import { ProcurementManagerComponent } from './dashboard/procurement-manager/procurement-manager.component';
 import { SupplyChainManagerComponent } from './dashboard/supply-chain-manager/supply-chain-manager.component';
@@ -31,6 +32,12 @@ import { roleGuard } from './auth/role.guard';
 import { VendorComparisonComponent } from './management/vendor-comparison/vendor-comparison.component';
 import { GoodsReceiptComponent } from './management/goods-receipt/goods-receipt.component';
 import { AuditLogsComponent } from './management/audit-logs/audit-logs.component';
+import { DiscussionsComponent } from './management/discussions/discussions.component';
+import { FileSharingComponent } from './management/file-sharing/file-sharing.component';
+import { CommunicationHistoryComponent } from './management/communication-history/communication-history.component';
+import { CertificationsComponent } from './management/certifications/certifications.component';
+import { ComplianceDashboardComponent } from './management/compliance-dashboard/compliance-dashboard.component';
+import { VendorDocumentationComponent } from './management/vendor-documentation/vendor-documentation.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -38,6 +45,7 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'onboarding', component: OnboardingComponent, canActivate: [authGuard] },
   
   // Protected dashboards
   { path: 'admin-dashboard', component: AdminComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin'] } },
@@ -52,6 +60,9 @@ export const routes: Routes = [
   { path: 'add-vendor', component: AddVendorComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin'] } },
   { path: 'vendor-details', component: VendorDetailsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement'] } },
   { path: 'vendor-approval', component: VendorApprovalComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement'] } },
+  { path: 'certifications', component: CertificationsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'vendor'] } },
+  { path: 'compliance-dashboard', component: ComplianceDashboardComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'auditor'] } },
+  { path: 'vendor-documentation', component: VendorDocumentationComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'vendor'] } },
   
   // New features routes
   { path: 'vendor-comparison', component: VendorComparisonComponent, canActivate: [authGuard, roleGuard], data: { permissions: ['vendor.compare'] } },
@@ -68,6 +79,10 @@ export const routes: Routes = [
   { path: 'rfq', component: RfqComponent, canActivate: [authGuard, roleGuard], data: { permissions: ['rfq.view'] } },
   { path: 'goods-receipt', component: GoodsReceiptComponent, canActivate: [authGuard, roleGuard], data: { permissions: ['delivery.receipt'] } },
   { path: 'audit-logs', component: AuditLogsComponent, canActivate: [authGuard, roleGuard], data: { permissions: ['audit.view'] } },
+  { path: 'discussions', component: DiscussionsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'supply', 'finance', 'vendor'] } },
+  { path: 'shared-files', component: FileSharingComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'supply', 'finance', 'vendor'] } },
+  { path: 'communication-history', component: CommunicationHistoryComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'auditor'] } },
+  { path: 'notifications', loadComponent: () => import('./dashboard/notifications/notifications-page.component').then(m => m.NotificationsPageComponent), canActivate: [authGuard] },
 
 
   // Profile settings accessible to all authenticated users

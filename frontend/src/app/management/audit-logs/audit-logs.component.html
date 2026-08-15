@@ -36,22 +36,28 @@
             <th>Timestamp</th>
             <th>User</th>
             <th>Action</th>
-            <th>Entity</th>
+            <th>Module</th>
             <th>Old Value</th>
             <th>New Value</th>
+            <th>Timestamp</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let log of filteredLogs">
+            <td>{{ log.log_id }}</td>
+            <td>{{ log.user_id }}</td>
+            <td style="padding:1rem;">
+              <span class="action-badge" [ngClass]="log.action_performed.toLowerCase() || ''">
+                {{log.action_performed}}
+              </span>
+            </td>
+            <td>{{ log.module_name }}</td>
+            <td class="value-cell">-</td>
+            <td class="value-cell">-</td>
             <td>{{ log.timestamp | date:'short' }}</td>
-            <td>{{ log.user }}</td>
-            <td><span class="badge" [ngClass]="log.action.toLowerCase()">{{ log.action }}</span></td>
-            <td>{{ log.entity }}</td>
-            <td class="value-cell">{{ log.oldValue }}</td>
-            <td class="value-cell">{{ log.newValue }}</td>
           </tr>
           <tr *ngIf="filteredLogs.length === 0">
-            <td colspan="6" class="no-data">No audit logs found matching the filters.</td>
+            <td colspan="7" class="no-data">No audit logs found matching the filters.</td>
           </tr>
         </tbody>
       </table>

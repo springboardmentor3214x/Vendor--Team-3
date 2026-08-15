@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 
 
@@ -37,5 +37,8 @@ class VendorResponse(VendorCreate):
     vendor_status: str
     approval_status: str
 
-    class Config:
-        from_attributes = True
+    gst_certificate_path: str | None = None
+    pan_card_path: str | None = None
+    registration_certificate_path: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)

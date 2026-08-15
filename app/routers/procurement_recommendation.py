@@ -12,17 +12,20 @@ from app.services.procurement_recommendation import (
 )
 
 router = APIRouter(
-    prefix="/procurement-recommendations",
+    prefix="/procurement-recommendation",
     tags=["Procurement Recommendations"]
 )
 
 
+from typing import Optional
+
 @router.get(
     "/",
-    response_model=list[ProcurementRecommendationResponse]
+    # We will return dynamic list instead of strictly tying to the Pydantic model for now
 )
 def recommendations(
+    category: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
 
-    return get_procurement_recommendations(db)
+    return get_procurement_recommendations(db, category)

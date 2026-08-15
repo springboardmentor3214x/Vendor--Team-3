@@ -51,43 +51,25 @@
       <div class="panel-grid">
         <div class="panel">
           <h3>Procurement Progress</h3>
-          <div class="progress-item">
-            <div class="progress-lbl-row">
-              <span>Procurement Progress</span>
-              <span>75%</span>
-            </div>
-            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:75%"></div></div>
-          </div>
-          <div class="progress-item">
-            <div class="progress-lbl-row">
-              <span>Vendor Selection</span>
-              <span>55%</span>
-            </div>
-            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:55%"></div></div>
-          </div>
-          <div class="progress-item">
-            <div class="progress-lbl-row">
-              <span>Quotation Review</span>
-              <span></span>
-            </div>
-            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:35%"></div></div>
-          </div>
-          <div class="progress-item" style="margin-bottom:0;">
-            <div class="progress-lbl-row">
-              <span>Approval</span>
-              <span></span>
-            </div>
-            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:10%"></div></div>
+          <div style="height: 200px; width: 100%;">
+            <highcharts-chart 
+              [Highcharts]="Highcharts"
+              [options]="deptChartOptions"
+              [(update)]="deptChartUpdateFlag"
+              style="width: 100%; height: 100%; display: block;">
+            </highcharts-chart>
           </div>
         </div>
 
         <div class="panel">
-          <h3>Pending Approvals</h3>
-          <div class="status-list">
-            <p><span class="status-dot green"></span> Vendor Approval</p>
-            <p><span class="status-dot blue"></span> Contract Renewal</p>
-            <p><span class="status-dot red"></span> Invoice Approval</p>
-            <p><span class="status-dot yellow"></span> Purchase Order</p>
+          <h3>Monthly Spend Analytics</h3>
+          <div style="height: 200px; width: 100%;">
+            <highcharts-chart 
+              [Highcharts]="Highcharts"
+              [options]="costChartOptions"
+              [(update)]="costChartUpdateFlag"
+              style="width: 100%; height: 100%; display: block;">
+            </highcharts-chart>
           </div>
         </div>
 
@@ -102,6 +84,19 @@
         </div>
       </div>
 
+
+      <!-- Main Line Chart -->
+      <div class="panel" style="margin-top: 2rem; margin-bottom: 2rem;">
+        <h3>Top Vendors Performance Trend</h3>
+        <div style="height: 250px; width: 100%;">
+          <highcharts-chart 
+            [Highcharts]="Highcharts"
+            [options]="performanceChartOptions"
+            [(update)]="performanceChartUpdateFlag"
+            style="width: 100%; height: 100%; display: block;">
+          </highcharts-chart>
+        </div>
+      </div>
 
       <!-- Bottom Row: Table + Stacked Panels -->
       <div class="bottom-grid">

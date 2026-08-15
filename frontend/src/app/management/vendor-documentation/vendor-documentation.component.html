@@ -1,0 +1,78 @@
+<div class="dash-wrapper" [class.sidebar-hidden]="!sidebarService.isSidebarVisible">
+  <app-sidebar></app-sidebar>
+  <div class="dash-main">
+    <div class="dash-topbar">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <button class="hamburger-btn" (click)="sidebarService.toggleSidebar()">☰</button>
+        <span class="dash-topbar-title">📄 Vendor Documentation Hub</span>
+      </div>
+      <div class="dash-topbar-right">
+        <span>👤 {{ sidebarService.getCurrentRoleLabel() }}</span>
+      </div>
+    </div>
+
+    <div style="padding:2rem;">
+      <div style="background:white;padding:2rem;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 4px 6px rgba(0,0,0,0.02);">
+        <h3 style="margin:0 0 1rem;color:#1e293b;font-weight:800;">Upload Vendor Document</h3>
+        <div style="display:flex;gap:1rem;align-items:flex-end;">
+          <div *ngIf="sidebarService.getCurrentRole() !== 'vendor'" style="flex:1;">
+            <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Vendor ID</label>
+            <input type="number" [(ngModel)]="uploadVendorId" style="width:100%;padding:0.6rem;border:1px solid #cbd5e1;border-radius:4px;">
+          </div>
+          <div style="flex:1;">
+            <label style="display:block;font-size:0.8rem;font-weight:700;color:#475569;margin-bottom:0.25rem;">Document Type</label>
+            <select [(ngModel)]="uploadDocType" style="width:100%;padding:0.6rem;border:1px solid #cbd5e1;border-radius:4px;background:white;">
+              <option value="GST Certificate">GST Certificate</option>
+              <option value="PAN Card">PAN Card</option>
+              <option value="Business License">Business License</option>
+              <option value="NDA Document">NDA Document</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+             <input type="file" (change)="onFileSelected($event)" style="font-size:0.9rem;" accept=".pdf,.png,.jpg,.jpeg">
+          </div>
+          <button (click)="uploadDocument()" style="background:#2563eb;color:white;border:none;padding:0.6rem 1.5rem;border-radius:4px;font-weight:700;cursor:pointer;white-space:nowrap;">Upload Document</button>
+        </div>
+      </div>
+      
+      <h3 style="margin:2rem 0 1rem;color:#1e293b;font-weight:800;">Document Library</h3>
+      
+      <!-- Vendor selection for Admins -->
+      <div *ngIf="sidebarService.getCurrentRole() !== 'vendor'" style="margin-bottom:1.5rem;display:flex;gap:1rem;align-items:center;">
+        <label style="font-weight:700;color:#475569;">View Documents for Vendor ID:</label>
+        <input type="number" [(ngModel)]="viewVendorId" style="padding:0.5rem;border:1px solid #cbd5e1;border-radius:4px;width:150px;">
+        <button (click)="loadDocuments()" style="background:#0f766e;color:white;border:none;padding:0.5rem 1rem;border-radius:4px;font-weight:700;cursor:pointer;">Fetch Library</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:1.5rem;">
+        <div *ngFor="let doc of documents" style="background:white;border:1px solid #e2e8f0;border-radius:8px;padding:1.5rem;box-shadow:0 2px 4px rgba(0,0,0,0.02);display:flex;flex-direction:column;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem;">
+            <div style="width:40px;height:40px;background:#eff6ff;color:#2563eb;border-radius:8px;display:flex;justify-content:center;align-items:center;font-size:1.5rem;">
+              📄
+            </div>
+            <div style="flex:1;">
+              <div style="font-weight:800;color:#1e293b;font-size:0.95rem;display:flex;justify-content:space-between;align-items:center;">
+                {{doc.document_type}}
+                <span [ngStyle]="{'color': doc.status === 'Approved' ? '#10b981' : (doc.status === 'Rejected' ? '#ef4444' : '#f59e0b')}" style="font-size:0.75rem;padding:2px 6px;border-radius:4px;background:#f8fafc;">{{doc.status || 'Pending'}}</span>
+              </div>
+              <div style="font-size:0.75rem;color:#64748b;">Uploaded: {{doc.uploaded_at | date}}</div>
+            </div>
+          </div>
+          
+          <button (click)="downloadDoc(doc.document_id, doc.document_type)" style="margin-top:auto;width:100%;background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;padding:0.5rem;border-radius:4px;font-weight:700;cursor:pointer;transition:background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+            Download Document
+          </button>
+
+          <div *ngIf="sidebarService.getCurrentRole() !== 'vendor'" style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+            <button (click)="approveDoc(doc.document_id)" style="flex:1;background:#10b981;color:white;border:none;padding:0.5rem;border-radius:4px;font-weight:700;cursor:pointer;">Approve</button>
+            <button (click)="rejectDoc(doc.document_id)" style="flex:1;background:#ef4444;color:white;border:none;padding:0.5rem;border-radius:4px;font-weight:700;cursor:pointer;">Reject</button>
+          </div>
+        </div>
+        
+        <div *ngIf="documents.length === 0" style="grid-column:1/-1;text-align:center;padding:3rem;background:#f8fafc;border-radius:8px;color:#94a3b8;font-weight:600;border:1px dashed #cbd5e1;">
+          No documents found in the library.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

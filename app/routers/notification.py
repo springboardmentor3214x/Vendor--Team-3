@@ -1,23 +1,41 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models.notification import Notification
 from app.routers.auth import get_current_user
 from app.routers.websocket import manager
+from typing import Optional
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
 
 @router.get("/")
-def get_user_notifications(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
-    notifications = db.query(Notification).filter(
-        Notification.user_id == current_user.user_id
-    ).order_by(Notification.created_at.desc()).all()
+def get_user_notifications(
+    module: Optional[str] = None,
+    priority: Optional[str] = None,
+    status: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    query = db.query(Notification).filter(Notification.user_id == current_user.user_id)
+    
+    if module:
+        query = query.filter(Notification.related_module == module)
+    if priority:
+        query = query.filter(Notification.priority == priority)
+    if status:
+        query = query.filter(Notification.status == status)
+        
+    notifications = query.order_by(Notification.created_at.desc()).all()
     
     return [
         {
             "id": n.notification_id,
-            "title": "Notification",
+            "type": n.notification_type,
+            "title": n.title,
             "message": n.message,
+            "priority": n.priority,
+            "module": n.related_module,
+            "related_record_id": n.related_record_id,
             "time": n.created_at.strftime("%Y-%m-%d %H:%M:%S") if n.created_at else "",
             "status": n.status
         }
@@ -44,3 +62,13 @@ async def mark_notification_as_read(notification_id: int, db: Session = Depends(
     }, current_user.user_id)
     
     return {"message": "Notification marked as read"}
+
+@router.put("/read-all")
+async def mark_all_notifications_as_read(db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+    db.query(Notification).filter(
+        Notification.user_id == current_user.user_id,
+        Notification.status == "Unread"
+    ).update({"status": "Read"})
+    db.commit()
+    
+    return {"message": "All notifications marked as read"}
