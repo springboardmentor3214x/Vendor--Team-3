@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 import os
@@ -25,6 +25,116 @@ router = APIRouter(
 )
 
 
+
+def generate_contract_pdf(contract_id: int, vendor_id: int, scope: str, payment: str, title: str, number: str, value: float, start_date: str, end_date: str, email: str, company_name: str):
+    db = SessionLocal()
+    try:
+        from fpdf import FPDF
+        import google.generativeai as genai
+        import os
+
+        api_key = os.getenv("GEMINI_API_KEY")
+        contract_text = ""
+        
+        if api_key:
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                prompt = f"""
+                Write a formal, professional legal contract between our company and the vendor.
+                Vendor Name: {company_name}
+                Contract Title: {title}
+                Contract Number: {number}
+                Contract Value: ${value}
+                Start Date: {start_date}
+                End Date: {end_date}
+                
+                Scope of Work:
+                {scope}
+                
+                Payment Terms:
+                {payment}
+                
+                Format the response cleanly as plain text without markdown formatting like asterisks or hash symbols, so it renders nicely in a basic PDF. Include a formal opening, clauses for the scope, payment terms, confidentiality, termination, and a formal closing. Do not include signature blocks at the very end, I will add those programmatically. Keep it concise, around 3-4 paragraphs.
+                """
+                response = model.generate_content(prompt)
+                contract_text = response.text.replace('**', '').replace('*', '').replace('#', '')
+            except Exception as e:
+                import logging
+                logging.error(f"Gemini API failed: {e}")
+        
+        if not contract_text:
+            contract_text = f"""This Contract Agreement ("Agreement") is made and entered into on this day, by and between the Company and {company_name} ("Vendor").
+
+1. SCOPE OF SERVICES
+The Vendor agrees to provide the following services:
+{scope}
+
+2. PAYMENT TERMS
+In consideration of the services provided, the Company agrees to pay the Vendor the total amount of ${value}.
+{payment}
+
+3. TERM
+This Agreement shall commence on {start_date} and shall continue in effect until {end_date}, unless terminated earlier.
+
+4. CONFIDENTIALITY
+Both parties agree to keep all information exchanged during this Agreement confidential.
+
+5. TERMINATION
+Either party may terminate this Agreement with 30 days written notice.
+"""
+
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Helvetica", size=16)
+        pdf.cell(0, 10, txt=f"Contract Agreement: {title}", align='C')
+        pdf.ln(15)
+
+        pdf.set_font("Helvetica", size=12)
+        pdf.cell(0, 10, txt=f"Contract Number: {number}")
+        pdf.ln(8)
+        pdf.cell(0, 10, txt=f"Vendor: {company_name} (ID: {vendor_id})")
+        pdf.ln(8)
+        pdf.cell(0, 10, txt=f"Contract Value: ${value}")
+        pdf.ln(8)
+        pdf.cell(0, 10, txt=f"Duration: {start_date} to {end_date}")
+        pdf.ln(15)
+
+        pdf.set_font("Helvetica", size=11)
+        safe_text = contract_text.encode('latin-1', 'replace').decode('latin-1')
+        pdf.multi_cell(0, 6, txt=safe_text)
+        pdf.ln(15)
+
+        pdf.set_font("Helvetica", style="B", size=11)
+        pdf.cell(90, 10, txt="Authorized Signature (Company)")
+        pdf.cell(90, 10, txt="Authorized Signature (Vendor)")
+
+        os.makedirs(os.path.join("uploads", "contracts"), exist_ok=True)
+        file_path = os.path.join("uploads", "contracts", f"{contract_id}_auto_contract.pdf")
+        pdf.output(file_path)
+
+        contract = db.query(Contract).filter(Contract.contract_id == contract_id).first()
+        if contract:
+            contract.document_path = file_path
+            db.commit()
+
+        # Create Notification
+        vendor_user = db.query(User).filter(User.email == email).first()
+        if vendor_user:
+            notification = Notification(
+                user_id=vendor_user.user_id,
+                message=f"New Contract '{title}' created for your review.",
+                status="Unread"
+            )
+            db.add(notification)
+            db.commit()
+            
+    except Exception as e:
+        import logging
+        logging.error(f"Failed to generate PDF: {e}")
+    finally:
+        db.close()
+
 def get_db():
     db = SessionLocal()
     try:
@@ -39,6 +149,7 @@ def get_db():
 @router.post("/", response_model=ContractResponse)
 def create_contract(
     contract: ContractCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user=Depends(
         require_roles("Admin", "Procurement")
@@ -72,116 +183,24 @@ def create_contract(
     db.commit()
     db.refresh(new_contract)
 
-    # Generate PDF Contract
-    try:
-        from fpdf import FPDF
-        import google.generativeai as genai
+    # Generate PDF Contract in background
+    scope = contract.scope_of_work or "Standard terms apply."
+    payment = contract.payment_terms or "Standard payment terms."
+    background_tasks.add_task(
+        generate_contract_pdf,
+        contract_id=new_contract.contract_id,
+        vendor_id=vendor.vendor_id,
+        scope=scope,
+        payment=payment,
+        title=new_contract.contract_title,
+        number=new_contract.contract_number,
+        value=new_contract.contract_value,
+        start_date=new_contract.start_date,
+        end_date=new_contract.end_date,
+        email=vendor.email,
+        company_name=vendor.company_name
+    )
 
-        scope = contract.scope_of_work or "Standard terms apply."
-        payment = contract.payment_terms or "Standard payment terms."
-
-        api_key = os.getenv("GEMINI_API_KEY")
-        contract_text = ""
-        
-        if api_key:
-            try:
-                genai.configure(api_key=api_key)
-                # Use a lightweight model for text generation
-                model = genai.GenerativeModel('gemini-1.5-flash')
-                prompt = f"""
-                Write a formal, professional legal contract between our company and the vendor.
-                Vendor Name: {vendor.company_name}
-                Contract Title: {new_contract.contract_title}
-                Contract Number: {new_contract.contract_number}
-                Contract Value: ${new_contract.contract_value}
-                Start Date: {new_contract.start_date}
-                End Date: {new_contract.end_date}
-                
-                Scope of Work:
-                {scope}
-                
-                Payment Terms:
-                {payment}
-                
-                Format the response cleanly as plain text without markdown formatting like asterisks or hash symbols, so it renders nicely in a basic PDF. Include a formal opening, clauses for the scope, payment terms, confidentiality, termination, and a formal closing. Do not include signature blocks at the very end, I will add those programmatically. Keep it concise, around 3-4 paragraphs.
-                """
-                response = model.generate_content(prompt)
-                contract_text = response.text.replace('**', '').replace('*', '').replace('#', '')
-            except Exception as e:
-                print(f"Gemini API failed: {e}")
-        
-        # Fallback if Gemini is not available or fails
-        if not contract_text:
-            contract_text = f"""This Contract Agreement ("Agreement") is made and entered into on this day, by and between the Company and {vendor.company_name} ("Vendor").
-
-1. SCOPE OF SERVICES
-The Vendor agrees to provide the following services:
-{scope}
-
-2. PAYMENT TERMS
-In consideration of the services provided, the Company agrees to pay the Vendor the total amount of ${new_contract.contract_value}.
-{payment}
-
-3. TERM
-This Agreement shall commence on {new_contract.start_date} and shall continue in effect until {new_contract.end_date}, unless terminated earlier.
-
-4. CONFIDENTIALITY
-Both parties agree to keep all information exchanged during this Agreement confidential.
-
-5. TERMINATION
-Either party may terminate this Agreement with 30 days written notice.
-"""
-
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Helvetica", size=16)
-        pdf.cell(0, 10, txt=f"Contract Agreement: {new_contract.contract_title}", align='C')
-        pdf.ln(15)
-
-        pdf.set_font("Helvetica", size=12)
-        pdf.cell(0, 10, txt=f"Contract Number: {new_contract.contract_number}")
-        pdf.ln(8)
-        pdf.cell(0, 10, txt=f"Vendor: {vendor.company_name} (ID: {vendor.vendor_id})")
-        pdf.ln(8)
-        pdf.cell(0, 10, txt=f"Contract Value: ${new_contract.contract_value}")
-        pdf.ln(8)
-        pdf.cell(0, 10, txt=f"Duration: {new_contract.start_date} to {new_contract.end_date}")
-        pdf.ln(15)
-
-        pdf.set_font("Helvetica", size=11)
-        # multi_cell automatically handles line breaks and wraps text
-        # replacing unicode characters that fpdf might struggle with
-        safe_text = contract_text.encode('latin-1', 'replace').decode('latin-1')
-        pdf.multi_cell(0, 6, txt=safe_text)
-        pdf.ln(15)
-
-        pdf.set_font("Helvetica", style="B", size=11)
-        pdf.cell(90, 10, txt="Authorized Signature (Company)")
-        pdf.cell(90, 10, txt="Authorized Signature (Vendor)")
-
-        os.makedirs(os.path.join("uploads", "contracts"), exist_ok=True)
-        file_path = os.path.join("uploads", "contracts", f"{new_contract.contract_id}_auto_contract.pdf")
-        pdf.output(file_path)
-
-        new_contract.document_path = file_path
-        db.commit()
-        db.refresh(new_contract)
-    except Exception as e:
-        print(f"Failed to generate PDF: {e}")
-
-    # Create Notification for vendor
-    try:
-        vendor_user = db.query(User).filter(User.email == vendor.email).first()
-        if vendor_user:
-            notification = Notification(
-                user_id=vendor_user.user_id,
-                message=f"📄 New Contract '{new_contract.contract_title}' created for your review.",
-                status="Unread"
-            )
-            db.add(notification)
-            db.commit()
-    except Exception:
-        db.rollback()
 
     return new_contract
 
@@ -359,4 +378,4 @@ def renew_contract(
     db.commit()
     db.refresh(new_renewal)
     
-    return new_renewal
+    return new_renewal

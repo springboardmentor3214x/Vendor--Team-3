@@ -263,8 +263,8 @@ def upload_attachment(
         
     # Check if user is sender or receiver
     if message.sender_id != current_user.user_id and message.receiver_id != current_user.user_id:
-        # PM or Admin could also upload, but let's just let anyone authorized by role
-        pass
+        if current_user.role.role_name not in ["Admin", "Procurement"]:
+            raise HTTPException(status_code=403, detail="Not authorized to upload to this message thread")
         
     os.makedirs(os.path.join("uploads", "messages"), exist_ok=True)
     file_path = os.path.join("uploads", "messages", f"{message_id}_{file.filename}")
@@ -294,4 +294,4 @@ def download_attachment(
     if not os.path.exists(message.attachment_path):
         raise HTTPException(status_code=404, detail="File missing on server")
         
-    return FileResponse(message.attachment_path, filename=os.path.basename(message.attachment_path))
+    return FileResponse(message.attachment_path, filename=os.path.basename(message.attachment_path))

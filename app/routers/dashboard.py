@@ -17,12 +17,15 @@ router = APIRouter(
 
 @router.get("/vendor-summary")
 def vendor_summary(db: Session = Depends(get_db)):
-    total_vendors = db.query(Vendor).count()
-    approved_vendors = db.query(Vendor).filter(Vendor.approval_status == "Approved").count()
-    pending_vendors = db.query(Vendor).filter(Vendor.approval_status == "Pending").count()
-    active_vendors = db.query(Vendor).filter(Vendor.vendor_status == "Active").count()
-    suspended_vendors = db.query(Vendor).filter(Vendor.vendor_status == "Suspended").count()
-    rejected_vendors = db.query(Vendor).filter(Vendor.approval_status == "Rejected").count()
+    counts = db.query(Vendor.approval_status, Vendor.vendor_status, func.count(Vendor.vendor_id)).group_by(Vendor.approval_status, Vendor.vendor_status).all()
+    total_vendors, approved_vendors, pending_vendors, active_vendors, suspended_vendors, rejected_vendors = 0, 0, 0, 0, 0, 0
+    for app, vend, cnt in counts:
+        total_vendors += cnt
+        if app == "Approved": approved_vendors += cnt
+        if app == "Pending": pending_vendors += cnt
+        if app == "Rejected": rejected_vendors += cnt
+        if vend == "Active": active_vendors += cnt
+        if vend == "Suspended": suspended_vendors += cnt
 
     return {
         "total_vendors": total_vendors,
@@ -133,4 +136,4 @@ def cost_analysis(db: Session = Depends(get_db), current_user = Depends(require_
         "vendor_expenses": [
             {"vendor_name": r.company_name, "total": float(r.total)} for r in vendor_costs
         ]
-    }
+    }

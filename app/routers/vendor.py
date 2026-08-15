@@ -34,33 +34,29 @@ def create_vendor(
     current_user=Depends(require_roles("Admin", "Procurement"))
 ):
 
-    # Duplicate Email
-    if db.query(Vendor).filter(Vendor.email == vendor.email).first():
-        raise HTTPException(status_code=400, detail="Vendor email already exists")
-
-    # Duplicate Company Name
-    if db.query(Vendor).filter(Vendor.company_name == vendor.company_name).first():
-        raise HTTPException(status_code=400, detail="Company already exists")
-
-    # Duplicate GST
+    conditions = [
+        Vendor.email == vendor.email,
+        Vendor.company_name == vendor.company_name
+    ]
     if vendor.gst_number:
-        if db.query(Vendor).filter(Vendor.gst_number == vendor.gst_number).first():
-            raise HTTPException(status_code=400, detail="GST Number already exists")
-
-    # Duplicate PAN
+        conditions.append(Vendor.gst_number == vendor.gst_number)
     if vendor.pan_number:
-        if db.query(Vendor).filter(Vendor.pan_number == vendor.pan_number).first():
-            raise HTTPException(status_code=400, detail="PAN Number already exists")
-
-    # Duplicate Registration Number
+        conditions.append(Vendor.pan_number == vendor.pan_number)
     if vendor.company_registration_number:
-        if db.query(Vendor).filter(
-            Vendor.company_registration_number == vendor.company_registration_number
-        ).first():
-            raise HTTPException(
-                status_code=400,
-                detail="Company Registration Number already exists"
-            )
+        conditions.append(Vendor.company_registration_number == vendor.company_registration_number)
+
+    existing = db.query(Vendor).filter(or_(*conditions)).first()
+    if existing:
+        if existing.email == vendor.email:
+            raise HTTPException(status_code=400, detail="Vendor email already exists")
+        if existing.company_name == vendor.company_name:
+            raise HTTPException(status_code=400, detail="Company already exists")
+        if vendor.gst_number and existing.gst_number == vendor.gst_number:
+            raise HTTPException(status_code=400, detail="GST Number already exists")
+        if vendor.pan_number and existing.pan_number == vendor.pan_number:
+            raise HTTPException(status_code=400, detail="PAN Number already exists")
+        if vendor.company_registration_number and existing.company_registration_number == vendor.company_registration_number:
+            raise HTTPException(status_code=400, detail="Registration Number already exists")
 
     new_vendor = Vendor(**vendor.dict())
 
