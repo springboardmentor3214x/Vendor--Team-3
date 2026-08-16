@@ -36,6 +36,10 @@ from app.routers import message
 from app.routers import discussion
 from app.routers import file_attachment
 from app.routers import notification
+from app.routers import notification_history
+from app.routers import notification_preference
+from app.routers import notification_templates
+from app.routers import notification_test
 from app.routers import activity_log
 from app.routers import vendor_reliability
 from app.routers import supplier_ranking
@@ -74,6 +78,10 @@ app.include_router(message.router)
 app.include_router(discussion.router)
 app.include_router(file_attachment.router)
 app.include_router(notification.router)
+app.include_router(notification_history.router)
+app.include_router(notification_preference.router)
+app.include_router(notification_templates.router)
+app.include_router(notification_test.router)
 app.include_router(activity_log.router)
 
 # Vendor Reliability Module
