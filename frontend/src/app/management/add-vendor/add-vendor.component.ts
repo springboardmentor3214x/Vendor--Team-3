@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -20,7 +21,7 @@ export class AddVendorComponent {
   categories = ['Raw Material', 'IT Services', 'Electronics', 'Logistics', 'Manufacturing'];
   paymentTerms = ['Net 30', 'Net 60', 'Net 90', 'Immediate'];
   statusOptions = ['Active', 'Pending', 'Inactive'];
-  private apiUrl = 'http://localhost:8000';
+  private apiUrl = environment.apiUrl;
 
   vendorForm = {
     companyName: '',

@@ -42,6 +42,7 @@ from app.routers import admin_dashboard
 from app.routers import performance
 from app.routers import shared_file
 from app.routers import reliability
+from app.routers import report
 
 from contextlib import asynccontextmanager
 from app.core.background_tasks import start_scheduler
@@ -101,6 +102,7 @@ from app.routers import certification
 from app.routers import compliance
 app.include_router(certification.router)
 app.include_router(compliance.router)
+app.include_router(report.router)
 
 @app.get("/")
 def home():

@@ -1,83 +1,120 @@
 # Vendor Reliability Intelligence Platform
 
-Welcome to the **Vendor Reliability Intelligence Platform** repository! This application is designed to streamline and centralize the procurement process, providing robust vendor management, dynamic notifications, and insightful reliability metrics.
+A full-stack procurement platform for end-to-end vendor lifecycle management, reliability scoring, and procurement workflows.
 
 ## 🚀 Features
-- **Vendor Management**: End-to-end vendor lifecycle management, from onboarding to continuous performance evaluation.
-- **Procurement Workflows**: Fully digitized Request for Quotes (RFQs), Purchase Orders (POs), and Contracts management.
-- **3-Way Matching**: Automated invoice processing validating Purchase Orders and Goods Receipts (GRN) to flag discrepancies.
-- **Dynamic Notifications**: Real-time application-wide WebSocket notification system tailored to each user's specific role.
-- **Role-Based Access Control**: Granular permissions scaling from Vendor and Auditor to Procurement Managers and System Administrators.
-- **Reliability Metrics**: Data-driven vendor scoring with Chart.js based visualizations for monitoring compliance, performance, and risk levels.
+- **Vendor Management**: Onboarding, approval workflows, and continuous performance evaluation.
+- **Procurement Workflows**: RFQs, Purchase Orders, and Contracts management.
+- **3-Way Matching**: Automated invoice validation against POs and Goods Receipts (GRN).
+- **Dynamic Notifications**: Real-time WebSocket notifications tailored to each user's role.
+- **Role-Based Access Control**: Six roles — Administrator, Procurement Manager, Supply Chain Manager, Finance Officer, Auditor, and Vendor.
+- **Reliability Metrics**: Data-driven vendor scoring with Chart.js visualizations.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Backend
-- **Framework**: [FastAPI](https://fastapi.tiangolo.com/) (Python)
-- **Database ORM**: SQLAlchemy
-- **Authentication**: JWT & OAuth2
-
-### Frontend
-- **Framework**: [Angular](https://angular.io/) (TypeScript)
-- **Styling**: SCSS, Responsive UI
+| Layer | Technology |
+|---|---|
+| Backend | FastAPI (Python 3.10+), SQLAlchemy, PostgreSQL |
+| Auth | JWT & OAuth2 |
+| Frontend | Angular (TypeScript), SCSS |
+| Containerization | Docker & Docker Compose |
 
 ---
 
 ## 🏗️ Getting Started
 
 ### Prerequisites
-Ensure you have the following installed on your machine:
 - **Python 3.10+**
 - **Node.js 18+** & **npm**
+- **PostgreSQL** (local or cloud instance)
+- **Docker & Docker Compose** *(optional, for containerized setup)*
 
-### 1. Backend Setup (FastAPI)
+---
 
-Navigate to the root directory where the python backend is housed.
+### Option A — Docker (Recommended)
 
-1. **Create and activate a virtual environment:**
-   ```bash
-   python -m venv venv
-   # On Windows:
-   .\venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
+```bash
+cp .env.example .env
+# Fill in your credentials in .env
+docker-compose up --build
+```
 
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+- Backend: [http://localhost:8000](http://localhost:8000)
+- Frontend: [http://localhost:4200](http://localhost:4200)
+- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-3. **Database Configuration:**
-   Ensure your `.env` file is properly configured with your local or cloud database credentials.
+---
 
-4. **Run the backend server:**
-   ```bash
-   python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
-   ```
-   *The API will be available at [http://127.0.0.1:8000](http://127.0.0.1:8000).*
-   *View the Swagger UI documentation at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).*
+### Option B — Manual Setup
 
-### 2. Frontend Setup (Angular)
+#### 1. Backend (FastAPI)
 
-1. **Navigate to the frontend directory:**
-   ```bash
-   cd frontend
-   ```
+```bash
+python -m venv venv
+# Windows:
+.\venv\Scripts\activate
+# macOS/Linux:
+source venv/bin/activate
 
-2. **Install dependencies:**
-   *(Note: Due to recent Chart.js and Angular CDK version conflicts, you MUST use the --legacy-peer-deps flag)*
-   ```bash
-   npm install --legacy-peer-deps
-   ```
+pip install -r requirements.txt
+```
 
-3. **Start the development server:**
-   ```bash
-   npm start
-   ```
-   *The frontend application will be available at [http://localhost:4200](http://localhost:4200).*
+Configure your `.env` file (see `.env.example`):
+```env
+DATABASE_URL=postgresql://<username>:<password>@localhost:5432/<database_name>
+```
+
+Initialize the database schema and seed required data:
+```bash
+psql -U <username> -d <database_name> -f database/schema.sql
+python scripts/seed_data.py
+```
+
+Run the backend:
+```bash
+python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+#### 2. Frontend (Angular)
+
+```bash
+cd frontend
+npm install --legacy-peer-deps
+npm start
+```
+
+> **Note:** The `--legacy-peer-deps` flag is required due to Chart.js and Angular CDK version conflicts.
+
+Frontend available at [http://localhost:4200](http://localhost:4200).
+
+---
+
+## 📁 Project Structure
+
+```
+vendor_reliability/
+├── app/                  # FastAPI application
+│   ├── core/             # Config, auth, security
+│   ├── database/         # SQLAlchemy session
+│   ├── models/           # ORM models
+│   ├── routers/          # API route handlers
+│   ├── schemas/          # Pydantic schemas
+│   ├── services/         # Business logic
+│   ├── utils/            # Email, SMS helpers
+│   └── main.py
+├── database/
+│   ├── schema.sql        # PostgreSQL schema
+│   └── ER_Diagram.png
+├── frontend/             # Angular application
+├── scripts/              # DB seeding & utility scripts
+├── ui-ux/                # UI/UX design references
+├── docker-compose.yml
+├── Dockerfile
+├── requirements.txt
+└── .env.example
+```
 
 ---
 

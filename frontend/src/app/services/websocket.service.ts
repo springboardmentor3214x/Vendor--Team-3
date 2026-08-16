@@ -1,5 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, Observable, Subscription } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +17,11 @@ export class WebsocketService implements OnDestroy {
       return;
     }
 
-    const wsUrl = `ws://localhost:8000/ws/${userId}`;
+    const wsUrl = `${environment.apiUrl.replace('http', 'ws')}/ws/${userId}`;
     this.socket = new WebSocket(wsUrl);
 
     this.socket.onopen = () => {
-      console.log('WebSocket connected');
+      // console.log('WebSocket connected');
       this.isConnected = true;
     };
 
@@ -29,19 +30,19 @@ export class WebsocketService implements OnDestroy {
         const data = JSON.parse(event.data);
         this.messageSubject.next(data);
       } catch (e) {
-        console.error('Error parsing WebSocket message', e);
+        // console.error('Error parsing WebSocket message', e);
       }
     };
 
     this.socket.onclose = () => {
-      console.log('WebSocket disconnected');
+      // console.log('WebSocket disconnected');
       this.isConnected = false;
       // Optionally implement auto-reconnect here
       setTimeout(() => this.connect(userId), 5000);
     };
 
     this.socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      // console.error('WebSocket error:', error);
     };
   }
 
@@ -53,7 +54,7 @@ export class WebsocketService implements OnDestroy {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(msg));
     } else {
-      console.warn('WebSocket is not open. Cannot send message:', msg);
+      // console.warn('WebSocket is not open. Cannot send message:', msg);
     }
   }
 

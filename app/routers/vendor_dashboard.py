@@ -15,11 +15,16 @@ from app.services.vendor_dashboard import (
 from app.models.vendor_reliability import VendorReliability
 from app.models.purchase_order import PurchaseOrder
 from app.models.contract import Contract
+from app.models.vendor import Vendor
 
 router = APIRouter(
     prefix="/vendor-dashboard",
     tags=["Vendor Dashboard"]
 )
+
+def get_vendor_for_user(db: Session, current_user):
+    """Helper: look up Vendor record by the logged-in user's email."""
+    return db.query(Vendor).filter(Vendor.email == current_user.email).first()
 
 
 @router.get(
@@ -29,23 +34,40 @@ router = APIRouter(
 def dashboard(
     db: Session = Depends(get_db)
 ):
-
     return get_dashboard(db)
 
+
 @router.get("/performance-view")
-def performance_view(db: Session = Depends(get_db), current_user = Depends(require_roles("Vendor"))):
-    score = db.query(VendorReliability).filter(VendorReliability.vendor_id == current_user.vendor_profile.vendor_id).first()
-    if not score:
+def performance_view(db: Session = Depends(get_db), current_user=Depends(require_roles("Vendor"))):
+    vendor = get_vendor_for_user(db, current_user)
+    if not vendor:
+        return {"message": "Vendor profile not found"}
+    
+    score_rec = db.query(VendorReliability).filter(VendorReliability.vendor_id == vendor.vendor_id).first()
+    if not score_rec:
         return {"message": "No performance data available"}
+    
+    reliability = float(score_rec.reliability_score or 0)
+    delivery   = float(score_rec.delivery_score or reliability)
+    quality    = float(score_rec.quality_score or reliability)
+    
     return {
-        "delivery_accuracy": float(score.delivery_score),
-        "product_quality": float(score.quality_score),
-        "overall_score": float(score.overall_score)
+        "delivery_score": delivery,
+        "quality_score": quality,
+        "overall_score": reliability,
+        "delivery_accuracy": delivery,
+        "product_quality": quality,
+        "reliability_score": reliability
     }
 
+
 @router.get("/contract-status")
-def contract_status(db: Session = Depends(get_db), current_user = Depends(require_roles("Vendor"))):
-    contracts = db.query(Contract).filter(Contract.vendor_id == current_user.vendor_profile.vendor_id).all()
+def contract_status(db: Session = Depends(get_db), current_user=Depends(require_roles("Vendor"))):
+    vendor = get_vendor_for_user(db, current_user)
+    if not vendor:
+        return []
+    
+    contracts = db.query(Contract).filter(Contract.vendor_id == vendor.vendor_id).all()
     return [
         {
             "contract_id": c.contract_id,
@@ -54,21 +76,27 @@ def contract_status(db: Session = Depends(get_db), current_user = Depends(requir
         } for c in contracts
     ]
 
+
 @router.get("/order-history")
-def order_history(db: Session = Depends(get_db), current_user = Depends(require_roles("Vendor"))):
-    orders = db.query(PurchaseOrder).filter(PurchaseOrder.vendor_id == current_user.vendor_profile.vendor_id).all()
+def order_history(db: Session = Depends(get_db), current_user=Depends(require_roles("Vendor"))):
+    vendor = get_vendor_for_user(db, current_user)
+    if not vendor:
+        return []
+    
+    orders = db.query(PurchaseOrder).filter(PurchaseOrder.vendor_id == vendor.vendor_id).all()
     return [
         {
             "po_id": o.order_id,
             "order_number": o.order_number,
             "total_amount": float(o.total_amount),
             "status": o.status,
-            "created_at": o.created_at.isoformat() if o.created_at else None
+            "created_at": o.order_date.isoformat() if o.order_date else None
         } for o in orders
     ]
 
+
 @router.get("/communication-summary")
-def communication_summary(db: Session = Depends(get_db), current_user = Depends(require_roles("Vendor"))):
+def communication_summary(db: Session = Depends(get_db), current_user=Depends(require_roles("Vendor"))):
     from app.models.message import Message
     unread_count = db.query(Message).filter(
         Message.receiver_id == current_user.user_id,
@@ -84,11 +112,16 @@ def communication_summary(db: Session = Depends(get_db), current_user = Depends(
         "total_messages": total_messages
     }
 
+
 @router.get("/pending-deliveries")
-def pending_deliveries(db: Session = Depends(get_db), current_user = Depends(require_roles("Vendor"))):
+def pending_deliveries(db: Session = Depends(get_db), current_user=Depends(require_roles("Vendor"))):
+    vendor = get_vendor_for_user(db, current_user)
+    if not vendor:
+        return []
+    
     deliveries = db.query(PurchaseOrder).filter(
-        PurchaseOrder.vendor_id == current_user.vendor_profile.vendor_id,
-        PurchaseOrder.status.in_(["Pending", "Processing", "Shipped"])
+        PurchaseOrder.vendor_id == vendor.vendor_id,
+        PurchaseOrder.status.in_(["Pending", "In Transit", "Processing", "Shipped"])
     ).all()
     return [
         {
@@ -97,4 +130,4 @@ def pending_deliveries(db: Session = Depends(get_db), current_user = Depends(req
             "expected_delivery_date": d.delivery_date.isoformat() if d.delivery_date else None,
             "status": d.status
         } for d in deliveries
-    ]
+    ]

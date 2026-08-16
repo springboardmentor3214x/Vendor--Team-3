@@ -412,3 +412,11 @@ body.sidebar-hidden .sidebar { transform: translateX(-220px) !important; }
   50% { transform: scale(1.01); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
   100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
 }
+
+.sidebar-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  stroke-width: 2.5;
+  vertical-align: text-bottom;
+}

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -54,7 +55,7 @@ export class UserProfileComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
 
-  private apiUrl = 'http://localhost:8000';
+  private apiUrl = environment.apiUrl;
 
   constructor(
     public sidebarService: SidebarService,

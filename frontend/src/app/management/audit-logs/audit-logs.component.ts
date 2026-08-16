@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -43,7 +44,7 @@ export class AuditLogsComponent implements OnInit {
   }
 
   fetchData() {
-    this.http.get<AuditLog[]>('http://localhost:8000/activity-logs/').subscribe({
+    this.http.get<AuditLog[]>('environment.apiUrl/activity-logs/').subscribe({
       next: (data) => {
         this.logs = data.map(log => ({
           ...log,

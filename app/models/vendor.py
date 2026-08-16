@@ -60,3 +60,11 @@ class Vendor(Base):
         back_populates="vendor",
         cascade="all, delete-orphan"
     )
+
+    user = relationship(
+        "User",
+        primaryjoin="foreign(Vendor.email) == User.email",
+        back_populates="vendor_profile",
+        uselist=False,
+        viewonly=True
+    )

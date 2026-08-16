@@ -1,0 +1,55 @@
+.dashboard-container {
+  padding: 24px;
+}
+
+h2 {
+  margin-bottom: 24px;
+  color: #333;
+}
+
+.filter-card {
+  margin-bottom: 24px;
+}
+
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+}
+
+.filter-container mat-form-field {
+  flex: 1;
+  min-width: 200px;
+}
+
+.export-actions {
+  display: flex;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.chart-card, .table-card {
+  width: 100%;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+.no-data {
+  padding: 32px;
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}

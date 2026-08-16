@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -70,7 +71,7 @@ export class CommunicationComponent implements OnInit, OnDestroy, AfterViewCheck
   unreadCount = 0;
 
   private pollInterval: any;
-  private apiUrl = 'http://localhost:8000';
+  private apiUrl = environment.apiUrl;
   private wsSubscription: any;
 
   constructor(

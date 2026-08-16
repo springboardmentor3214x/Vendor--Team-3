@@ -3,12 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000'; // FastAPI backend port
+  private apiUrl = environment.apiUrl;
   
   private userSubject = new BehaviorSubject<any>(null);
   currentUser$ = this.userSubject.asObservable();

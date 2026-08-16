@@ -6,10 +6,13 @@ import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 import { SidebarService } from '../../layout/sidebar.service';
 import { PerformanceService } from '../../management/performance.service';
 
+import { HighchartsChartModule } from 'highcharts-angular';
+import * as Highcharts from 'highcharts';
+
 @Component({
   selector: 'app-supply-chain-manager',
   standalone: true,
-  imports: [CommonModule, RouterLink, SidebarComponent, FormsModule],
+  imports: [CommonModule, RouterLink, SidebarComponent, FormsModule, HighchartsChartModule],
   templateUrl: './supply-chain-manager.component.html',
   styleUrl: './supply-chain-manager.component.scss'
 })
@@ -29,6 +32,50 @@ export class SupplyChainManagerComponent implements OnInit {
   onRouteCount = 0;
   delayedCount = 0;
   searchTerm = '';
+
+  Highcharts: typeof Highcharts = Highcharts;
+  scatterOptions: Highcharts.Options = {
+    chart: {
+      type: 'scatter',
+      zoomType: 'xy',
+      backgroundColor: 'transparent'
+    },
+    title: {
+      text: 'Vendor Delivery Speed vs Defect Rate'
+    },
+    xAxis: {
+      title: { enabled: true, text: 'Delivery Speed (Days)' },
+      startOnTick: true,
+      endOnTick: true,
+      showLastLabel: true
+    },
+    yAxis: {
+      title: { text: 'Defect Rate (%)' }
+    },
+    plotOptions: {
+      scatter: {
+        marker: {
+          radius: 5,
+          states: { hover: { enabled: true, lineColor: 'rgb(100,100,100)' } }
+        },
+        states: { hover: { marker: { enabled: false } } },
+        tooltip: {
+          headerFormat: '<b>{series.name}</b><br>',
+          pointFormat: '{point.x} days, {point.y} % defects'
+        }
+      }
+    },
+    series: [{
+      name: 'Vendors',
+      type: 'scatter',
+      color: 'rgba(99, 102, 241, .5)',
+      data: []
+    }],
+    credits: { enabled: false }
+  };
+  updateFlag = false;
+
+
 
   constructor(
     public sidebarService: SidebarService,
@@ -67,7 +114,7 @@ export class SupplyChainManagerComponent implements OnInit {
         
         // Map ratings stars
         this.reliabilityRatings = (data.top_ranked || []).slice(0, 4).map((r: any) => {
-          const stars = r.reliability_score >= 90 ? '★★★★★' : (r.reliability_score >= 75 ? '★★★★☆' : '★★★☆☆');
+          const stars = r.reliability_score >= 90 ? '-~.-~.-~.-~.-~.' : (r.reliability_score >= 75 ? '-~.-~.-~.-~.-~+' : '-~.-~.-~.-~+-~+');
           return {
             stars: stars,
             name: r.vendor_name
@@ -79,6 +126,22 @@ export class SupplyChainManagerComponent implements OnInit {
           name: r.vendor_name,
           score: Math.round(r.reliability_score)
         }));
+        
+        // Scatter Plot Data
+        const scatterData = (data.top_ranked || []).map((r: any) => {
+           // mock delivery speed vs defect rate based on score
+           const speed = Math.max(1, Math.round(15 - (r.reliability_score / 10)));
+           const defects = Math.max(0, Math.round(20 - (r.reliability_score / 5)));
+           return { x: speed, y: defects, name: r.vendor_name };
+        });
+        
+        this.scatterOptions.series = [{
+            type: 'scatter',
+            name: 'Vendors',
+            data: scatterData,
+            color: 'rgba(99, 102, 241, .7)'
+        }];
+        this.updateFlag = true;
       },
       error: (err) => {
         console.error('Error fetching reliability stats, fallback to seed', err);

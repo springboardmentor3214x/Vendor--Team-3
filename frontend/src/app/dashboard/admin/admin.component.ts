@@ -7,11 +7,24 @@ import { SidebarService } from '../../layout/sidebar.service';
 import { PerformanceService } from '../../management/performance.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
+import * as Highcharts from 'highcharts';
+import HC_3D from 'highcharts/highcharts-3d';
+import { HighchartsChartModule } from 'highcharts-angular';
+
+try {
+  if (typeof HC_3D === 'function') {
+    (HC_3D as any)(Highcharts);
+  } else if (HC_3D && typeof (HC_3D as any).default === 'function') {
+    (HC_3D as any).default(Highcharts);
+  }
+} catch (e) {
+  console.error(e);
+}
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, RouterLink, SidebarComponent, FormsModule, BaseChartDirective],
+  imports: [CommonModule, RouterLink, SidebarComponent, FormsModule, BaseChartDirective, HighchartsChartModule],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss'
 })
@@ -26,14 +39,7 @@ export class AdminComponent implements OnInit {
   searchTerm = '';
   activeUsersCount = 0;
 
-  // Chart data
-  public vendorChartType: ChartType = 'doughnut';
-  public vendorChartData: any = {
-    labels: [],
-    datasets: [{ data: [] }]
-  };
-  public vendorChartOptions: ChartOptions = { responsive: true, maintainAspectRatio: false };
-
+  // Chart.js Line Chart Data
   public costTrendData: any = {
     labels: [],
     datasets: [{ data: [] }]
@@ -48,6 +54,43 @@ export class AdminComponent implements OnInit {
       y: { beginAtZero: true }
     }
   };
+
+  // Highcharts 3D Pie Data
+  Highcharts: typeof Highcharts = Highcharts;
+  chartOptions: Highcharts.Options = {
+    chart: {
+      type: 'pie',
+      options3d: {
+        enabled: true,
+        alpha: 45,
+        beta: 0
+      },
+      backgroundColor: 'transparent'
+    },
+    title: {
+      text: ''
+    },
+    plotOptions: {
+      pie: {
+        allowPointSelect: true,
+        cursor: 'pointer',
+        depth: 35,
+        dataLabels: {
+          enabled: true,
+          format: '{point.name}'
+        }
+      }
+    },
+    series: [{
+      type: 'pie',
+      name: 'Vendors',
+      data: []
+    }],
+    credits: {
+      enabled: false
+    }
+  };
+  updateFlag = false;
 
   constructor(
     public sidebarService: SidebarService,
@@ -78,12 +121,26 @@ export class AdminComponent implements OnInit {
         this.totalVendors = overview.total_vendors || 0;
         
         if (overview.vendor_distribution) {
-          const labels = overview.vendor_distribution.map((d: any) => d.status);
-          const data = overview.vendor_distribution.map((d: any) => d.count);
-          this.vendorChartData = {
-            labels: labels,
-            datasets: [{ data: data, backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'] }]
-          };
+          const chartData = overview.vendor_distribution.map((d: any) => {
+             // Map backend status strings to colors
+             let color = '#3b82f6';
+             if (d.status === 'Approved') color = '#10b981';
+             if (d.status === 'Pending') color = '#f59e0b';
+             if (d.status === 'Rejected') color = '#ef4444';
+             
+             return {
+                 name: d.status,
+                 y: d.count,
+                 color: color
+             };
+          });
+          
+          this.chartOptions.series = [{
+              type: 'pie',
+              name: 'Vendors',
+              data: chartData
+          }];
+          this.updateFlag = true;
         }
       },
       error: (err) => console.error('Error fetching admin overview', err)
@@ -137,10 +194,10 @@ export class AdminComponent implements OnInit {
       next: (rankings) => {
         // Map top 3 ranked vendors
         this.topVendors = rankings.slice(0, 3).map((r: any, idx: number) => {
-          const medals = ['🥇', '🥈', '🥉'];
-          const stars = r.score >= 90 ? '⭐⭐⭐⭐⭐' : (r.score >= 80 ? '⭐⭐⭐⭐☆' : '⭐⭐⭐☆☆');
+          const medals = ['dY', 'dY^', 'dY%'];
+          const stars = r.score >= 90 ? '-?-?-?-?-?' : (r.score >= 80 ? '-?-?-?-?~+' : '-?-?-?~+~+');
           return {
-            medal: medals[idx] || '🎖️',
+            medal: medals[idx] || 'dYZ-,?',
             name: r.vendor_name,
             stars: stars
           };
@@ -152,11 +209,11 @@ export class AdminComponent implements OnInit {
         this.performanceService.getVendors().subscribe({
           next: (vendors) => {
             this.topVendors = vendors.slice(0, 3).map((v, idx) => {
-              const medals = ['🥇', '🥈', '🥉'];
+              const medals = ['dY', 'dY^', 'dY%'];
               return {
-                medal: medals[idx] || '🎖️',
+                medal: medals[idx] || 'dYZ-,?',
                 name: v.company_name,
-                stars: '⭐⭐⭐⭐⭐'
+                stars: '-?-?-?-?-?'
               };
             });
           }

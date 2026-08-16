@@ -55,13 +55,24 @@ export class ProcurementManagerComponent implements OnInit {
       backgroundColor: 'transparent'
     },
     title: { text: undefined },
-    tooltip: { pointFormat: '{series.name}: <b>{point.y}</b>' },
+    tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
     plotOptions: {
       pie: {
         allowPointSelect: true,
         cursor: 'pointer',
-        depth: 35,
-        dataLabels: { enabled: true, format: '{point.name}' }
+        depth: 45,
+        innerSize: '40%', // Creates the Donut effect
+        dataLabels: { 
+          enabled: true, 
+          format: '{point.name}' 
+        },
+        colors: [
+            { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, '#38bdf8'], [1, '#0284c7']] },
+            { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, '#c084fc'], [1, '#7e22ce']] },
+            { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, '#34d399'], [1, '#059669']] },
+            { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, '#fbbf24'], [1, '#d97706']] },
+            { linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 }, stops: [[0, '#f87171'], [1, '#dc2626']] }
+        ]
       }
     },
     series: [{

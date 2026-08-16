@@ -53,10 +53,13 @@
       <!-- Middle Row: 3 Panels -->
       <div class="panel-grid">
         <div class="panel">
-          <h3>Recent Orders</h3>
-          <div class="list-items">
-            <p *ngFor="let o of recentOrders">{{ o.id }} - {{ o.status }}</p>
-            <p *ngIf="recentOrders.length === 0">No orders found.</p>
+          <h3>Performance Metrics</h3>
+          <div style="height: 250px; width: 100%;">
+            <canvas baseChart
+              [data]="radarChartData"
+              [options]="radarChartOptions"
+              [type]="radarChartType">
+            </canvas>
           </div>
         </div>
 

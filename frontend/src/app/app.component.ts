@@ -3,11 +3,12 @@ import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SidebarService } from './layout/sidebar.service';
 import { trigger, transition, style, query, animate, group } from '@angular/animations';
+import { ThreeBackgroundComponent } from './shared/components/three-background/three-background.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, ThreeBackgroundComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
   animations: [
@@ -56,7 +57,7 @@ export class AppComponent {
     const isNotificationClick = 
       target.classList.contains('notifications-bell') ||
       target.classList.contains('bell-span') ||
-      ((target.tagName === 'SPAN' || target.tagName === 'A') && target.textContent?.trim().includes('🔔 Notification'));
+      ((target.tagName === 'SPAN' || target.tagName === 'A') && target.textContent?.trim().includes('dY"" Notification'));
 
     if (isNotificationClick) {
       // If the clicked element already has a local component handler (marked by class 'bell-span'),

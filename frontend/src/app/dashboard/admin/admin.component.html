@@ -65,12 +65,13 @@
         <!-- Vendor Status Distribution Panel -->
         <div class="panel">
           <h3>Vendor Status Distribution</h3>
-          <div style="height: 200px; width: 100%;">
-            <canvas baseChart
-              [data]="vendorChartData"
-              [options]="vendorChartOptions"
-              [type]="vendorChartType">
-            </canvas>
+          <div style="height: 250px; width: 100%;">
+            <highcharts-chart 
+              [Highcharts]="Highcharts"
+              [options]="chartOptions"
+              [(update)]="updateFlag"
+              style="width: 100%; height: 250px; display: block;">
+            </highcharts-chart>
           </div>
         </div>
 

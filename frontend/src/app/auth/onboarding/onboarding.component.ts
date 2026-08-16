@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { environment } from '../../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -78,7 +79,7 @@ export class OnboardingComponent implements OnInit {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
 
     this.submitting = true;
-    this.http.post('http://localhost:8000/vendors/onboarding', formData, { headers }).subscribe({
+    this.http.post('environment.apiUrl/vendors/onboarding', formData, { headers }).subscribe({
       next: (res: any) => {
         this.successMessage = 'Onboarding complete! Redirecting to dashboard...';
         localStorage.setItem('isOnboarded', 'true');

@@ -160,13 +160,14 @@ class VendorRankingResponse(BaseModel):
 class VendorReliabilityResponse(BaseModel):
     reliability_id: int
     vendor_id: int
-    vendor_name: str
-    vendor_category: str
-    reliability_score: Decimal
-    risk_level: str
-    trend: str
-    recommendation_status: str
-    last_calculated: datetime
+    vendor_name: Optional[str] = None
+    vendor_category: Optional[str] = None
+    reliability_score: Optional[Decimal] = None
+    risk_level: Optional[str] = None
+    delivery_score: Optional[Decimal] = None
+    quality_score: Optional[Decimal] = None
+    communication_score: Optional[Decimal] = None
+    last_updated: Optional[datetime] = None
 
     class Config:
         from_attributes = True

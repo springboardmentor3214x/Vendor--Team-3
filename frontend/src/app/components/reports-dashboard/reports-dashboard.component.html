@@ -1,0 +1,86 @@
+<div class="dashboard-container">
+  <h2>Reports Dashboard</h2>
+  
+  <mat-card class="filter-card">
+    <mat-card-content class="filter-container">
+      <mat-form-field appearance="outline">
+        <mat-label>Report Type</mat-label>
+        <mat-select [(ngModel)]="filter.type" (selectionChange)="loadReport()">
+          <mat-option *ngFor="let type of reportTypes" [value]="type">{{ type }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Category</mat-label>
+        <mat-select [(ngModel)]="filter.category" (selectionChange)="loadReport()">
+          <mat-option value="">All</mat-option>
+          <mat-option *ngFor="let category of categories" [value]="category">{{ category }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="startPicker" [(ngModel)]="filter.startDate" (dateChange)="loadReport()">
+        <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="endPicker" [(ngModel)]="filter.endDate" (dateChange)="loadReport()">
+        <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+      
+      <div class="export-actions">
+        <button mat-raised-button color="primary" (click)="exportPDF()">
+          <mat-icon>picture_as_pdf</mat-icon> Export PDF
+        </button>
+        <button mat-raised-button color="accent" (click)="exportExcel()">
+          <mat-icon>table_view</mat-icon> Export Excel
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="content-container">
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Visualization</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <canvas baseChart
+          *ngIf="barChartData.datasets.length > 0"
+          [data]="barChartData"
+          [options]="barChartOptions"
+          [type]="barChartType">
+        </canvas>
+        <div *ngIf="barChartData.datasets.length === 0" class="no-data">
+          No chart data available.
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="table-card">
+      <mat-card-header>
+        <mat-card-title>Data View</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="table-responsive">
+          <table mat-table [dataSource]="dataSource" class="mat-elevation-z2">
+            <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef> {{ column | titlecase }} </th>
+              <td mat-cell *matCellDef="let element"> {{ element[column] }} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+          <div *ngIf="dataSource.length === 0" class="no-data">
+            No report data available for the selected filters.
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

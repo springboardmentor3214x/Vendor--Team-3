@@ -48,3 +48,11 @@ class User(Base):
         foreign_keys="Message.receiver_id",
         back_populates="receiver"
     )
+
+    vendor_profile = relationship(
+        "Vendor",
+        primaryjoin="User.email == foreign(Vendor.email)",
+        back_populates="user",
+        uselist=False,
+        viewonly=True
+    )

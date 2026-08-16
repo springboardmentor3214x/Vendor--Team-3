@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
@@ -40,7 +41,7 @@ export class SettingsComponent implements OnInit {
   showConfirmPwd = false;
 
   successMessage = '';
-  private apiUrl = 'http://localhost:8000'; // Note: adjust in production (e.g. environment.apiUrl)
+  private apiUrl = environment.apiUrl; // Note: adjust in production (e.g. environment.apiUrl)
 
   readonly fontSizes = [
     { value: 'small', label: 'Small', size: '13px' },

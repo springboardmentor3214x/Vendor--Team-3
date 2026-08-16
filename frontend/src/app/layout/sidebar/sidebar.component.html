@@ -22,32 +22,33 @@
     </ng-container>
 
     <ng-container *ngIf="sidebarService.getCurrentRole() === 'procurement'">
-      <a routerLink="/procurement-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">📊 Dashboard</a>
-      <a routerLink="/vendors" routerLinkActive="active">🏢 Vendor List</a>
-      <a routerLink="/vendor-comparison" routerLinkActive="active">⚖️ Vendor Comparison</a>
-      <a routerLink="/vendor-approval" routerLinkActive="active">✔️ Vendor Approval</a>
-      <a routerLink="/procurement" routerLinkActive="active">🛒 Procurement</a>
-      <a routerLink="/orders" routerLinkActive="active">📄 Purchase Orders</a>
-      <a routerLink="/contracts" routerLinkActive="active">📝 Contracts</a>
-      <a routerLink="/performance" routerLinkActive="active">⭐ Vendor Performance</a>
-      <a routerLink="/reliability" routerLinkActive="active">📈 Vendor Reliability</a>
-      <a routerLink="/messages" routerLinkActive="active">💬 Messages</a>
-      <a routerLink="/rfq" routerLinkActive="active">📄 RFQs</a>
+      <a routerLink="/procurement-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"><lucide-angular [img]="LayoutDashboard" class="sidebar-icon"></lucide-angular> Dashboard</a>
+      <a routerLink="/vendors" routerLinkActive="active"><lucide-angular [img]="Users" class="sidebar-icon"></lucide-angular> Vendor List</a>
+      <a routerLink="/vendor-comparison" routerLinkActive="active"><lucide-angular [img]="Users" class="sidebar-icon"></lucide-angular> Vendor Comparison</a>
+      <a routerLink="/vendor-approval" routerLinkActive="active"><lucide-angular [img]="ShieldCheck" class="sidebar-icon"></lucide-angular> Vendor Approval</a>
+      <a routerLink="/procurement" routerLinkActive="active"><lucide-angular [img]="ShoppingCart" class="sidebar-icon"></lucide-angular> Procurement</a>
+      <a routerLink="/orders" routerLinkActive="active"><lucide-angular [img]="ShoppingCart" class="sidebar-icon"></lucide-angular> Purchase Orders</a>
+      <a routerLink="/contracts" routerLinkActive="active"><lucide-angular [img]="FileText" class="sidebar-icon"></lucide-angular> Contracts</a>
+      <a routerLink="/performance" routerLinkActive="active"><lucide-angular [img]="BarChart2" class="sidebar-icon"></lucide-angular> Vendor Performance</a>
+      <a routerLink="/reliability" routerLinkActive="active"><lucide-angular [img]="Activity" class="sidebar-icon"></lucide-angular> Vendor Reliability</a>
+      <a routerLink="/messages" routerLinkActive="active"><lucide-angular [img]="MessageSquare" class="sidebar-icon"></lucide-angular> Messages</a>
+      <a routerLink="/reports" routerLinkActive="active"><lucide-angular [img]="BarChart2" class="sidebar-icon"></lucide-angular> Reports</a>
+      <a routerLink="/rfq" routerLinkActive="active"><lucide-angular [img]="FileText" class="sidebar-icon"></lucide-angular> RFQs</a>
       <div class="sidebar-category">Legal & Compliance</div>
       <a routerLink="/contracts" routerLinkActive="active" class="sidebar-link">
-        <span>📝</span> Contracts & Renewals
+        <lucide-angular [img]="FileText" class="sidebar-icon"></lucide-angular> Contracts & Renewals
       </a>
       <a routerLink="/certifications" routerLinkActive="active" class="sidebar-link">
-        <span>🛡️</span> Certifications
+        <lucide-angular [img]="FileCheck2" class="sidebar-icon"></lucide-angular> Certifications
       </a>
       <a *ngIf="sidebarService.getCurrentRole() !== 'vendor'" routerLink="/compliance-dashboard" routerLinkActive="active" class="sidebar-link">
-        <span>✅</span> Compliance Hub
+        <lucide-angular [img]="ShieldCheck" class="sidebar-icon"></lucide-angular> Compliance Hub
       </a>
       <a routerLink="/vendor-documentation" routerLinkActive="active" class="sidebar-link">
-        <span>📄</span> Documents Library
+        <lucide-angular [img]="FileText" class="sidebar-icon"></lucide-angular> Documents Library
       </a>
-      <a routerLink="/discussions" routerLinkActive="active">🧵 Discussions</a>
-      <a routerLink="/shared-files" routerLinkActive="active">📁 File Sharing</a>
+      <a routerLink="/discussions" routerLinkActive="active"><lucide-angular [img]="MessageCircle" class="sidebar-icon"></lucide-angular> Discussions</a>
+      <a routerLink="/shared-files" routerLinkActive="active"><lucide-angular [img]="Share2" class="sidebar-icon"></lucide-angular> File Sharing</a>
     </ng-container>
 
     <!-- Supply Chain Links -->

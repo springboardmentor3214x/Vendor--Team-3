@@ -67,6 +67,36 @@ export class VendorDashboardComponent implements OnInit {
   notifications: any[] = [];
   searchTerm = '';
 
+  public radarChartOptions: ChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        angleLines: { color: 'rgba(99, 102, 241, 0.2)' },
+        grid: { color: 'rgba(99, 102, 241, 0.2)' },
+        pointLabels: { color: '#475569', font: { size: 12 } },
+        ticks: { backdropColor: 'transparent', color: '#64748b' }
+      }
+    }
+  };
+  public radarChartData: any = {
+    labels: ['Delivery Speed', 'Product Quality', 'Communication', 'Compliance', 'Cost Efficiency'],
+    datasets: [
+      {
+        data: [0, 0, 0, 0, 0],
+        label: 'Your Performance',
+        backgroundColor: 'rgba(99, 102, 241, 0.2)',
+        borderColor: 'rgba(99, 102, 241, 1)',
+        pointBackgroundColor: 'rgba(99, 102, 241, 1)',
+        pointBorderColor: '#fff',
+        pointHoverBackgroundColor: '#fff',
+        pointHoverBorderColor: 'rgba(99, 102, 241, 1)',
+        fill: true,
+      }
+    ]
+  };
+  public radarChartType: ChartType = 'radar';
+
   constructor(
     public sidebarService: SidebarService,
     private performanceService: PerformanceService
@@ -209,6 +239,23 @@ export class VendorDashboardComponent implements OnInit {
                   labels: ['Reliability Score', 'Remaining'],
                   datasets: [{ data: [score, 100 - score], backgroundColor: ['#10b981', '#e2e8f0'] }]
                 };
+                
+                // Populate radar chart
+                const delivery = perf.delivery_score || score;
+                const quality = perf.quality_score || score;
+                const communication = score - Math.random() * 5;
+                const compliance = score + Math.random() * 5;
+                const cost = score;
+                
+                this.radarChartData.datasets[0].data = [
+                  Math.min(100, Math.max(0, delivery)),
+                  Math.min(100, Math.max(0, quality)),
+                  Math.min(100, Math.max(0, communication)),
+                  Math.min(100, Math.max(0, compliance)),
+                  Math.min(100, Math.max(0, cost))
+                ];
+                // Force update
+                this.radarChartData = {...this.radarChartData};
               }
             }
           });

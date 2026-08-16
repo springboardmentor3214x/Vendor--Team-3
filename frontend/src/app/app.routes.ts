@@ -25,7 +25,7 @@ import { PerformanceComponent } from './management/performance/performance.compo
 import { ReliabilityComponent } from './management/reliability/reliability.component';
 import { InvoicesComponent } from './management/invoices/invoices.component';
 import { CommunicationComponent } from './management/communication/communication.component';
-import { ReportsComponent } from './management/reports/reports.component';
+import { ReportsDashboardComponent } from './components/reports-dashboard/reports-dashboard.component';
 import { RfqComponent } from './management/rfq/rfq.component';
 import { authGuard } from './auth/auth.guard';
 import { roleGuard } from './auth/role.guard';
@@ -75,7 +75,7 @@ export const routes: Routes = [
   { path: 'reliability', component: ReliabilityComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'supply', 'vendor'] } },
   { path: 'invoices', component: InvoicesComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'finance', 'vendor'] } },
   { path: 'messages', component: CommunicationComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'supply', 'finance', 'vendor'] } },
-  { path: 'reports', component: ReportsComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'supply', 'finance', 'auditor'] } },
+  { path: 'reports', component: ReportsDashboardComponent, canActivate: [authGuard, roleGuard], data: { roles: ['admin', 'procurement', 'supply', 'finance', 'auditor'] } },
   { path: 'rfq', component: RfqComponent, canActivate: [authGuard, roleGuard], data: { permissions: ['rfq.view'] } },
   { path: 'goods-receipt', component: GoodsReceiptComponent, canActivate: [authGuard, roleGuard], data: { permissions: ['delivery.receipt'] } },
   { path: 'audit-logs', component: AuditLogsComponent, canActivate: [authGuard, roleGuard], data: { permissions: ['audit.view'] } },
