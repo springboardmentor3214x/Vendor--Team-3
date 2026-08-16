@@ -38,8 +38,16 @@ from app.routers import file_attachment
 from app.routers import notification
 from app.routers import notification_history
 from app.routers import notification_preference
+from app.models.report import Report
+from app.models.report_template import ReportTemplate
+from app.models.report_filter import ReportFilter
+from app.models.report_history import ReportHistory
 from app.routers import notification_templates
 from app.routers import notification_test
+from app.routers import report
+from app.routers import report_template
+from app.routers import report_filter
+from app.routers import report_history
 from app.routers import activity_log
 from app.routers import vendor_reliability
 from app.routers import supplier_ranking
@@ -83,7 +91,11 @@ app.include_router(notification_preference.router)
 app.include_router(notification_templates.router)
 app.include_router(notification_test.router)
 app.include_router(activity_log.router)
-
+# Reporting Module
+app.include_router(report.router)
+app.include_router(report_template.router)
+app.include_router(report_filter.router)
+app.include_router(report_history.router)
 # Vendor Reliability Module
 app.include_router(vendor_reliability.router)
 app.include_router(supplier_ranking.router)
